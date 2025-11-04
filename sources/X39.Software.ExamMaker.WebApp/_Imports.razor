@@ -8,3 +8,12 @@
 @using Microsoft.JSInterop
 @using X39.Software.ExamMaker.WebApp
 @using X39.Software.ExamMaker.WebApp.Layout
+@using X39.Software.ExamMaker.WebApp.Properties
+
+@using Microsoft.Extensions.Localization
+@using Microsoft.FluentUI.AspNetCore.Components
+@using Icons = Microsoft.FluentUI.AspNetCore.Components.Icons
+@using Emojis = Microsoft.FluentUI.AspNetCore.Components.Emojis
+
+@attribute [Microsoft.AspNetCore.Authorization.Authorize]
+@inject IStringLocalizer<Language> Localizer

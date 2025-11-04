@@ -4,13 +4,16 @@ using X39.Software.ExamMaker.Api.Storage.Meta;
 namespace X39.Software.ExamMaker.Api.Storage.Authority.Entities;
 
 [NotifyPropertyChanged, NotifyPropertyChanging]
-public sealed partial class User : IPrimaryKey<long>, ITitle, IIdentifier<string>, ICreatedAt
+public sealed partial class User : IPrimaryKey<long>, IIdentifier<string>, ICreatedAt
 {
     [Key]
     private long _id;
 
     [MaxLength(255)]
-    private string _title = string.Empty;
+    private string _firstName = string.Empty;
+
+    [MaxLength(255)]
+    private string _lastName = string.Empty;
 
     [MaxLength(255)]
     private string _eMail = string.Empty;

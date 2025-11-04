@@ -1,3 +1,95 @@
-﻿@inherits LayoutComponentBase
+﻿@using Microsoft.AspNetCore.Components.Authorization
+@using Microsoft.AspNetCore.Components.Sections
+@using X39.Software.ExamMaker.Shared
+@using X39.Software.ExamMaker.WebApp.Properties
+@using X39.Software.ExamMaker.WebApp.Services
+@using X39.Software.ExamMaker.WebApp.Services.UserRepository
+@inherits LayoutComponentBase
+@inject IUserRepository UserRepository
+@inject NavigationManager NavigationManager
+@inject BaseUrl BaseUrl
 
-@Body
+<PageTitle>@Localizer[nameof(Language.Layout_MainLayout_PageTitle)]</PageTitle>
+
+<FluentLayout Class="main-layout-container">
+    <FluentHeader>
+        <SectionOutlet SectionName="@HeaderStartSectionOutlet"/>
+        <FluentSpacer/>
+        <SectionOutlet SectionName="@HeaderEndSectionOutlet"/>
+        <AuthorizeView>
+            <Authorized>
+                <FluentProfileMenu
+                    Initials="@(context.User
+                                  .ResolveName()
+                                  .GetInitials())"
+                    FullName="@context.User.ResolveName()"
+                    EMail="@context.User.ResolveEMail()"
+                    HeaderLabel="@context.User.ResolveOrganizationName()"
+                    HeaderButton="@Localizer[nameof(Language.Layout_MainLayout_Header_Profile_Logout)]"
+                    OnHeaderButtonClick="LogoutAsync"
+                    FooterLabel="@Localizer[nameof(Language.Layout_MainLayout_Header_Profile_ViewAccountConfiguration)]"
+                    FooterLink="@BaseUrl.ResolveSelfUrl("/me")"
+                />
+            </Authorized>
+            <NotAuthorized>
+                <FluentButton IconStart="@(new Icons.Regular.Size24.DoorArrowLeft())" OnClick="@(() => NavigationManager.NavigateTo(BaseUrl.ResolveSelfUrl("/authentication/login")))">
+                    @Localizer[nameof(Language.Layout_MainLayout_Header_Login)]
+                </FluentButton>
+            </NotAuthorized>
+        </AuthorizeView>
+    </FluentHeader>
+
+    <FluentStack Orientation="Orientation.Horizontal" Width="100%" Class="main-layout-body-container">
+        <FluentNavMenu Width="250">
+            <FluentNavLink Icon="@(new Icons.Regular.Size24.Home())">Item 1</FluentNavLink>
+            <FluentNavLink Icon="@(new Icons.Regular.Size24.Cloud())">Item 2</FluentNavLink>
+            <FluentNavGroup Title="Item 3">
+                <FluentNavLink Icon="@(new Icons.Regular.Size24.LeafOne())">Item 3.1</FluentNavLink>
+                <FluentNavLink Icon="@(new Icons.Regular.Size24.LeafTwo())">Item 3.2</FluentNavLink>
+            </FluentNavGroup>
+            <FluentNavLink Icon="@(new Icons.Regular.Size24.CalendarAgenda())" Disabled="true">Item 4</FluentNavLink>
+        </FluentNavMenu>
+
+        <FluentBodyContent Class="main-layout-body-content">
+            @Body
+        </FluentBodyContent>
+    </FluentStack>
+
+    <FluentFooter Class="main-layout-footer">
+        <SectionOutlet SectionName="@FooterStartSectionOutlet"/>
+        <FluentSpacer/>
+        <SectionOutlet SectionName="@FooterEndSectionOutlet"/>
+        <a href="@BaseUrl.ResolveSelfUrl("imprint")">
+            <FluentLabel>@Localizer[nameof(Language.Layout_MainLayout_Footer_Imprint)]</FluentLabel>
+        </a>
+        <FluentLabel>@Version</FluentLabel>
+    </FluentFooter>
+</FluentLayout>
+
+<FluentToastProvider/>
+<FluentDialogProvider/>
+<FluentTooltipProvider/>
+<FluentMessageBarProvider/>
+<FluentMenuProvider/>
+
+@code {
+
+    public const string HeaderEndSectionOutlet   = nameof(MainLayout) + ":" + "HeaderEnd";
+    public const string HeaderStartSectionOutlet = nameof(MainLayout) + ":" + "HeaderStart";
+    public const string FooterEndSectionOutlet   = nameof(MainLayout) + ":" + "FooterEnd";
+    public const string FooterStartSectionOutlet = nameof(MainLayout) + ":" + "FooterStart";
+
+    private string Version
+        => typeof(Program).Assembly
+               .GetName()
+               .Version
+               ?.ToString()
+           ?? string.Empty;
+
+    private async Task LogoutAsync()
+    {
+        await UserRepository.LogoutAsync();
+        NavigationManager.Refresh(true);
+    }
+
+}

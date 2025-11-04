@@ -1,0 +1,18 @@
+﻿.container {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+}
+::deep .card {
+    margin: auto;
+    width: 512px;
+    height: auto;
+}
+::deep .card form {
+    display: flex;
+    flex-direction: column;
+}
+
+::deep .actions {
+    margin-top: 5rem;
+}

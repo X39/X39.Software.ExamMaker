@@ -26,7 +26,7 @@ public class JwtService(JwtConfig jwtConfig, ExamDbContext examDbContext)
         var claims = new[]
         {
             new Claim(ClaimTypes.Email, user.EMail),
-            new Claim(ClaimTypes.Name, user.Title),
+            new Claim(ClaimTypes.Name, string.Concat(user.FirstName, " ", user.LastName)),
             new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
             new Claim(CustomClaimTypes.OrganizationId, organization.Id.ToString()),
             new Claim(CustomClaimTypes.OrganizationName, organization.Title),

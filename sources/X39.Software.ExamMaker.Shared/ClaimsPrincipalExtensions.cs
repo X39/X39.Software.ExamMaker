@@ -81,6 +81,11 @@ public static class ClaimsPrincipalExtensions
         return true;
     }
 
+    /// <summary>Resolves the email address from the specified <see cref="System.Security.Claims.ClaimsPrincipal"/> object.</summary>
+    /// <param name="principal">The <see cref="System.Security.Claims.ClaimsPrincipal"/> object containing the claim to resolve.</param>
+    /// <returns>The resolved email address as a string if successful; otherwise, <see langword="null"/>.</returns>
+    public static string? ResolveEMail(this ClaimsPrincipal principal) => ResolveEMail(principal, out var email) ? email : null;
+
     /// <summary>Resolves the organization name from the specified <see cref="System.Security.Claims.ClaimsPrincipal"/> object.</summary>
     /// <param name="principal">The <see cref="System.Security.Claims.ClaimsPrincipal"/> object containing the claims to resolve.</param>
     /// <param name="organizationName">The resolved organization name as a string. Set to <see langword="null"/> if no organization name is found.</param>
@@ -102,4 +107,28 @@ public static class ClaimsPrincipalExtensions
     /// </returns>
     public static string? ResolveOrganizationName(this ClaimsPrincipal principal)
         => ResolveOrganizationName(principal, out var organizationName) ? organizationName : null;
+
+    /// <summary>Resolves the name from the specified <see cref="System.Security.Claims.ClaimsPrincipal"/>.</summary>
+    /// <param name="principal">The <see cref="System.Security.Claims.ClaimsPrincipal"/> object containing the claims to evaluate.</param>
+    /// <param name="organizationName">
+    /// Outputs the resolved name as a <see langword="string"/> if successful; otherwise, <see langword="null"/>.
+    /// </param>
+    /// <returns><see langword="true"/> if the "Name" claim is found and successfully resolved; otherwise, <see langword="false"/>.</returns>
+    /// <exception cref="System.ArgumentNullException">Thrown when <paramref name="principal"/> is <see langword="null"/>.</exception>
+    public static bool ResolveName(
+        this ClaimsPrincipal principal,
+        [NotNullWhen(true)] out string? organizationName
+    )
+    {
+        organizationName = principal.FindFirst(e => e.Type == ClaimTypes.Name)
+            ?.Value;
+        return organizationName is not null;
+    }
+
+    /// <summary>Resolves the name from the specified <see cref="System.Security.Claims.ClaimsPrincipal"/>.</summary>
+    /// <param name="principal">The <see cref="System.Security.Claims.ClaimsPrincipal"/> object containing the claims to evaluate.</param>
+    /// <returns>The resolved name as a <see langword="string"/> if successful; otherwise, <see langword="null"/>.</returns>
+    /// <exception cref="System.ArgumentNullException">Thrown when <paramref name="principal"/> is <see langword="null"/>.</exception>
+    public static string? ResolveName(this ClaimsPrincipal principal)
+        => ResolveName(principal, out var organizationName) ? organizationName : null;
 }

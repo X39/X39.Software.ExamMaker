@@ -1,0 +1,27 @@
+﻿<div style="@(_busyCounter > 0 ? $"opacity: 0.75; {Style}" : Style)" class="@Class">
+    @ChildContent
+</div>
+
+@code {
+    private int _busyCounter = 0;
+
+    [Parameter]
+    public string Class { get; set; } = string.Empty;
+
+    [Parameter]
+    public string Style { get; set; } = string.Empty;
+
+    [Parameter]
+    public RenderFragment ChildContent { get; set; } = _ => { };
+
+    public IDisposable Busy()
+    {
+        Interlocked.Increment(ref _busyCounter);
+        _ = InvokeAsync(StateHasChanged);
+        return new Disposable(() =>
+        {
+            Interlocked.Decrement(ref _busyCounter);
+            _ = InvokeAsync(StateHasChanged);
+        });
+    }
+}

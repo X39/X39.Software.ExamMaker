@@ -3,5 +3,6 @@
 public record RegisterWithLinkDto(
     string Token,
     string EMail,
-    string Username,
+    string FirstName,
+    string LastName,
     string Password);

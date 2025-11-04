@@ -1,0 +1,165 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+
+<root>
+    <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+        <xsd:element name="root" msdata:IsDataSet="true">
+            
+        </xsd:element>
+    </xsd:schema>
+    <resheader name="resmimetype">
+        <value>text/microsoft-resx</value>
+    </resheader>
+    <resheader name="version">
+        <value>1.3</value>
+    </resheader>
+    <resheader name="reader">
+        <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+    </resheader>
+    <resheader name="writer">
+        <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+    </resheader>
+    <data name="Layout_MainLayout_Header_Profile_Logout" xml:space="preserve">
+        <value>Sign out</value>
+    </data>
+    <data name="Layout_MainLayout_PageTitle" xml:space="preserve">
+        <value>ExamMaker</value>
+    </data>
+    <data name="Pages_Imprint_Imprint" xml:space="preserve">
+        <value>Imprint</value>
+    </data>
+    <data name="Layout_MainLayout_Header_Profile_ViewAccountConfiguration" xml:space="preserve">
+        <value>Account</value>
+    </data>
+    <data name="Layout_MainLayout_Header_Login" xml:space="preserve">
+        <value>Sign in</value>
+    </data>
+    <data name="Layout_MainLayout_Footer_Imprint" xml:space="preserve">
+        <value>Imprint</value>
+    </data>
+    <data name="Pages_Authentication_Login_Card_LoginSubject" xml:space="preserve">
+        <value>Sign in</value>
+    </data>
+    <data name="Pages_Authentication_Login_Card_EMailAria" xml:space="preserve">
+        <value>Input E-Mail address</value>
+    </data>
+    <data name="Pages_Authentication_Login_Card_EMailLabel" xml:space="preserve">
+        <value>E-Mail</value>
+    </data>
+    <data name="Pages_Authentication_Login_Card_PasswordAria" xml:space="preserve">
+        <value>Input the password</value>
+    </data>
+    <data name="Pages_Authentication_Login_Card_PasswordLabel" xml:space="preserve">
+        <value>Password</value>
+    </data>
+    <data name="Pages_Authentication_Login_Card_LoginButton" xml:space="preserve">
+        <value>Sign in</value>
+    </data>
+    <data name="Pages_Authentication_Login_Card_ToRegistrationButton" xml:space="preserve">
+        <value>Register instead</value>
+    </data>
+    <data name="Pages_Authentication_Register_Card_EMailAria" xml:space="preserve">
+        <value>Input E-Mail address</value>
+    </data>
+    <data name="Pages_Authentication_Register_Card_EMailLabel" xml:space="preserve">
+        <value>E-Mail</value>
+    </data>
+    <data name="Pages_Authentication_Register_Card_FirstNameAria" xml:space="preserve">
+        <value>Input first name</value>
+    </data>
+    <data name="Pages_Authentication_Register_Card_FirstNameLabel" xml:space="preserve">
+        <value>First Name</value>
+    </data>
+    <data name="Pages_Authentication_Register_Card_LastNameAria" xml:space="preserve">
+        <value>Input last name</value>
+    </data>
+    <data name="Pages_Authentication_Register_Card_LastNameLabel" xml:space="preserve">
+        <value>Last Name</value>
+    </data>
+    <data name="Pages_Authentication_Register_Card_PasswordAria" xml:space="preserve">
+        <value>Input the password</value>
+    </data>
+    <data name="Pages_Authentication_Register_Card_PasswordLabel" xml:space="preserve">
+        <value>Password</value>
+    </data>
+    <data name="Pages_Authentication_Register_Card_RegisterSubject" xml:space="preserve">
+        <value>Registration</value>
+    </data>
+    <data name="Pages_Authentication_Register_Card_ToLoginButton" xml:space="preserve">
+        <value>Login instead</value>
+    </data>
+    <data name="Pages_Authentication_Register_Card_ToTokenRegistrationButton" xml:space="preserve">
+        <value>Register user instead</value>
+    </data>
+    <data name="Pages_Authentication_Register_Card_RegisterButton" xml:space="preserve">
+        <value>Register</value>
+    </data>
+    <data name="Pages_Authentication_RegisterUser_Card_EMailAria" xml:space="preserve">
+        <value>Input E-Mail address</value>
+    </data>
+    <data name="Pages_Authentication_RegisterUser_Card_EMailLabel" xml:space="preserve">
+        <value>E-Mail</value>
+    </data>
+    <data name="Pages_Authentication_RegisterUser_Card_FirstNameAria" xml:space="preserve">
+        <value>Input first name</value>
+    </data>
+    <data name="Pages_Authentication_RegisterUser_Card_FirstNameLabel" xml:space="preserve">
+        <value>First Name</value>
+    </data>
+    <data name="Pages_Authentication_RegisterUser_Card_LastNameAria" xml:space="preserve">
+        <value>Input last name</value>
+    </data>
+    <data name="Pages_Authentication_RegisterUser_Card_LastNameLabel" xml:space="preserve">
+        <value>Last Name</value>
+    </data>
+    <data name="Pages_Authentication_RegisterUser_Card_PasswordAria" xml:space="preserve">
+        <value>Input the password</value>
+    </data>
+    <data name="Pages_Authentication_RegisterUser_Card_PasswordLabel" xml:space="preserve">
+        <value>Password</value>
+    </data>
+    <data name="Pages_Authentication_RegisterUser_Card_RegisterSubject" xml:space="preserve">
+        <value>Registration</value>
+    </data>
+    <data name="Pages_Authentication_RegisterUser_Card_ToLoginButton" xml:space="preserve">
+        <value>Login instead</value>
+    </data>
+    <data name="Pages_Authentication_RegisterUser_Card_ToTokenRegistrationButton" xml:space="preserve">
+        <value>Register user instead</value>
+    </data>
+    <data name="Pages_Authentication_RegisterUser_Card_RegisterButton" xml:space="preserve">
+        <value>Register</value>
+    </data>
+    <data name="Pages_Authentication_Register_Card_OrganizationNameAria" xml:space="preserve">
+        <value>Input organization name</value>
+    </data>
+    <data name="Pages_Authentication_Register_Card_OrganizationNameLabel" xml:space="preserve">
+        <value>Organization Name</value>
+    </data>
+    <data name="Pages_Authentication_Login_Toast_LoggingIn" xml:space="preserve">
+        <value>Logging in</value>
+    </data>
+    <data name="Pages_Authentication_Login_Toast_LoginFailed" xml:space="preserve">
+        <value>Login Failed</value>
+    </data>
+    <data name="Pages_Management_Exams_All_Index_GridHeaders_CreatedAt" xml:space="preserve">
+        <value>Created at</value>
+    </data>
+    <data name="Pages_Management_Exams_All_Index_GridHeaders_Title" xml:space="preserve">
+        <value>Title</value>
+    </data>
+    <data name="Pages_Management_Exams_All_Index_GridHeaders_Identifier" xml:space="preserve">
+        <value>Identifier</value>
+    </data>
+    <data name="Pages_Management_Exams_All_Index_GridHeaders_Operations" xml:space="preserve">
+        <value>Operations</value>
+    </data>
+    <data name="Pages_Management_Exams_All_Index_GridOperation_OpenExam" xml:space="preserve">
+        <value>Open</value>
+    </data>
+    <data name="Pages_Management_Exams_All_Index_ToolBar_CreateAndOpenNewExam" xml:space="preserve">
+        <value>Create Exam</value>
+    </data>
+    <data name="Pages_Authentication_Login_Toast_LoginSuccessful" xml:space="preserve">
+        <value>Login Successful</value>
+    </data>
+</root>

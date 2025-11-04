@@ -1,0 +1,102 @@
+﻿@page "/authentication/register/user"
+@using System.ComponentModel.DataAnnotations
+@using X39.Software.ExamMaker.WebApp.Services
+@using X39.Software.ExamMaker.WebApp.Services.UserRepository
+@attribute [Microsoft.AspNetCore.Authorization.AllowAnonymous]
+@inject NavigationManager NavigationManager
+@inject BaseUrl BaseUrl
+@inject IUserRepository UserRepository
+
+<div class="container">
+    <FluentCard MinimalStyle="true" Class="card">
+        <FluentEditForm Model="_model">
+            <FluentLabel Typo="Typography.Subject">
+                @Localizer[nameof(Language.Pages_Authentication_RegisterUser_Card_RegisterSubject)]
+            </FluentLabel>
+            <FluentTextField AriaLabel="@Localizer[nameof(Language.Pages_Authentication_RegisterUser_Card_EMailAria)]"
+                             Label="@Localizer[nameof(Language.Pages_Authentication_RegisterUser_Card_EMailLabel)]"
+                             TextFieldType="TextFieldType.Email"
+                             @bind-Value="@_model.EMail"
+                             Minlength="2"
+                             Placeholder="email"/>
+            <FluentValidationMessage For="@(() => _model.EMail)"/>
+            <FluentTextField AriaLabel="@Localizer[nameof(Language.Pages_Authentication_RegisterUser_Card_FirstNameAria)]"
+                             Label="@Localizer[nameof(Language.Pages_Authentication_RegisterUser_Card_FirstNameLabel)]"
+                             TextFieldType="TextFieldType.Text"
+                             @bind-Value="@_model.FirstName"
+                             Minlength="2"
+                             Placeholder="first name"/>
+            <FluentValidationMessage For="@(() => _model.FirstName)"/>
+            <FluentTextField AriaLabel="@Localizer[nameof(Language.Pages_Authentication_RegisterUser_Card_LastNameAria)]"
+                             Label="@Localizer[nameof(Language.Pages_Authentication_RegisterUser_Card_LastNameLabel)]"
+                             TextFieldType="TextFieldType.Text"
+                             @bind-Value="@_model.LastName"
+                             Placeholder="last name"
+                             Minlength="2"/>
+            <FluentValidationMessage For="@(() => _model.LastName)"/>
+            <FluentTextField AriaLabel="@Localizer[nameof(Language.Pages_Authentication_RegisterUser_Card_PasswordAria)]"
+                             Label="@Localizer[nameof(Language.Pages_Authentication_RegisterUser_Card_PasswordLabel)]"
+                             TextFieldType="TextFieldType.Password"
+                             @bind-Value="@_model.Password"
+                             Placeholder="password"
+                             Minlength="2"/>
+            <FluentValidationMessage For="@(() => _model.Password)"/>
+
+            <FluentStack Orientation="Orientation.Horizontal" Class="actions">
+                <FluentButton OnClick="OnToLoginClickAsync">
+                    @Localizer[nameof(Language.Pages_Authentication_RegisterUser_Card_ToLoginButton)]
+                </FluentButton>
+                <FluentSpacer/>
+                <FluentButton Type="ButtonType.Submit"
+                              OnClick="OnRegisterButtonClickAsync"
+                              Appearance="Appearance.Accent">
+                    @Localizer[nameof(Language.Pages_Authentication_RegisterUser_Card_RegisterButton)]
+                </FluentButton>
+            </FluentStack>
+        </FluentEditForm>
+    </FluentCard>
+</div>
+
+@code {
+
+    private readonly Model _model = new();
+
+    public sealed class Model
+    {
+        [EmailAddress]
+        public string EMail { get; set; } = string.Empty;
+
+        [MinLength(1)]
+        public string FirstName { get; set; } = string.Empty;
+
+        [MinLength(1)]
+        public string LastName { get; set; } = string.Empty;
+
+        [MinLength(6)]
+        public string Password { get; set; } = string.Empty;
+
+        [MinLength(1)]
+        public string Token { get; set; } = string.Empty;
+    }
+
+    protected override Task OnInitializedAsync()
+    {
+        if (NavigationManager.TryGetQueryParameter("token", out var token))
+            _model.Token = token;
+        return Task.CompletedTask;
+    }
+
+    private async Task OnRegisterButtonClickAsync()
+    {
+        await UserRepository.RegisterUserAsync(_model.EMail, _model.Password, _model.Token, _model.FirstName, _model.LastName);
+        await UserRepository.LoginAsync(_model.EMail, _model.Password);
+        NavigationManager.NavigateTo(BaseUrl.ResolveSelfUrl("/"));
+    }
+
+    private Task OnToLoginClickAsync()
+    {
+        NavigationManager.NavigateTo(BaseUrl.ResolveSelfUrl("/authentication/register"));
+        return Task.CompletedTask;
+    }
+
+}

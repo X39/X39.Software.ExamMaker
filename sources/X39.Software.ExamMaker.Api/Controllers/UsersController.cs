@@ -48,18 +48,20 @@ public sealed partial class UsersController(
     public async Task<IActionResult> RegisterTenantAsync([FromBody] RegisterOrganizationDto payload)
     {
         if (!EmailRegex.IsMatch(payload.AdminEmail)
-            || payload.AdminUsername.IsNullOrWhiteSpace()
-            || payload.AdminUsername.Length < 3
+            || payload.AdminFirstName.IsNullOrWhiteSpace()
+            || payload.AdminFirstName.Length < 3
+            || payload.AdminLastName.IsNullOrWhiteSpace()
+            || payload.AdminLastName.Length < 3
             || payload.AdminPassword.IsNullOrWhiteSpace()
             || payload.AdminPassword.Length < 6
-            || payload.TenantIdentifier.IsNullOrWhiteSpace()
-            || payload.TenantTitle.IsNullOrWhiteSpace())
+            || payload.OrganizationIdentifier.IsNullOrWhiteSpace()
+            || payload.OrganizationTitle.IsNullOrWhiteSpace())
             return UnprocessableEntity();
 
         if (await authorityDbContext.Users.AnyAsync(e => e.EMail == payload.AdminEmail))
             return Conflict(new { message = "Email already exists" });
 
-        if (await examDbContext.Organizations.AnyAsync(t => t.Identifier == payload.TenantIdentifier))
+        if (await examDbContext.Organizations.AnyAsync(t => t.Identifier == payload.OrganizationIdentifier))
             return Conflict(new { message = "Tenant identifier already exists" });
 
         var now = SystemClock.Instance.GetCurrentInstant();
@@ -68,7 +70,8 @@ public sealed partial class UsersController(
         var authUser = new Storage.Authority.Entities.User
         {
             EMail     = payload.AdminEmail,
-            Title     = payload.AdminUsername,
+            FirstName = payload.AdminFirstName,
+            LastName  = payload.AdminLastName,
             CreatedAt = now,
         };
         authUser.SetPassword(payload.AdminPassword, secretsConfig.CurrentValue.GetSalt());
@@ -90,8 +93,8 @@ public sealed partial class UsersController(
                             var organizationEntry = await examDbContext.Organizations.AddAsync(
                                 new Storage.Exam.Entities.Organization
                                 {
-                                    Title      = payload.TenantTitle,
-                                    Identifier = payload.TenantIdentifier,
+                                    Title      = payload.OrganizationTitle,
+                                    Identifier = payload.OrganizationIdentifier,
                                     CreatedAt  = now,
                                 }
                             );
@@ -162,8 +165,10 @@ public sealed partial class UsersController(
     public async Task<IActionResult> RegisterWithLinkAsync([FromBody] RegisterWithLinkDto payload)
     {
         if (!EmailRegex.IsMatch(payload.EMail)
-            || payload.Username.IsNullOrWhiteSpace()
-            || payload.Username.Length < 3
+            || payload.FirstName.IsNullOrWhiteSpace()
+            || payload.FirstName.Length < 3
+            || payload.LastName.IsNullOrWhiteSpace()
+            || payload.LastName.Length < 3
             || payload.Password.IsNullOrWhiteSpace()
             || payload.Password.Length < 8)
             return UnprocessableEntity();
@@ -186,7 +191,8 @@ public sealed partial class UsersController(
         var authUser = new Storage.Authority.Entities.User
         {
             EMail     = payload.EMail,
-            Title     = payload.Username,
+            FirstName = payload.FirstName,
+            LastName  = payload.LastName,
             CreatedAt = now,
         };
         authUser.SetPassword(payload.Password, secretsConfig.CurrentValue.GetSalt());
@@ -241,8 +247,7 @@ public sealed partial class UsersController(
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     public async Task<ActionResult<LoginResponseDto>> LoginAsyncAsync([FromBody] LoginUserDto payload)
     {
-        var authUser = await authorityDbContext.Users
-            .FirstOrDefaultAsync(u => u.EMail == payload.EMail);
+        var authUser = await authorityDbContext.Users.FirstOrDefaultAsync(u => u.EMail == payload.EMail);
 
         if (authUser == null)
             return Unauthorized();
@@ -251,14 +256,14 @@ public sealed partial class UsersController(
             return Unauthorized();
 
         var authUserId = authUser.Id;
-        var organization = await examDbContext.Organizations
-            .FirstOrDefaultAsync(e => e.Users!.Any(u => u.Id == authUserId));
+        var organization =
+            await examDbContext.Organizations.FirstOrDefaultAsync(e => e.Users!.Any(u => u.Id == authUserId));
         if (organization == null)
             return BadRequest();
 
         var (accessToken, refreshToken, expiresAt) = await jwtService.GenerateTokenAsync(authUser, organization);
 
-        return Ok(new LoginResponseDto(accessToken, refreshToken, expiresAt, authUser.Title, authUser.EMail));
+        return Ok(new LoginResponseDto(accessToken, refreshToken, expiresAt, authUser.FirstName, authUser.LastName, authUser.EMail));
     }
 
     [Authorize]
@@ -273,8 +278,8 @@ public sealed partial class UsersController(
         var authUser = await authorityDbContext.Users.FindAsync([userId]);
         if (authUser == null)
             return BadRequest();
-        var organization = await examDbContext.Organizations
-            .FirstOrDefaultAsync(e => e.Users!.Any(u => u.Id == userId));
+        var organization =
+            await examDbContext.Organizations.FirstOrDefaultAsync(e => e.Users!.Any(u => u.Id == userId));
         if (organization == null)
             return BadRequest();
 

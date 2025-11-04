@@ -1,0 +1,66 @@
+﻿@page "/management/exams/all"
+@using Microsoft.AspNetCore.Components.Sections
+@using X39.Software.ExamMaker.Models
+@using X39.Software.ExamMaker.WebApp.Services
+@using X39.Software.ExamMaker.WebApp.Services.ExamRepository
+@inject NavigationManager NavigationManager
+@inject BaseUrl BaseUrl
+@inject IExamRepository ExamRepository
+
+<SectionContent SectionName="@MainLayout.FooterStartSectionOutlet">
+    <FluentToolbar>
+        <FluentButton Appearance="Appearance.Accent" onclick="@(async () => await CreateAndOpenExamAsync())">
+            @Localizer[nameof(Language.Pages_Management_Exams_All_Index_ToolBar_CreateAndOpenNewExam)]
+        </FluentButton>
+    </FluentToolbar>
+</SectionContent>
+
+<FluentDataGrid TGridItem="ExamListingDto" ItemsProvider="ProvideItemsAsync">
+    <PropertyColumn Title="@Localizer[nameof(Language.Pages_Management_Exams_All_Index_GridHeaders_CreatedAt)]"
+                    Property="@(e => e.CreatedAt)"
+                    Sortable="false"/>
+    <PropertyColumn Title="@Localizer[nameof(Language.Pages_Management_Exams_All_Index_GridHeaders_Title)]"
+                    Property="@(e => e.Title)"
+                    Sortable="false"/>
+    <PropertyColumn Title="@Localizer[nameof(Language.Pages_Management_Exams_All_Index_GridHeaders_Identifier)]"
+                    Property="@(e => e.Identifier)"
+                    Sortable="false"/>
+    <TemplateColumn Title="@Localizer[nameof(Language.Pages_Management_Exams_All_Index_GridHeaders_Operations)]">
+        <FluentButton Appearance="Appearance.Accent" OnClick="@(() => OpenExamAsync(context.Identifier))">
+            @Localizer[nameof(Language.Pages_Management_Exams_All_Index_GridOperation_OpenExam)]
+        </FluentButton>
+    </TemplateColumn>
+</FluentDataGrid>
+
+@code {
+    private int? _totalItemCount;
+
+    private async ValueTask<GridItemsProviderResult<ExamListingDto>> ProvideItemsAsync(GridItemsProviderRequest<ExamListingDto> request)
+    {
+        _totalItemCount ??= (int) await ExamRepository.GetAllExamsCountAsync(request.CancellationToken);
+
+        var items = await ExamRepository.GetAllExamsAsync(request.StartIndex, request.Count ?? 20, request.CancellationToken);
+
+        return new GridItemsProviderResult<ExamListingDto>
+        {
+            TotalItemCount = _totalItemCount.Value,
+            Items          = items.ToArray(),
+        };
+    }
+
+    private void OpenExamAsync(Guid? identifier)
+    {
+        if (identifier is null)
+            return;
+        NavigationManager.NavigateTo(BaseUrl.ResolveSelfUrl($"/management/exams/{identifier}"));
+    }
+
+    private async Task CreateAndOpenExamAsync()
+    {
+        // ToDo: Improve user experience, using toasts during and after creation and on error + busy hints
+        var guid = Guid.NewGuid();
+        await ExamRepository.UpdateExamAsync(guid, string.Empty, string.Empty);
+        OpenExamAsync(guid);
+    }
+
+}

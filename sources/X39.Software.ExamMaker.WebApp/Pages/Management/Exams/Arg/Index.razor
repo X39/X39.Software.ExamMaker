@@ -1,0 +1,27 @@
+﻿@page "/management/exams/{Identifier:guid}"
+@using X39.Software.ExamMaker.Models
+@using X39.Software.ExamMaker.WebApp.Services
+@using X39.Software.ExamMaker.WebApp.Services.ExamAnswerRepository
+@using X39.Software.ExamMaker.WebApp.Services.ExamQuestionRepository
+@using X39.Software.ExamMaker.WebApp.Services.ExamRepository
+@using X39.Software.ExamMaker.WebApp.Services.ExamTopicRepository
+@inject NavigationManager NavigationManager
+@inject BaseUrl BaseUrl
+@inject IExamRepository ExamRepository
+@inject IExamTopicRepository ExamTopicRepository
+@inject IExamQuestionRepository ExamQuestionRepository
+@inject IExamAnswerRepository ExamAnswerRepository
+
+<h3>Index</h3>
+
+@code {
+    [Parameter]
+    public Guid Identifier { get; set; }
+
+    protected override Task OnInitializedAsync()
+    {
+        
+        return base.OnInitializedAsync();
+    }
+
+}

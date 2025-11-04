@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore.Migrations;
+﻿using System;
+using Microsoft.EntityFrameworkCore.Migrations;
 using NodaTime;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -12,21 +13,6 @@ namespace X39.Software.ExamMaker.Api.Storage.Exam.Migrations
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.CreateTable(
-                name: "Exams",
-                columns: table => new
-                {
-                    Id = table.Column<long>(type: "bigint", nullable: false)
-                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
-                    Title = table.Column<string>(type: "text", nullable: false),
-                    Identifier = table.Column<string>(type: "text", nullable: false),
-                    CreatedAt = table.Column<Instant>(type: "timestamp with time zone", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Exams", x => x.Id);
-                });
-
             migrationBuilder.CreateTable(
                 name: "Organizations",
                 columns: table => new
@@ -43,23 +29,24 @@ namespace X39.Software.ExamMaker.Api.Storage.Exam.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "ExamTopics",
+                name: "Exams",
                 columns: table => new
                 {
                     Id = table.Column<long>(type: "bigint", nullable: false)
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
                     Title = table.Column<string>(type: "text", nullable: false),
-                    Identifier = table.Column<string>(type: "text", nullable: false),
+                    Identifier = table.Column<Guid>(type: "uuid", nullable: false),
+                    Preamble = table.Column<string>(type: "text", nullable: false),
                     CreatedAt = table.Column<Instant>(type: "timestamp with time zone", nullable: false),
-                    ExamId = table.Column<long>(type: "bigint", nullable: false)
+                    OrganizationId = table.Column<long>(type: "bigint", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_ExamTopics", x => x.Id);
+                    table.PrimaryKey("PK_Exams", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_ExamTopics_Exams_ExamId",
-                        column: x => x.ExamId,
-                        principalTable: "Exams",
+                        name: "FK_Exams_Organizations_OrganizationId",
+                        column: x => x.OrganizationId,
+                        principalTable: "Organizations",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });
@@ -83,24 +70,31 @@ namespace X39.Software.ExamMaker.Api.Storage.Exam.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "ExamQuestions",
+                name: "ExamTopics",
                 columns: table => new
                 {
                     Id = table.Column<long>(type: "bigint", nullable: false)
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
                     Title = table.Column<string>(type: "text", nullable: false),
-                    Identifier = table.Column<string>(type: "text", nullable: false),
+                    Identifier = table.Column<Guid>(type: "uuid", nullable: false),
                     CreatedAt = table.Column<Instant>(type: "timestamp with time zone", nullable: false),
-                    Kind = table.Column<int>(type: "integer", nullable: false),
-                    ExamTopicId = table.Column<long>(type: "bigint", nullable: false)
+                    QuestionAmountToTake = table.Column<int>(type: "integer", nullable: true),
+                    OrganizationId = table.Column<long>(type: "bigint", nullable: false),
+                    ExamId = table.Column<long>(type: "bigint", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_ExamQuestions", x => x.Id);
+                    table.PrimaryKey("PK_ExamTopics", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_ExamQuestions_ExamTopics_ExamTopicId",
-                        column: x => x.ExamTopicId,
-                        principalTable: "ExamTopics",
+                        name: "FK_ExamTopics_Exams_ExamId",
+                        column: x => x.ExamId,
+                        principalTable: "Exams",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_ExamTopics_Organizations_OrganizationId",
+                        column: x => x.OrganizationId,
+                        principalTable: "Organizations",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });
@@ -166,6 +160,38 @@ namespace X39.Software.ExamMaker.Api.Storage.Exam.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "ExamQuestions",
+                columns: table => new
+                {
+                    Id = table.Column<long>(type: "bigint", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    Title = table.Column<string>(type: "text", nullable: false),
+                    Identifier = table.Column<Guid>(type: "uuid", nullable: false),
+                    CreatedAt = table.Column<Instant>(type: "timestamp with time zone", nullable: false),
+                    Kind = table.Column<int>(type: "integer", nullable: false),
+                    CorrectAnswersToTake = table.Column<int>(type: "integer", nullable: true),
+                    IncorrectAnswersToTake = table.Column<int>(type: "integer", nullable: true),
+                    OrganizationId = table.Column<long>(type: "bigint", nullable: false),
+                    ExamTopicId = table.Column<long>(type: "bigint", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_ExamQuestions", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_ExamQuestions_ExamTopics_ExamTopicId",
+                        column: x => x.ExamTopicId,
+                        principalTable: "ExamTopics",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_ExamQuestions_Organizations_OrganizationId",
+                        column: x => x.OrganizationId,
+                        principalTable: "Organizations",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "ExamAnswers",
                 columns: table => new
                 {
@@ -174,8 +200,9 @@ namespace X39.Software.ExamMaker.Api.Storage.Exam.Migrations
                     Answer = table.Column<string>(type: "text", nullable: false),
                     Reason = table.Column<string>(type: "text", nullable: true),
                     IsCorrect = table.Column<bool>(type: "boolean", nullable: false),
-                    Identifier = table.Column<string>(type: "text", nullable: false),
+                    Identifier = table.Column<Guid>(type: "uuid", nullable: false),
                     CreatedAt = table.Column<Instant>(type: "timestamp with time zone", nullable: false),
+                    OrganizationId = table.Column<long>(type: "bigint", nullable: false),
                     ExamQuestionId = table.Column<long>(type: "bigint", nullable: false)
                 },
                 constraints: table =>
@@ -187,6 +214,12 @@ namespace X39.Software.ExamMaker.Api.Storage.Exam.Migrations
                         principalTable: "ExamQuestions",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_ExamAnswers_Organizations_OrganizationId",
+                        column: x => x.OrganizationId,
+                        principalTable: "Organizations",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateIndex(
@@ -195,14 +228,40 @@ namespace X39.Software.ExamMaker.Api.Storage.Exam.Migrations
                 column: "ExamQuestionId");
 
             migrationBuilder.CreateIndex(
+                name: "IX_ExamAnswers_OrganizationId",
+                table: "ExamAnswers",
+                column: "OrganizationId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_ExamQuestions_ExamTopicId",
                 table: "ExamQuestions",
                 column: "ExamTopicId");
 
             migrationBuilder.CreateIndex(
+                name: "IX_ExamQuestions_OrganizationId",
+                table: "ExamQuestions",
+                column: "OrganizationId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Exams_Identifier",
+                table: "Exams",
+                column: "Identifier",
+                unique: true);
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Exams_OrganizationId",
+                table: "Exams",
+                column: "OrganizationId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_ExamTopics_ExamId",
                 table: "ExamTopics",
                 column: "ExamId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_ExamTopics_OrganizationId",
+                table: "ExamTopics",
+                column: "OrganizationId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_OrganizationRegistrationTokens_CreatedById",
@@ -252,10 +311,10 @@ namespace X39.Software.ExamMaker.Api.Storage.Exam.Migrations
                 name: "ExamTopics");
 
             migrationBuilder.DropTable(
-                name: "Organizations");
+                name: "Exams");
 
             migrationBuilder.DropTable(
-                name: "Exams");
+                name: "Organizations");
         }
     }
 }
