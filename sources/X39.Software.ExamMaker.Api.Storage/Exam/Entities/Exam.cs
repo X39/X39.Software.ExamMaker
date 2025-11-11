@@ -10,21 +10,29 @@ namespace X39.Software.ExamMaker.Api.Storage.Exam.Entities;
 [NotifyPropertyChanged, NotifyPropertyChanging]
 [Index(nameof(Identifier), IsUnique = true)]
 public sealed partial class Exam
-    : IPrimaryKey<long>, ITitle, IIdentifier<Guid>, IRefersToMany<ExamTopic>, ICreatedAt, IOrganization
+    : IPrimaryKey<long>, ITitle, IIdentifier<Guid>, IRefersToMany<ExamTopic>, ICreatedAt, IUpdatedAt, IOrganization
 {
     [Key]
-    private long _id;
+    public partial long Id { get; set; }
 
-    private string                  _title      = string.Empty;
-    private Guid                    _identifier = Guid.Empty;
-    private string                  _preamble   = string.Empty;
-    private ICollection<ExamTopic>? _examTopics;
-    private Instant                 _createdAt;
+    [DefaultValue<string>("")]
+    [MaxLength(255)]
+    public partial string Title { get; set; }
+
+    public partial Guid Identifier { get; set; }
+
+    [DefaultValue<string>("")]
+    [MaxLength(4095)]
+    public partial string Preamble { get; set; }
+
+    public partial ICollection<ExamTopic>? ExamTopics { get; set; }
+    public partial Instant CreatedAt { get; set; }
+    public partial Instant UpdatedAt { get; set; }
 
     [ForeignKey(nameof(OrganizationId))]
-    private Organization? _organization;
+    public partial Organization? Organization { get; set; }
 
-    private long _organizationId;
+    public partial long OrganizationId { get; set; }
 
 
     ICollection<ExamTopic>? IRefersToMany<ExamTopic>.Entities

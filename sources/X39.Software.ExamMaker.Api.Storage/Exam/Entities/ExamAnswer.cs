@@ -7,26 +7,37 @@ namespace X39.Software.ExamMaker.Api.Storage.Exam.Entities;
 
 [NotifyPropertyChanged, NotifyPropertyChanging]
 public sealed partial class ExamAnswer
-    : IPrimaryKey<long>, IIdentifier<Guid>, IRefersToOneRequired<ExamQuestion, long>, ICreatedAt, IOrganization
+    : IPrimaryKey<long>,
+        IIdentifier<Guid>,
+        IRefersToOneRequired<ExamQuestion, long>,
+        ICreatedAt,
+        IUpdatedAt,
+        IOrganization
 {
     [Key]
-    private long _id;
+    public partial long Id { get; set; }
 
-    private string  _answer = string.Empty;
-    private string? _reason;
-    private bool    _isCorrect;
-    private Guid    _identifier = Guid.Empty;
-    private Instant _createdAt;
+    [DefaultValue<string>("")]
+    [MaxLength(4095)]
+    public partial string Answer { get; set; }
+
+    [MaxLength(4095)]
+    public partial string? Reason { get; set; }
+
+    public partial bool IsCorrect { get; set; }
+    public partial Guid Identifier { get; set; }
+    public partial Instant CreatedAt { get; set; }
+    public partial Instant UpdatedAt { get; set; }
 
     [ForeignKey(nameof(OrganizationId))]
-    private Organization? _organization;
+    public partial Organization? Organization { get; set; }
 
-    private long _organizationId;
+    public partial long OrganizationId { get; set; }
 
     [ForeignKey(nameof(ExamQuestionId))]
-    private ExamQuestion? _examQuestion;
+    public partial ExamQuestion? ExamQuestion { get; set; }
 
-    private long _examQuestionId;
+    public partial long ExamQuestionId { get; set; }
 
     ExamQuestion? IRefersToOneRequired<ExamQuestion, long>.Entity
     {

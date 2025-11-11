@@ -13,34 +13,39 @@ public sealed partial class ExamTopic
         IRefersToMany<ExamQuestion>,
         IRefersToOneRequired<Exam, long>,
         ICreatedAt,
+        IUpdatedAt,
         IOrganization
 {
     [Key]
-    private long _id;
+    public partial long Id { get; set; }
 
-    private string                     _title      = string.Empty;
-    private Guid                       _identifier = Guid.Empty;
-    private ICollection<ExamQuestion>? _examQuestions;
-    private Instant                    _createdAt;
+    [DefaultValue<string>("")]
+    [MaxLength(255)]
+    public partial string Title { get; set; }
 
-    private int? _questionAmountToTake;
+    public partial Guid Identifier { get; set; }
+    public partial ICollection<ExamQuestion>? ExamQuestions { get; set; }
+    public partial Instant CreatedAt { get; set; }
+    public partial Instant UpdatedAt { get; set; }
+
+    public partial int? QuestionAmountToTake { get; set; }
 
 
     [ForeignKey(nameof(OrganizationId))]
-    private Organization? _organization;
+    public partial Organization? Organization { get; set; }
 
-    private long _organizationId;
+    public partial long OrganizationId { get; set; }
+
+    [ForeignKey(nameof(ExamId))]
+    public partial Exam? Exam { get; set; }
+
+    public partial long ExamId { get; set; }
 
     ICollection<ExamQuestion>? IRefersToMany<ExamQuestion>.Entities
     {
         get => ExamQuestions;
         set => ExamQuestions = value;
     }
-
-    [ForeignKey(nameof(ExamId))]
-    private Exam? _exam;
-
-    private long _examId;
 
     Exam? IRefersToOneRequired<Exam, long>.Entity
     {

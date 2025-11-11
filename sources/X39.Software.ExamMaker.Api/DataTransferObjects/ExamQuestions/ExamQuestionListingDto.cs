@@ -1,3 +1,13 @@
-﻿namespace X39.Software.ExamMaker.Api.DataTransferObjects.ExamQuestions;
+﻿using NodaTime;
+using X39.Software.ExamMaker.Api.Storage.Exam.Entities;
 
-public sealed record ExamQuestionListingDto();
+namespace X39.Software.ExamMaker.Api.DataTransferObjects.ExamQuestions;
+
+public sealed record ExamQuestionListingDto(
+    Guid Identifier,
+    string Title,
+    EQuestionKind Kind,
+    int? CorrectAnswersToTake,
+    int? IncorrectAnswersToTake,
+    DateTimeOffset CreatedAt
+);

@@ -13,23 +13,33 @@ public sealed partial class ExamQuestion
         IRefersToMany<ExamAnswer>,
         IRefersToOneRequired<ExamTopic, long>,
         ICreatedAt,
+        IUpdatedAt,
         IOrganization
 {
     [Key]
-    private long _id;
+    public partial long Id { get; set; }
 
-    private string                   _title      = string.Empty;
-    private Guid                     _identifier = Guid.Empty;
-    private ICollection<ExamAnswer>? _examAnswers;
-    private Instant                  _createdAt;
-    private EQuestionKind            _kind;
-    private int?                     _correctAnswersToTake;
-    private int?                     _incorrectAnswersToTake;
+    [DefaultValue<string>("")]
+    [MaxLength(255)]
+    public partial string Title { get; set; }
+
+    public partial Guid Identifier { get; set; }
+    public partial ICollection<ExamAnswer>? ExamAnswers { get; set; }
+    public partial Instant CreatedAt { get; set; }
+    public partial Instant UpdatedAt { get; set; }
+    public partial EQuestionKind Kind { get; set; }
+    public partial int? CorrectAnswersToTake { get; set; }
+    public partial int? IncorrectAnswersToTake { get; set; }
 
     [ForeignKey(nameof(OrganizationId))]
-    private Organization? _organization;
+    public partial Organization? Organization { get; set; }
 
-    private long _organizationId;
+    public partial long OrganizationId { get; set; }
+
+    [ForeignKey(nameof(ExamTopicId))]
+    public partial ExamTopic? ExamTopic { get; set; }
+
+    public partial long ExamTopicId { get; set; }
 
 
     ICollection<ExamAnswer>? IRefersToMany<ExamAnswer>.Entities
@@ -37,11 +47,6 @@ public sealed partial class ExamQuestion
         get => ExamAnswers;
         set => ExamAnswers = value;
     }
-
-    [ForeignKey(nameof(ExamTopicId))]
-    private ExamTopic? _examTopic;
-
-    private long _examTopicId;
 
     ExamTopic? IRefersToOneRequired<ExamTopic, long>.Entity
     {

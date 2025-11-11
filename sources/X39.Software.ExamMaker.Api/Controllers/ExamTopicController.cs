@@ -19,7 +19,7 @@ public sealed class ExamTopicController(ExamDbContext examDbContext, ILogger<Exa
     public async Task<IActionResult> CreateOrUpdateAsync(
         [FromRoute] Guid examId,
         [FromRoute] Guid topicId,
-        ExamTopicUpdateDto examUpdateDto,
+        ExamTopicUpdateDto updateDto,
         CancellationToken cancellationToken = default
     )
     {
@@ -60,14 +60,17 @@ public sealed class ExamTopicController(ExamDbContext examDbContext, ILogger<Exa
         if (existing is null)
         {
             logger.LogInformation("Creating new topic {TopicId} under exam {ExamId}", topicId, examId);
+            var now = SystemClock.Instance.GetCurrentInstant();
             await examDbContext.ExamTopics.AddAsync(
                 new ExamTopic
                 {
                     Identifier     = topicId,
                     OrganizationId = organizationId,
-                    CreatedAt      = SystemClock.Instance.GetCurrentInstant(),
+                    CreatedAt      = now,
+                    UpdatedAt      = now,
                     Exam           = exam,
-                    Title          = string.Empty,
+                    Title          = updateDto.Title ?? string.Empty,
+                    QuestionAmountToTake = updateDto.QuestionAmountToTake,
                 },
                 cancellationToken
             );
@@ -80,6 +83,14 @@ public sealed class ExamTopicController(ExamDbContext examDbContext, ILogger<Exa
             {
                 logger.LogWarning("Topic {TopicId} does not belong to exam {ExamId}", topicId, examId);
                 return Unauthorized();
+            }
+
+            using (UpdateTimeStampHelper.Create(existing))
+            {
+                if (updateDto.Title is not null)
+                    existing.Title = updateDto.Title.Value;
+                if (updateDto.QuestionAmountToTake is not null)
+                    existing.QuestionAmountToTake = updateDto.QuestionAmountToTake.Value;
             }
         }
 
@@ -123,7 +134,7 @@ public sealed class ExamTopicController(ExamDbContext examDbContext, ILogger<Exa
             .OrderBy(t => t.Title);
         var data = await query.Skip(skip).Take(take).ToListAsync(cancellationToken);
         logger.LogInformation("Retrieved {Count} topics for exam {ExamId}", data.Count, examId);
-        return Ok(data.Select(_ => new ExamTopicListingDto()).ToArray());
+        return Ok(data.Select(e => new ExamTopicListingDto(e.Identifier, e.Title, e.QuestionAmountToTake, e.CreatedAt.ToDateTimeOffset())).ToArray());
     }
 
     [HttpGet("all/count")]
@@ -147,6 +158,46 @@ public sealed class ExamTopicController(ExamDbContext examDbContext, ILogger<Exa
             .LongCountAsync(cancellationToken);
         logger.LogInformation("Total topic count for exam {ExamId}: {Count}", examId, count);
         return Ok(count);
+    }
+
+    [HttpGet("{topicId:guid}")]
+    [ProducesResponseType<ExamTopicListingDto>(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> GetSingleAsync(
+        [FromRoute] Guid examId,
+        [FromRoute] Guid topicId,
+        CancellationToken cancellationToken = default)
+    {
+        logger.LogInformation("GetSingleAsync (Topic) called with examId: {ExamId}, topicId: {TopicId}", examId, topicId);
+
+        if (!User.ResolveOrganizationId(out var organizationId))
+        {
+            logger.LogWarning("Unauthorized access attempt to get topic {TopicId} for exam {ExamId} - no organization ID found", topicId, examId);
+            return Unauthorized();
+        }
+
+        var topic = await examDbContext.ExamTopics
+            .Include(t => t.Exam)
+            .Where(t => t.Identifier == topicId)
+            .SingleOrDefaultAsync(cancellationToken);
+
+        if (topic is null)
+        {
+            logger.LogInformation("Topic {TopicId} not found", topicId);
+            return NotFound();
+        }
+        if (topic.OrganizationId != organizationId)
+        {
+            logger.LogWarning("Unauthorized access to topic {TopicId} from organization {OrganizationId}", topicId, organizationId);
+            return Unauthorized();
+        }
+        if (topic.Exam?.Identifier != examId)
+        {
+            logger.LogWarning("Topic {TopicId} does not belong to exam {ExamId}", topicId, examId);
+            return Unauthorized();
+        }
+
+        return Ok(new ExamTopicListingDto(topic.Identifier, topic.Title, topic.QuestionAmountToTake, topic.CreatedAt.ToDateTimeOffset()));
     }
 
     [HttpGet("{topicId:guid}/delete")]

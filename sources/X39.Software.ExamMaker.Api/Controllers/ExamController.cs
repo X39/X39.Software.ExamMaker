@@ -59,12 +59,14 @@ public sealed class ExamController(ExamDbContext examDbContext, ILogger<ExamCont
                 examId,
                 organizationId
             );
+            var now = SystemClock.Instance.GetCurrentInstant();
             await examDbContext.Exams.AddAsync(
                 new Exam
                 {
                     Identifier     = examId,
                     OrganizationId = organizationId,
-                    CreatedAt      = SystemClock.Instance.GetCurrentInstant(),
+                    CreatedAt      = now,
+                    UpdatedAt      = now,
                     Preamble       = examUpdateDto.Preamble ?? string.Empty,
                     Title          = examUpdateDto.Title ?? string.Empty,
                 },
@@ -84,10 +86,13 @@ public sealed class ExamController(ExamDbContext examDbContext, ILogger<ExamCont
                 examUpdateDto.Title is not null
             );
 
-            if (examUpdateDto.Preamble is not null)
-                existing.Preamble = examUpdateDto.Preamble;
-            if (examUpdateDto.Title is not null)
-                existing.Title = examUpdateDto.Title;
+            using (UpdateTimeStampHelper.Create(existing))
+            {
+                if (examUpdateDto.Preamble is not null)
+                    existing.Preamble = examUpdateDto.Preamble.Value;
+                if (examUpdateDto.Title is not null)
+                    existing.Title = examUpdateDto.Title.Value;
+            }
         }
 
         logger.LogDebug("Saving changes to database for exam {ExamId}", examId);
@@ -162,6 +167,47 @@ public sealed class ExamController(ExamDbContext examDbContext, ILogger<ExamCont
 
         logger.LogInformation("Total exam count for organization {OrganizationId}: {Count}", organizationId, result);
         return Ok(result);
+    }
+
+    [HttpGet("{examId:guid}")]
+    [ProducesResponseType<ExamListingDto>(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> GetSingleAsync(
+        [FromRoute] Guid examId,
+        CancellationToken cancellationToken = default
+    )
+    {
+        logger.LogInformation("GetSingleAsync called for examId: {ExamId}", examId);
+
+        if (!User.ResolveOrganizationId(out var organizationId))
+        {
+            logger.LogWarning("Unauthorized access attempt to get exam {ExamId} - no organization ID found", examId);
+            return Unauthorized();
+        }
+
+        logger.LogDebug("Querying exam {ExamId}", examId);
+        var exam = await examDbContext.Exams
+            .Where(e => e.Identifier == examId)
+            .SingleOrDefaultAsync(cancellationToken);
+
+        if (exam is null)
+        {
+            logger.LogInformation("Exam {ExamId} not found", examId);
+            return NotFound();
+        }
+
+        if (exam.OrganizationId != organizationId)
+        {
+            logger.LogWarning(
+                "Unauthorized access to exam {ExamId} from organization {OrganizationId}",
+                examId,
+                organizationId
+            );
+            return Unauthorized();
+        }
+
+        logger.LogInformation("Returning exam {ExamId}", examId);
+        return Ok(new ExamListingDto(exam.Identifier, exam.Title, exam.Preamble, exam.CreatedAt.ToDateTimeOffset()));
     }
 
     [HttpGet("{examId:guid}/delete")]

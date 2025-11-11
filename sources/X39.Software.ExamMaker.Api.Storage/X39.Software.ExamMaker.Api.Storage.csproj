@@ -23,7 +23,7 @@
         <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="9.0.4" />
         <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL.NodaTime" Version="9.0.4" />
         <PackageReference Include="X39.Roslyn.OpenTelemetry" Version="2.0.1.6" />
-        <PackageReference Include="X39.Roslyn.Property" Version="4.0.0.23" />
+        <PackageReference Include="X39.Roslyn.Property" Version="4.1.0.24" />
         <PackageReference Include="X39.Util" Version="1.0.0.52" />
     </ItemGroup>
 

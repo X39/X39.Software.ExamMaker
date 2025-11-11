@@ -1,3 +1,11 @@
-﻿namespace X39.Software.ExamMaker.Api.DataTransferObjects.ExamAnswers;
+﻿using NodaTime;
 
-public sealed record ExamAnswerListingDto();
+namespace X39.Software.ExamMaker.Api.DataTransferObjects.ExamAnswers;
+
+public sealed record ExamAnswerListingDto(
+    Guid Identifier,
+    string Answer,
+    string? Reason,
+    bool IsCorrect,
+    DateTimeOffset CreatedAt
+);

@@ -21,36 +21,66 @@ public sealed class ExamAnswerController(ExamDbContext examDbContext, ILogger<Ex
         [FromRoute] Guid topicId,
         [FromRoute] Guid questionId,
         [FromRoute] Guid answerId,
-        ExamAnswerUpdateDto examUpdateDto,
+        ExamAnswerUpdateDto updateDto,
         CancellationToken cancellationToken = default
     )
     {
-        logger.LogInformation("CreateOrUpdateAsync (Answer) called with examId: {ExamId}, topicId: {TopicId}, questionId: {QuestionId}, answerId: {AnswerId}", examId, topicId, questionId, answerId);
+        logger.LogInformation(
+            "CreateOrUpdateAsync (Answer) called with examId: {ExamId}, topicId: {TopicId}, questionId: {QuestionId}, answerId: {AnswerId}",
+            examId,
+            topicId,
+            questionId,
+            answerId
+        );
 
         if (!User.ResolveOrganizationId(out var organizationId))
         {
-            logger.LogWarning("Unauthorized access attempt to create/update answer {AnswerId} - no organization ID found", answerId);
+            logger.LogWarning(
+                "Unauthorized access attempt to create/update answer {AnswerId} - no organization ID found",
+                answerId
+            );
             return Unauthorized();
         }
 
-        logger.LogDebug("Querying for question {QuestionId} including topic and exam for org {OrganizationId}", questionId, organizationId);
+        logger.LogDebug(
+            "Querying for question {QuestionId} including topic and exam for org {OrganizationId}",
+            questionId,
+            organizationId
+        );
         var question = await examDbContext.ExamQuestions
-            .Include(q => q.ExamTopic)!.ThenInclude(t => t!.Exam)
+            .Include(q => q.ExamTopic)
+            .ThenInclude(t => t!.Exam)
             .Where(q => q.Identifier == questionId)
             .SingleOrDefaultAsync(cancellationToken);
         if (question is null)
         {
-            logger.LogWarning("Question {QuestionId} not found when creating/updating answer {AnswerId}", questionId, answerId);
+            logger.LogWarning(
+                "Question {QuestionId} not found when creating/updating answer {AnswerId}",
+                questionId,
+                answerId
+            );
             return Unauthorized();
         }
+
         if (question.ExamTopic?.Identifier != topicId || question.ExamTopic?.Exam?.Identifier != examId)
         {
-            logger.LogWarning("Parent mismatch for answer {AnswerId}: topicId={TopicId}, examId={ExamId}", answerId, topicId, examId);
+            logger.LogWarning(
+                "Parent mismatch for answer {AnswerId}: topicId={TopicId}, examId={ExamId}",
+                answerId,
+                topicId,
+                examId
+            );
             return Unauthorized();
         }
+
         if (question.OrganizationId != organizationId)
         {
-            logger.LogWarning("Unauthorized: Organization {OrganizationId} tried to modify answer {AnswerId} under question {QuestionId}", organizationId, answerId, questionId);
+            logger.LogWarning(
+                "Unauthorized: Organization {OrganizationId} tried to modify answer {AnswerId} under question {QuestionId}",
+                organizationId,
+                answerId,
+                questionId
+            );
             return Unauthorized();
         }
 
@@ -60,20 +90,30 @@ public sealed class ExamAnswerController(ExamDbContext examDbContext, ILogger<Ex
             .SingleOrDefaultAsync(cancellationToken);
         if (existing is not null && existing.OrganizationId != organizationId)
         {
-            logger.LogWarning("Unauthorized: Organization {OrganizationId} tried to modify answer {AnswerId} belonging to another org {OtherOrg}", organizationId, answerId, existing.OrganizationId);
+            logger.LogWarning(
+                "Unauthorized: Organization {OrganizationId} tried to modify answer {AnswerId} belonging to another org {OtherOrg}",
+                organizationId,
+                answerId,
+                existing.OrganizationId
+            );
             return Unauthorized();
         }
 
         if (existing is null)
         {
             logger.LogInformation("Creating new answer {AnswerId} under question {QuestionId}", answerId, questionId);
+            var now = SystemClock.Instance.GetCurrentInstant();
             await examDbContext.ExamAnswers.AddAsync(
                 new ExamAnswer
                 {
                     Identifier     = answerId,
                     OrganizationId = organizationId,
-                    CreatedAt      = SystemClock.Instance.GetCurrentInstant(),
+                    CreatedAt      = now,
+                    UpdatedAt      = now,
                     ExamQuestion   = question,
+                    Answer         = updateDto.Answer ?? string.Empty,
+                    Reason         = updateDto.Reason,
+                    IsCorrect      = updateDto.IsCorrect,
                 },
                 cancellationToken
             );
@@ -86,7 +126,16 @@ public sealed class ExamAnswerController(ExamDbContext examDbContext, ILogger<Ex
                 logger.LogWarning("Answer {AnswerId} does not belong to question {QuestionId}", answerId, questionId);
                 return Unauthorized();
             }
-            // No fields in ExamAnswerUpdateDto currently.
+
+            using (UpdateTimeStampHelper.Create(existing))
+            {
+                if (updateDto.Answer is not null)
+                    existing.Answer = updateDto.Answer.Value;
+                if (updateDto.Reason is not null)
+                    existing.Reason = updateDto.Reason.Value;
+                if (updateDto.IsCorrect is not null)
+                    existing.IsCorrect = updateDto.IsCorrect.Value;
+            }
         }
 
         logger.LogDebug("Saving changes for answer {AnswerId}", answerId);
@@ -106,11 +155,21 @@ public sealed class ExamAnswerController(ExamDbContext examDbContext, ILogger<Ex
         CancellationToken cancellationToken = default
     )
     {
-        logger.LogInformation("GetAllAsync (Answers) called with examId: {ExamId}, topicId: {TopicId}, questionId: {QuestionId}, skip: {Skip}, take: {Take}", examId, topicId, questionId, skip, take);
+        logger.LogInformation(
+            "GetAllAsync (Answers) called with examId: {ExamId}, topicId: {TopicId}, questionId: {QuestionId}, skip: {Skip}, take: {Take}",
+            examId,
+            topicId,
+            questionId,
+            skip,
+            take
+        );
 
         if (!User.ResolveOrganizationId(out var organizationId))
         {
-            logger.LogWarning("Unauthorized access attempt to list answers for question {QuestionId} - no organization ID found", questionId);
+            logger.LogWarning(
+                "Unauthorized access attempt to list answers for question {QuestionId} - no organization ID found",
+                questionId
+            );
             return Unauthorized();
         }
 
@@ -119,19 +178,114 @@ public sealed class ExamAnswerController(ExamDbContext examDbContext, ILogger<Ex
             logger.LogWarning("Invalid pagination parameters for answers: skip={Skip}, take={Take}", skip, take);
             return BadRequest("Skip and take must be greater than 0");
         }
+
         if (take > 100)
         {
             logger.LogWarning("Take parameter exceeds maximum for answers: {Take}", take);
             return BadRequest("Take must be less than 100");
         }
 
-        logger.LogDebug("Querying answers for org {OrganizationId}, exam {ExamId}, topic {TopicId}, question {QuestionId} with pagination skip={Skip}, take={Take}", organizationId, examId, topicId, questionId, skip, take);
+        logger.LogDebug(
+            "Querying answers for org {OrganizationId}, exam {ExamId}, topic {TopicId}, question {QuestionId} with pagination skip={Skip}, take={Take}",
+            organizationId,
+            examId,
+            topicId,
+            questionId,
+            skip,
+            take
+        );
         var query = examDbContext.ExamAnswers
-            .Where(a => a.OrganizationId == organizationId && a.ExamQuestion!.Identifier == questionId && a.ExamQuestion!.ExamTopic!.Identifier == topicId && a.ExamQuestion!.ExamTopic!.Exam!.Identifier == examId)
+            .Where(a => a.OrganizationId == organizationId
+                        && a.ExamQuestion!.Identifier == questionId
+                        && a.ExamQuestion!.ExamTopic!.Identifier == topicId
+                        && a.ExamQuestion!.ExamTopic!.Exam!.Identifier == examId
+            )
             .OrderBy(a => a.Id);
-        var data = await query.Skip(skip).Take(take).ToListAsync(cancellationToken);
+        var data = await query.Skip(skip)
+            .Take(take)
+            .ToListAsync(cancellationToken);
         logger.LogInformation("Retrieved {Count} answers for question {QuestionId}", data.Count, questionId);
-        return Ok(data.Select(_ => new ExamAnswerListingDto()).ToArray());
+        return Ok(
+            data.Select(e => new ExamAnswerListingDto(
+                        e.Identifier,
+                        e.Answer,
+                        e.Reason,
+                        e.IsCorrect,
+                        e.CreatedAt.ToDateTimeOffset()
+                    )
+                )
+                .ToArray()
+        );
+    }
+
+    [HttpGet("{answerId:guid}")]
+    [ProducesResponseType<ExamAnswerListingDto>(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> GetSingleAsync(
+        [FromRoute] Guid examId,
+        [FromRoute] Guid topicId,
+        [FromRoute] Guid questionId,
+        [FromRoute] Guid answerId,
+        CancellationToken cancellationToken = default
+    )
+    {
+        logger.LogInformation(
+            "GetSingleAsync (Answer) called with examId: {ExamId}, topicId: {TopicId}, questionId: {QuestionId}, answerId: {AnswerId}",
+            examId,
+            topicId,
+            questionId,
+            answerId
+        );
+
+        if (!User.ResolveOrganizationId(out var organizationId))
+        {
+            logger.LogWarning(
+                "Unauthorized access attempt to get answer {AnswerId} - no organization ID found",
+                answerId
+            );
+            return Unauthorized();
+        }
+
+        var answer = await examDbContext.ExamAnswers
+            .Include(a => a.ExamQuestion)
+            .ThenInclude(q => q!.ExamTopic)
+            .ThenInclude(t => t!.Exam)
+            .Where(a => a.Identifier == answerId)
+            .SingleOrDefaultAsync(cancellationToken);
+
+        if (answer is null)
+        {
+            logger.LogInformation("Answer {AnswerId} not found", answerId);
+            return NotFound();
+        }
+
+        if (answer.OrganizationId != organizationId)
+        {
+            logger.LogWarning(
+                "Unauthorized access to answer {AnswerId} from organization {OrganizationId}",
+                answerId,
+                organizationId
+            );
+            return Unauthorized();
+        }
+
+        if (answer.ExamQuestion?.Identifier != questionId
+            || answer.ExamQuestion?.ExamTopic?.Identifier != topicId
+            || answer.ExamQuestion?.ExamTopic?.Exam?.Identifier != examId)
+        {
+            logger.LogWarning("Answer {AnswerId} parent mismatch (question/topic/exam)", answerId);
+            return Unauthorized();
+        }
+
+        return Ok(
+            new ExamAnswerListingDto(
+                answer.Identifier,
+                answer.Answer,
+                answer.Reason,
+                answer.IsCorrect,
+                answer.CreatedAt.ToDateTimeOffset()
+            )
+        );
     }
 
     [HttpGet("all/count")]
@@ -143,17 +297,35 @@ public sealed class ExamAnswerController(ExamDbContext examDbContext, ILogger<Ex
         CancellationToken cancellationToken = default
     )
     {
-        logger.LogInformation("GetAllCountAsync (Answers) called with examId: {ExamId}, topicId: {TopicId}, questionId: {QuestionId}", examId, topicId, questionId);
+        logger.LogInformation(
+            "GetAllCountAsync (Answers) called with examId: {ExamId}, topicId: {TopicId}, questionId: {QuestionId}",
+            examId,
+            topicId,
+            questionId
+        );
 
         if (!User.ResolveOrganizationId(out var organizationId))
         {
-            logger.LogWarning("Unauthorized access attempt to get answer count for question {QuestionId} - no organization ID found", questionId);
+            logger.LogWarning(
+                "Unauthorized access attempt to get answer count for question {QuestionId} - no organization ID found",
+                questionId
+            );
             return Unauthorized();
         }
 
-        logger.LogDebug("Counting answers for org {OrganizationId}, exam {ExamId}, topic {TopicId}, question {QuestionId}", organizationId, examId, topicId, questionId);
+        logger.LogDebug(
+            "Counting answers for org {OrganizationId}, exam {ExamId}, topic {TopicId}, question {QuestionId}",
+            organizationId,
+            examId,
+            topicId,
+            questionId
+        );
         var count = await examDbContext.ExamAnswers
-            .Where(a => a.OrganizationId == organizationId && a.ExamQuestion!.Identifier == questionId && a.ExamQuestion!.ExamTopic!.Identifier == topicId && a.ExamQuestion!.ExamTopic!.Exam!.Identifier == examId)
+            .Where(a => a.OrganizationId == organizationId
+                        && a.ExamQuestion!.Identifier == questionId
+                        && a.ExamQuestion!.ExamTopic!.Identifier == topicId
+                        && a.ExamQuestion!.ExamTopic!.Exam!.Identifier == examId
+            )
             .LongCountAsync(cancellationToken);
         logger.LogInformation("Total answer count for question {QuestionId}: {Count}", questionId, count);
         return Ok(count);
@@ -169,17 +341,28 @@ public sealed class ExamAnswerController(ExamDbContext examDbContext, ILogger<Ex
         CancellationToken cancellationToken = default
     )
     {
-        logger.LogInformation("DeleteAsync (Answer) called with examId: {ExamId}, topicId: {TopicId}, questionId: {QuestionId}, answerId: {AnswerId}", examId, topicId, questionId, answerId);
+        logger.LogInformation(
+            "DeleteAsync (Answer) called with examId: {ExamId}, topicId: {TopicId}, questionId: {QuestionId}, answerId: {AnswerId}",
+            examId,
+            topicId,
+            questionId,
+            answerId
+        );
 
         if (!User.ResolveOrganizationId(out var organizationId))
         {
-            logger.LogWarning("Unauthorized access attempt to delete answer {AnswerId} - no organization ID found", answerId);
+            logger.LogWarning(
+                "Unauthorized access attempt to delete answer {AnswerId} - no organization ID found",
+                answerId
+            );
             return Unauthorized();
         }
 
         logger.LogDebug("Querying for answer {AnswerId} including parents for deletion", answerId);
         var existing = await examDbContext.ExamAnswers
-            .Include(a => a.ExamQuestion)!.ThenInclude(q => q!.ExamTopic)!.ThenInclude(t => t!.Exam)
+            .Include(a => a.ExamQuestion)
+            .ThenInclude(q => q!.ExamTopic)
+            .ThenInclude(t => t!.Exam)
             .Where(a => a.Identifier == answerId)
             .SingleOrDefaultAsync(cancellationToken);
         if (existing is null)
@@ -187,21 +370,30 @@ public sealed class ExamAnswerController(ExamDbContext examDbContext, ILogger<Ex
             logger.LogInformation("Answer {AnswerId} not found for deletion", answerId);
             return NoContent();
         }
+
         if (existing.OrganizationId != organizationId)
         {
-            logger.LogWarning("Unauthorized deletion attempt: Org {OrganizationId} tried to delete answer {AnswerId} belonging to org {AnswerOrg}", organizationId, answerId, existing.OrganizationId);
+            logger.LogWarning(
+                "Unauthorized deletion attempt: Org {OrganizationId} tried to delete answer {AnswerId} belonging to org {AnswerOrg}",
+                organizationId,
+                answerId,
+                existing.OrganizationId
+            );
             return NoContent();
         }
+
         if (existing.ExamQuestion?.Identifier != questionId)
         {
             logger.LogWarning("Answer {AnswerId} does not belong to question {QuestionId}", answerId, questionId);
             return NoContent();
         }
+
         if (existing.ExamQuestion?.ExamTopic?.Identifier != topicId)
         {
             logger.LogWarning("Answer {AnswerId} does not belong to topic {TopicId}", answerId, topicId);
             return NoContent();
         }
+
         if (existing.ExamQuestion?.ExamTopic?.Exam?.Identifier != examId)
         {
             logger.LogWarning("Answer {AnswerId} does not belong to exam {ExamId}", answerId, examId);
