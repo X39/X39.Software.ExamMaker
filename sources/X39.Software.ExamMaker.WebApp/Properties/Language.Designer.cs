@@ -490,5 +490,23 @@ namespace X39.Software.ExamMaker.WebApp.Properties {
                 return ResourceManager.GetString("Pages_Management_Exams_All_Index_ToolBar_CreateAndOpenNewExam", resourceCulture);
             }
         }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Title.
+        /// </summary>
+        internal static string Pages_Management_Exams_Arg_Label_ExamTitle {
+            get {
+                return ResourceManager.GetString("Pages_Management_Exams_Arg_Label_ExamTitle", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Title.
+        /// </summary>
+        internal static string Pages_Management_Exams_Arg_Placeholder_ExamTitle {
+            get {
+                return ResourceManager.GetString("Pages_Management_Exams_Arg_Placeholder_ExamTitle", resourceCulture);
+            }
+        }
     }
 }

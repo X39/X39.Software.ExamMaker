@@ -162,4 +162,10 @@
     <data name="Pages_Authentication_Login_Toast_LoginSuccessful" xml:space="preserve">
         <value>Login Successful</value>
     </data>
+    <data name="Pages_Management_Exams_Arg_Placeholder_ExamTitle" xml:space="preserve">
+        <value>Title</value>
+    </data>
+    <data name="Pages_Management_Exams_Arg_Label_ExamTitle" xml:space="preserve">
+        <value>Title</value>
+    </data>
 </root>

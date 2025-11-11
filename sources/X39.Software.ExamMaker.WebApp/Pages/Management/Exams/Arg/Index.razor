@@ -1,5 +1,4 @@
 ﻿@page "/management/exams/{Identifier:guid}"
-@using X39.Software.ExamMaker.Models
 @using X39.Software.ExamMaker.WebApp.Services
 @using X39.Software.ExamMaker.WebApp.Services.ExamAnswerRepository
 @using X39.Software.ExamMaker.WebApp.Services.ExamQuestionRepository
@@ -11,17 +10,58 @@
 @inject IExamTopicRepository ExamTopicRepository
 @inject IExamQuestionRepository ExamQuestionRepository
 @inject IExamAnswerRepository ExamAnswerRepository
+@if (_examViewModel is null)
+{
+    <FluentProgressRing/>
+    <p><em>Loading...</em></p>
+}
+else
+{
+    <FluentCard Width="400px" Height="400px">
+        <FluentTextField Placeholder="@Localizer[nameof(Language.Pages_Management_Exams_Arg_Placeholder_ExamTitle)]"
+                         Label="@Localizer[nameof(Language.Pages_Management_Exams_Arg_Label_ExamTitle)]"
+                         @bind-Value="@_examViewModel.Title"
+        />
+    </FluentCard>
+    <FluentAccordion>
+        @foreach (var topic in _examViewModel.Topics)
+        {
+            <FluentAccordionItem @key="topic.Identifier" Heading="@topic.Title">
+                <FluentAccordion>
+                    @foreach (var question in topic.Questions)
+                    {
+                        <FluentAccordionItem @key="question.Identifier" Heading="@question.Title">
+                            <ul>
+                                @foreach (var answer in question.Answers)
+                                {
+                                    <li>
+                                        <FluentCheckbox @bind-CheckState="answer.IsCorrect"/>
+                                        <span>@answer.Answer</span>
+                                    </li>
+                                }
+                            </ul>
+                        </FluentAccordionItem>
+                    }
+                </FluentAccordion>
+            </FluentAccordionItem>
+        }
+    </FluentAccordion>
+}
 
-<h3>Index</h3>
 
 @code {
+
     [Parameter]
     public Guid Identifier { get; set; }
 
-    protected override Task OnInitializedAsync()
+    private ExamViewModel? _examViewModel;
+
+    protected override async Task OnInitializedAsync()
     {
-        
-        return base.OnInitializedAsync();
+        var exam = await ExamRepository.GetExamAsync(Identifier);
+        var viewModel = new ExamViewModel(exam, () => InvokeAsync(StateHasChanged), ExamRepository, ExamTopicRepository, ExamQuestionRepository, ExamAnswerRepository);
+        await viewModel.InitializeAsync();
+        _examViewModel = viewModel;
     }
 
 }

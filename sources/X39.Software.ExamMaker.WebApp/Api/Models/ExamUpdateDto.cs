@@ -17,18 +17,18 @@ namespace X39.Software.ExamMaker.Models
         /// <summary>The preamble property</summary>
 #if NETSTANDARD2_1_OR_GREATER || NETCOREAPP3_1_OR_GREATER
 #nullable enable
-        public string? Preamble { get; set; }
+        public global::X39.Software.ExamMaker.Models.NullableOfUpdateValueOfstring? Preamble { get; set; }
 #nullable restore
 #else
-        public string Preamble { get; set; }
+        public global::X39.Software.ExamMaker.Models.NullableOfUpdateValueOfstring Preamble { get; set; }
 #endif
         /// <summary>The title property</summary>
 #if NETSTANDARD2_1_OR_GREATER || NETCOREAPP3_1_OR_GREATER
 #nullable enable
-        public string? Title { get; set; }
+        public global::X39.Software.ExamMaker.Models.NullableOfUpdateValueOfstring? Title { get; set; }
 #nullable restore
 #else
-        public string Title { get; set; }
+        public global::X39.Software.ExamMaker.Models.NullableOfUpdateValueOfstring Title { get; set; }
 #endif
         /// <summary>
         /// Instantiates a new <see cref="global::X39.Software.ExamMaker.Models.ExamUpdateDto"/> and sets the default values.
@@ -55,8 +55,8 @@ namespace X39.Software.ExamMaker.Models
         {
             return new Dictionary<string, Action<IParseNode>>
             {
-                { "preamble", n => { Preamble = n.GetStringValue(); } },
-                { "title", n => { Title = n.GetStringValue(); } },
+                { "preamble", n => { Preamble = n.GetObjectValue<global::X39.Software.ExamMaker.Models.NullableOfUpdateValueOfstring>(global::X39.Software.ExamMaker.Models.NullableOfUpdateValueOfstring.CreateFromDiscriminatorValue); } },
+                { "title", n => { Title = n.GetObjectValue<global::X39.Software.ExamMaker.Models.NullableOfUpdateValueOfstring>(global::X39.Software.ExamMaker.Models.NullableOfUpdateValueOfstring.CreateFromDiscriminatorValue); } },
             };
         }
         /// <summary>
@@ -66,8 +66,8 @@ namespace X39.Software.ExamMaker.Models
         public virtual void Serialize(ISerializationWriter writer)
         {
             _ = writer ?? throw new ArgumentNullException(nameof(writer));
-            writer.WriteStringValue("preamble", Preamble);
-            writer.WriteStringValue("title", Title);
+            writer.WriteObjectValue<global::X39.Software.ExamMaker.Models.NullableOfUpdateValueOfstring>("preamble", Preamble);
+            writer.WriteObjectValue<global::X39.Software.ExamMaker.Models.NullableOfUpdateValueOfstring>("title", Title);
             writer.WriteAdditionalData(AdditionalData);
         }
     }

@@ -14,6 +14,30 @@ namespace X39.Software.ExamMaker.Models
     {
         /// <summary>Stores additional data not described in the OpenAPI description found when deserializing. Can be used for serialization as well.</summary>
         public IDictionary<string, object> AdditionalData { get; set; }
+        /// <summary>The correctAnswersToTake property</summary>
+        public int? CorrectAnswersToTake { get; set; }
+        /// <summary>The createdAt property</summary>
+        public DateTimeOffset? CreatedAt { get; set; }
+        /// <summary>The identifier property</summary>
+        public Guid? Identifier { get; set; }
+        /// <summary>The incorrectAnswersToTake property</summary>
+        public int? IncorrectAnswersToTake { get; set; }
+        /// <summary>The kind property</summary>
+#if NETSTANDARD2_1_OR_GREATER || NETCOREAPP3_1_OR_GREATER
+#nullable enable
+        public global::X39.Software.ExamMaker.Models.EQuestionKind2? Kind { get; set; }
+#nullable restore
+#else
+        public global::X39.Software.ExamMaker.Models.EQuestionKind2 Kind { get; set; }
+#endif
+        /// <summary>The title property</summary>
+#if NETSTANDARD2_1_OR_GREATER || NETCOREAPP3_1_OR_GREATER
+#nullable enable
+        public string? Title { get; set; }
+#nullable restore
+#else
+        public string Title { get; set; }
+#endif
         /// <summary>
         /// Instantiates a new <see cref="global::X39.Software.ExamMaker.Models.ExamQuestionListingDto"/> and sets the default values.
         /// </summary>
@@ -39,6 +63,12 @@ namespace X39.Software.ExamMaker.Models
         {
             return new Dictionary<string, Action<IParseNode>>
             {
+                { "correctAnswersToTake", n => { CorrectAnswersToTake = n.GetIntValue(); } },
+                { "createdAt", n => { CreatedAt = n.GetDateTimeOffsetValue(); } },
+                { "identifier", n => { Identifier = n.GetGuidValue(); } },
+                { "incorrectAnswersToTake", n => { IncorrectAnswersToTake = n.GetIntValue(); } },
+                { "kind", n => { Kind = n.GetObjectValue<global::X39.Software.ExamMaker.Models.EQuestionKind2>(global::X39.Software.ExamMaker.Models.EQuestionKind2.CreateFromDiscriminatorValue); } },
+                { "title", n => { Title = n.GetStringValue(); } },
             };
         }
         /// <summary>
@@ -48,6 +78,12 @@ namespace X39.Software.ExamMaker.Models
         public virtual void Serialize(ISerializationWriter writer)
         {
             _ = writer ?? throw new ArgumentNullException(nameof(writer));
+            writer.WriteIntValue("correctAnswersToTake", CorrectAnswersToTake);
+            writer.WriteDateTimeOffsetValue("createdAt", CreatedAt);
+            writer.WriteGuidValue("identifier", Identifier);
+            writer.WriteIntValue("incorrectAnswersToTake", IncorrectAnswersToTake);
+            writer.WriteObjectValue<global::X39.Software.ExamMaker.Models.EQuestionKind2>("kind", Kind);
+            writer.WriteStringValue("title", Title);
             writer.WriteAdditionalData(AdditionalData);
         }
     }

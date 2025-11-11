@@ -1,4 +1,5 @@
-﻿using X39.Software.ExamMaker.Models;
+﻿using X39.Software.ExamMaker.Api.DataTransferObjects;
+using X39.Software.ExamMaker.Models;
 
 namespace X39.Software.ExamMaker.WebApp.Services.ExamTopicRepository;
 
@@ -11,4 +12,11 @@ public interface IExamTopicRepository
         int take,
         CancellationToken cancellationToken = default
     );
+
+    Task UpdateAsync(
+        Guid examIdentifier,
+        Guid topicIdentifier,
+        UpdateValue<string>? title,
+        UpdateValue<int?>? questionAmountToTake,
+        CancellationToken cancellationToken = default);
 }

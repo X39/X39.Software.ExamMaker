@@ -14,6 +14,38 @@ namespace X39.Software.ExamMaker.Models
     {
         /// <summary>Stores additional data not described in the OpenAPI description found when deserializing. Can be used for serialization as well.</summary>
         public IDictionary<string, object> AdditionalData { get; set; }
+        /// <summary>The correctAnswersToTake property</summary>
+#if NETSTANDARD2_1_OR_GREATER || NETCOREAPP3_1_OR_GREATER
+#nullable enable
+        public global::X39.Software.ExamMaker.Models.NullableOfUpdateValueOfNullableOfint? CorrectAnswersToTake { get; set; }
+#nullable restore
+#else
+        public global::X39.Software.ExamMaker.Models.NullableOfUpdateValueOfNullableOfint CorrectAnswersToTake { get; set; }
+#endif
+        /// <summary>The incorrectAnswersToTake property</summary>
+#if NETSTANDARD2_1_OR_GREATER || NETCOREAPP3_1_OR_GREATER
+#nullable enable
+        public global::X39.Software.ExamMaker.Models.NullableOfUpdateValueOfNullableOfint? IncorrectAnswersToTake { get; set; }
+#nullable restore
+#else
+        public global::X39.Software.ExamMaker.Models.NullableOfUpdateValueOfNullableOfint IncorrectAnswersToTake { get; set; }
+#endif
+        /// <summary>The kind property</summary>
+#if NETSTANDARD2_1_OR_GREATER || NETCOREAPP3_1_OR_GREATER
+#nullable enable
+        public global::X39.Software.ExamMaker.Models.NullableOfUpdateValueOfEQuestionKind? Kind { get; set; }
+#nullable restore
+#else
+        public global::X39.Software.ExamMaker.Models.NullableOfUpdateValueOfEQuestionKind Kind { get; set; }
+#endif
+        /// <summary>The title property</summary>
+#if NETSTANDARD2_1_OR_GREATER || NETCOREAPP3_1_OR_GREATER
+#nullable enable
+        public global::X39.Software.ExamMaker.Models.NullableOfUpdateValueOfstring? Title { get; set; }
+#nullable restore
+#else
+        public global::X39.Software.ExamMaker.Models.NullableOfUpdateValueOfstring Title { get; set; }
+#endif
         /// <summary>
         /// Instantiates a new <see cref="global::X39.Software.ExamMaker.Models.ExamQuestionUpdateDto"/> and sets the default values.
         /// </summary>
@@ -39,6 +71,10 @@ namespace X39.Software.ExamMaker.Models
         {
             return new Dictionary<string, Action<IParseNode>>
             {
+                { "correctAnswersToTake", n => { CorrectAnswersToTake = n.GetObjectValue<global::X39.Software.ExamMaker.Models.NullableOfUpdateValueOfNullableOfint>(global::X39.Software.ExamMaker.Models.NullableOfUpdateValueOfNullableOfint.CreateFromDiscriminatorValue); } },
+                { "incorrectAnswersToTake", n => { IncorrectAnswersToTake = n.GetObjectValue<global::X39.Software.ExamMaker.Models.NullableOfUpdateValueOfNullableOfint>(global::X39.Software.ExamMaker.Models.NullableOfUpdateValueOfNullableOfint.CreateFromDiscriminatorValue); } },
+                { "kind", n => { Kind = n.GetObjectValue<global::X39.Software.ExamMaker.Models.NullableOfUpdateValueOfEQuestionKind>(global::X39.Software.ExamMaker.Models.NullableOfUpdateValueOfEQuestionKind.CreateFromDiscriminatorValue); } },
+                { "title", n => { Title = n.GetObjectValue<global::X39.Software.ExamMaker.Models.NullableOfUpdateValueOfstring>(global::X39.Software.ExamMaker.Models.NullableOfUpdateValueOfstring.CreateFromDiscriminatorValue); } },
             };
         }
         /// <summary>
@@ -48,6 +84,10 @@ namespace X39.Software.ExamMaker.Models
         public virtual void Serialize(ISerializationWriter writer)
         {
             _ = writer ?? throw new ArgumentNullException(nameof(writer));
+            writer.WriteObjectValue<global::X39.Software.ExamMaker.Models.NullableOfUpdateValueOfNullableOfint>("correctAnswersToTake", CorrectAnswersToTake);
+            writer.WriteObjectValue<global::X39.Software.ExamMaker.Models.NullableOfUpdateValueOfNullableOfint>("incorrectAnswersToTake", IncorrectAnswersToTake);
+            writer.WriteObjectValue<global::X39.Software.ExamMaker.Models.NullableOfUpdateValueOfEQuestionKind>("kind", Kind);
+            writer.WriteObjectValue<global::X39.Software.ExamMaker.Models.NullableOfUpdateValueOfstring>("title", Title);
             writer.WriteAdditionalData(AdditionalData);
         }
     }

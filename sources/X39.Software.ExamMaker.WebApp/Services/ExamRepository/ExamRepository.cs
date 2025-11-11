@@ -1,4 +1,5 @@
-﻿using X39.Software.ExamMaker.Models;
+﻿using X39.Software.ExamMaker.Api.DataTransferObjects;
+using X39.Software.ExamMaker.Models;
 
 namespace X39.Software.ExamMaker.WebApp.Services.ExamRepository;
 
@@ -34,8 +35,8 @@ public sealed class ExamRepository(IHttpClientFactory httpClientFactory, BaseUrl
 
     public async Task UpdateExamAsync(
         Guid identifier,
-        string? title,
-        string? preamble,
+        UpdateValue<string>? title,
+        UpdateValue<string>? preamble,
         CancellationToken cancellationToken = default
     )
     {
@@ -44,10 +45,19 @@ public sealed class ExamRepository(IHttpClientFactory httpClientFactory, BaseUrl
             .PutAsync(
                 new ExamUpdateDto
                 {
-                    Title    = title,
-                    Preamble = preamble,
+                    Title    = title is null ? null : new NullableOfUpdateValueOfstring { Value    = title },
+                    Preamble = preamble is null ? null : new NullableOfUpdateValueOfstring { Value = preamble },
                 },
                 cancellationToken: cancellationToken
             );
+    }
+
+    public async Task<ExamListingDto> GetExamAsync(Guid examIdentifier, CancellationToken cancellationToken = default)
+    {
+        var result = await Client.Exam[examIdentifier]
+            .GetAsync(cancellationToken: cancellationToken);
+        if (result is null)
+            throw new Exception("Server responded with null");
+        return result;
     }
 }
