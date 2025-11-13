@@ -26,7 +26,22 @@ public interface IExamQuestionRepository
         UpdateValue<string>? title,
         UpdateValue<int?>? correctAnswersToTake,
         UpdateValue<int?>? incorrectAnswersToTake,
-        UpdateValue<EQuestionKind>? kind,
+        UpdateValue<EQuestionKindEnum>? kind,
         CancellationToken cancellationToken = default
     );
+
+    Task<ExamQuestionListingDto> CreateAsync(
+        Guid examIdentifier,
+        Guid topicIdentifier,
+        string title,
+        int? correctAnswersToTake,
+        int? incorrectAnswersToTake,
+        EQuestionKindEnum kind,
+        CancellationToken cancellationToken = default);
+
+    Task DeleteAsync(
+        Guid examIdentifier,
+        Guid topicIdentifier,
+        Guid questionIdentifier,
+        CancellationToken cancellationToken = default);
 }

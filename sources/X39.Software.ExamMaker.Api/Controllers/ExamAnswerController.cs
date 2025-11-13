@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using NodaTime;
 using X39.Software.ExamMaker.Api.DataTransferObjects.ExamAnswers;
+using X39.Software.ExamMaker.Api.DataTransferObjects.ExamQuestions;
 using X39.Software.ExamMaker.Api.Storage.Exam;
 using X39.Software.ExamMaker.Api.Storage.Exam.Entities;
 using X39.Software.ExamMaker.Shared;
@@ -15,7 +16,8 @@ public sealed class ExamAnswerController(ExamDbContext examDbContext, ILogger<Ex
     : ControllerBase
 {
     [HttpPut("{answerId:guid}/emplace")]
-    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType<ExamAnswerListingDto>(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     public async Task<IActionResult> CreateOrUpdateAsync(
         [FromRoute] Guid examId,
         [FromRoute] Guid topicId,
@@ -104,7 +106,7 @@ public sealed class ExamAnswerController(ExamDbContext examDbContext, ILogger<Ex
             logger.LogInformation("Creating new answer {AnswerId} under question {QuestionId}", answerId, questionId);
             var now = SystemClock.Instance.GetCurrentInstant();
             await examDbContext.ExamAnswers.AddAsync(
-                new ExamAnswer
+                existing = new ExamAnswer
                 {
                     Identifier     = answerId,
                     OrganizationId = organizationId,
@@ -141,11 +143,21 @@ public sealed class ExamAnswerController(ExamDbContext examDbContext, ILogger<Ex
         logger.LogDebug("Saving changes for answer {AnswerId}", answerId);
         await examDbContext.SaveChangesAsync(cancellationToken);
         logger.LogInformation("Successfully created/updated answer {AnswerId}", answerId);
-        return NoContent();
+        return Ok(
+            new ExamAnswerListingDto(
+                existing.Identifier,
+                existing.Answer,
+                existing.Reason,
+                existing.IsCorrect,
+                existing.CreatedAt.ToDateTimeOffset()
+            )
+        );
     }
 
     [HttpGet("all")]
     [ProducesResponseType<ExamAnswerListingDto[]>(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> GetAllAsync(
         [FromRoute] Guid examId,
         [FromRoute] Guid topicId,
@@ -220,7 +232,7 @@ public sealed class ExamAnswerController(ExamDbContext examDbContext, ILogger<Ex
 
     [HttpGet("{answerId:guid}")]
     [ProducesResponseType<ExamAnswerListingDto>(StatusCodes.Status200OK)]
-    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     public async Task<IActionResult> GetSingleAsync(
         [FromRoute] Guid examId,
         [FromRoute] Guid topicId,
@@ -256,7 +268,7 @@ public sealed class ExamAnswerController(ExamDbContext examDbContext, ILogger<Ex
         if (answer is null)
         {
             logger.LogInformation("Answer {AnswerId} not found", answerId);
-            return NotFound();
+            return Unauthorized();
         }
 
         if (answer.OrganizationId != organizationId)
@@ -290,6 +302,7 @@ public sealed class ExamAnswerController(ExamDbContext examDbContext, ILogger<Ex
 
     [HttpGet("all/count")]
     [ProducesResponseType<long>(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     public async Task<IActionResult> GetAllCountAsync(
         [FromRoute] Guid examId,
         [FromRoute] Guid topicId,
@@ -331,8 +344,9 @@ public sealed class ExamAnswerController(ExamDbContext examDbContext, ILogger<Ex
         return Ok(count);
     }
 
-    [HttpGet("{answerId:guid}/delete")]
+    [HttpDelete("{answerId:guid}")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     public async Task<IActionResult> DeleteAsync(
         [FromRoute] Guid examId,
         [FromRoute] Guid topicId,
@@ -368,7 +382,7 @@ public sealed class ExamAnswerController(ExamDbContext examDbContext, ILogger<Ex
         if (existing is null)
         {
             logger.LogInformation("Answer {AnswerId} not found for deletion", answerId);
-            return NoContent();
+            return Unauthorized();
         }
 
         if (existing.OrganizationId != organizationId)

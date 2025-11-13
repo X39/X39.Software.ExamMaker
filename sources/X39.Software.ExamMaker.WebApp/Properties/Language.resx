@@ -168,4 +168,55 @@
     <data name="Pages_Management_Exams_Arg_Label_ExamTitle" xml:space="preserve">
         <value>Title</value>
     </data>
+    <data name="Pages_Management_Exams_Arg_Label_ExamPreamble" xml:space="preserve">
+        <value>Preamble</value>
+    </data>
+    <data name="Pages_Management_Exams_Arg_Placeholder_ExamPreamble" xml:space="preserve">
+        <value>Preamble</value>
+    </data>
+    <data name="Pages_Management_Exams_Arg_Button_AddTopic" xml:space="preserve">
+        <value>Add Topic</value>
+    </data>
+    <data name="Pages_Management_Exams_Arg_Label_TopicTitle" xml:space="preserve">
+        <value>Topic Title</value>
+    </data>
+    <data name="Pages_Management_Exams_Arg_Label_QuestionAmountToTake" xml:space="preserve">
+        <value>Questions to Take</value>
+    </data>
+    <data name="Pages_Management_Exams_Arg_Button_AddQuestion" xml:space="preserve">
+        <value>Add Question</value>
+    </data>
+    <data name="Pages_Management_Exams_Arg_Button_DeleteTopic" xml:space="preserve">
+        <value>Delete Topic</value>
+    </data>
+    <data name="Pages_Management_Exams_Arg_Label_QuestionTitle" xml:space="preserve">
+        <value>Question Title</value>
+    </data>
+    <data name="Pages_Management_Exams_Arg_Label_QuestionKind" xml:space="preserve">
+        <value>Question Kind</value>
+    </data>
+    <data name="Pages_Management_Exams_Arg_Label_CorrectAnswersToTake" xml:space="preserve">
+        <value>Correct Answers to Take</value>
+    </data>
+    <data name="Pages_Management_Exams_Arg_Label_IncorrectAnswersToTake" xml:space="preserve">
+        <value>Incorrect Answers to Take</value>
+    </data>
+    <data name="Pages_Management_Exams_Arg_Button_AddAnswer" xml:space="preserve">
+        <value>Add Answer</value>
+    </data>
+    <data name="Pages_Management_Exams_Arg_Button_DeleteQuestion" xml:space="preserve">
+        <value>Delete Question</value>
+    </data>
+    <data name="Pages_Management_Exams_Arg_Label_Answer" xml:space="preserve">
+        <value>Answer</value>
+    </data>
+    <data name="Pages_Management_Exams_Arg_Label_AnswerReason" xml:space="preserve">
+        <value>Reason</value>
+    </data>
+    <data name="Pages_Management_Exams_Arg_Label_IsCorrect" xml:space="preserve">
+        <value>Is Correct</value>
+    </data>
+    <data name="Pages_Management_Exams_Arg_Button_DeleteAnswer" xml:space="preserve">
+        <value>Delete Answer</value>
+    </data>
 </root>

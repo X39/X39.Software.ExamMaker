@@ -19,4 +19,15 @@ public interface IExamTopicRepository
         UpdateValue<string>? title,
         UpdateValue<int?>? questionAmountToTake,
         CancellationToken cancellationToken = default);
+
+    Task<ExamTopicListingDto> CreateAsync(
+        Guid examIdentifier,
+        string title,
+        int? questionAmountToTake,
+        CancellationToken cancellationToken = default);
+
+    Task DeleteAsync(
+        Guid examIdentifier,
+        Guid topicIdentifier,
+        CancellationToken cancellationToken = default);
 }

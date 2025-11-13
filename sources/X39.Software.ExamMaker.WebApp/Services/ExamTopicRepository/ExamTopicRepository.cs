@@ -66,4 +66,38 @@ internal sealed class ExamTopicRepository(IHttpClientFactory httpClientFactory, 
                 cancellationToken: cancellationToken
             );
     }
+
+    public async Task<ExamTopicListingDto> CreateAsync(
+        Guid examIdentifier,
+        string title,
+        int? questionAmountToTake,
+        CancellationToken cancellationToken = default
+    )
+    {
+        var result = await Client.Exam[examIdentifier]
+            .Topic[Guid.NewGuid()]
+            .Emplace
+            .PutAsync(
+                new ExamTopicUpdateDto
+                {
+                    Title = new NullableOfUpdateValueOfstring { Value = title },
+                    QuestionAmountToTake = new NullableOfUpdateValueOfNullableOfint { Value = questionAmountToTake },
+                },
+                cancellationToken: cancellationToken
+            );
+        if (result is null)
+            throw new Exception("Server responded with null");
+        return result;
+    }
+
+    public async Task DeleteAsync(
+        Guid examIdentifier,
+        Guid topicIdentifier,
+        CancellationToken cancellationToken = default
+    )
+    {
+        await Client.Exam[examIdentifier]
+            .Topic[topicIdentifier]
+            .DeleteAsync(cancellationToken: cancellationToken);
+    }
 }

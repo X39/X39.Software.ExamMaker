@@ -78,4 +78,48 @@ internal sealed class ExamAnswerRepository(IHttpClientFactory httpClientFactory,
                 cancellationToken: cancellationToken
             );
     }
+
+    public async Task<ExamAnswerListingDto> CreateAsync(
+        Guid examIdentifier,
+        Guid topicIdentifier,
+        Guid questionIdentifier,
+        string answer,
+        string? reason,
+        bool isCorrect,
+        CancellationToken cancellationToken = default
+    )
+    {
+        var result = await Client.Exam[examIdentifier]
+            .Topic[topicIdentifier]
+            .Question[questionIdentifier]
+            .Answer[Guid.NewGuid()]
+            .Emplace
+            .PutAsync(
+                new ExamAnswerUpdateDto
+                {
+                    Answer    = new NullableOfUpdateValueOfstring { Value  = answer },
+                    Reason    = new NullableOfUpdateValueOfstring { Value  = reason },
+                    IsCorrect = new NullableOfUpdateValueOfboolean { Value = isCorrect },
+                },
+                cancellationToken: cancellationToken
+            );
+        if (result is null)
+            throw new Exception("Server responded with null");
+        return result;
+    }
+
+    public async Task DeleteAsync(
+        Guid examIdentifier,
+        Guid topicIdentifier,
+        Guid questionIdentifier,
+        Guid answerIdentifier,
+        CancellationToken cancellationToken = default
+    )
+    {
+        await Client.Exam[examIdentifier]
+            .Topic[topicIdentifier]
+            .Question[questionIdentifier]
+            .Answer[answerIdentifier]
+            .DeleteAsync(cancellationToken: cancellationToken);
+    }
 }

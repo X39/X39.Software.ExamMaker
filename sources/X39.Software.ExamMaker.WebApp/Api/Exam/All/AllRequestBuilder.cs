@@ -42,6 +42,8 @@ namespace X39.Software.ExamMaker.Exam.All
         /// <returns>A List&lt;global::X39.Software.ExamMaker.Models.ExamListingDto&gt;</returns>
         /// <param name="cancellationToken">Cancellation token to use when cancelling requests</param>
         /// <param name="requestConfiguration">Configuration for the request such as headers, query parameters, and middleware options.</param>
+        /// <exception cref="global::X39.Software.ExamMaker.Models.ProblemDetails">When receiving a 400 status code</exception>
+        /// <exception cref="global::X39.Software.ExamMaker.Models.ProblemDetails">When receiving a 401 status code</exception>
 #if NETSTANDARD2_1_OR_GREATER || NETCOREAPP3_1_OR_GREATER
 #nullable enable
         public async Task<List<global::X39.Software.ExamMaker.Models.ExamListingDto>?> GetAsync(Action<RequestConfiguration<global::X39.Software.ExamMaker.Exam.All.AllRequestBuilder.AllRequestBuilderGetQueryParameters>>? requestConfiguration = default, CancellationToken cancellationToken = default)
@@ -52,7 +54,12 @@ namespace X39.Software.ExamMaker.Exam.All
         {
 #endif
             var requestInfo = ToGetRequestInformation(requestConfiguration);
-            var collectionResult = await RequestAdapter.SendCollectionAsync<global::X39.Software.ExamMaker.Models.ExamListingDto>(requestInfo, global::X39.Software.ExamMaker.Models.ExamListingDto.CreateFromDiscriminatorValue, default, cancellationToken).ConfigureAwait(false);
+            var errorMapping = new Dictionary<string, ParsableFactory<IParsable>>
+            {
+                { "400", global::X39.Software.ExamMaker.Models.ProblemDetails.CreateFromDiscriminatorValue },
+                { "401", global::X39.Software.ExamMaker.Models.ProblemDetails.CreateFromDiscriminatorValue },
+            };
+            var collectionResult = await RequestAdapter.SendCollectionAsync<global::X39.Software.ExamMaker.Models.ExamListingDto>(requestInfo, global::X39.Software.ExamMaker.Models.ExamListingDto.CreateFromDiscriminatorValue, errorMapping, cancellationToken).ConfigureAwait(false);
             return collectionResult?.AsList();
         }
         /// <returns>A <see cref="RequestInformation"/></returns>

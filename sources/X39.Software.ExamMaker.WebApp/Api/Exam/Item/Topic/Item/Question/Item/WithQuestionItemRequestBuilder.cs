@@ -9,7 +9,6 @@ using System.Threading.Tasks;
 using System.Threading;
 using System;
 using X39.Software.ExamMaker.Exam.Item.Topic.Item.Question.Item.Answer;
-using X39.Software.ExamMaker.Exam.Item.Topic.Item.Question.Item.Delete;
 using X39.Software.ExamMaker.Exam.Item.Topic.Item.Question.Item.Emplace;
 using X39.Software.ExamMaker.Models;
 namespace X39.Software.ExamMaker.Exam.Item.Topic.Item.Question.Item
@@ -24,11 +23,6 @@ namespace X39.Software.ExamMaker.Exam.Item.Topic.Item.Question.Item
         public global::X39.Software.ExamMaker.Exam.Item.Topic.Item.Question.Item.Answer.AnswerRequestBuilder Answer
         {
             get => new global::X39.Software.ExamMaker.Exam.Item.Topic.Item.Question.Item.Answer.AnswerRequestBuilder(PathParameters, RequestAdapter);
-        }
-        /// <summary>The deletePath property</summary>
-        public global::X39.Software.ExamMaker.Exam.Item.Topic.Item.Question.Item.Delete.DeleteRequestBuilder DeletePath
-        {
-            get => new global::X39.Software.ExamMaker.Exam.Item.Topic.Item.Question.Item.Delete.DeleteRequestBuilder(PathParameters, RequestAdapter);
         }
         /// <summary>The emplace property</summary>
         public global::X39.Software.ExamMaker.Exam.Item.Topic.Item.Question.Item.Emplace.EmplaceRequestBuilder Emplace
@@ -51,10 +45,29 @@ namespace X39.Software.ExamMaker.Exam.Item.Topic.Item.Question.Item
         public WithQuestionItemRequestBuilder(string rawUrl, IRequestAdapter requestAdapter) : base(requestAdapter, "{+baseurl}/exam/{examId}/topic/{topicId}/question/{questionId}", rawUrl)
         {
         }
+        /// <param name="cancellationToken">Cancellation token to use when cancelling requests</param>
+        /// <param name="requestConfiguration">Configuration for the request such as headers, query parameters, and middleware options.</param>
+        /// <exception cref="global::X39.Software.ExamMaker.Models.ProblemDetails">When receiving a 401 status code</exception>
+#if NETSTANDARD2_1_OR_GREATER || NETCOREAPP3_1_OR_GREATER
+#nullable enable
+        public async Task DeleteAsync(Action<RequestConfiguration<DefaultQueryParameters>>? requestConfiguration = default, CancellationToken cancellationToken = default)
+        {
+#nullable restore
+#else
+        public async Task DeleteAsync(Action<RequestConfiguration<DefaultQueryParameters>> requestConfiguration = default, CancellationToken cancellationToken = default)
+        {
+#endif
+            var requestInfo = ToDeleteRequestInformation(requestConfiguration);
+            var errorMapping = new Dictionary<string, ParsableFactory<IParsable>>
+            {
+                { "401", global::X39.Software.ExamMaker.Models.ProblemDetails.CreateFromDiscriminatorValue },
+            };
+            await RequestAdapter.SendNoContentAsync(requestInfo, errorMapping, cancellationToken).ConfigureAwait(false);
+        }
         /// <returns>A <see cref="global::X39.Software.ExamMaker.Models.ExamQuestionListingDto"/></returns>
         /// <param name="cancellationToken">Cancellation token to use when cancelling requests</param>
         /// <param name="requestConfiguration">Configuration for the request such as headers, query parameters, and middleware options.</param>
-        /// <exception cref="global::X39.Software.ExamMaker.Models.ProblemDetails">When receiving a 404 status code</exception>
+        /// <exception cref="global::X39.Software.ExamMaker.Models.ProblemDetails">When receiving a 401 status code</exception>
 #if NETSTANDARD2_1_OR_GREATER || NETCOREAPP3_1_OR_GREATER
 #nullable enable
         public async Task<global::X39.Software.ExamMaker.Models.ExamQuestionListingDto?> GetAsync(Action<RequestConfiguration<DefaultQueryParameters>>? requestConfiguration = default, CancellationToken cancellationToken = default)
@@ -67,9 +80,25 @@ namespace X39.Software.ExamMaker.Exam.Item.Topic.Item.Question.Item
             var requestInfo = ToGetRequestInformation(requestConfiguration);
             var errorMapping = new Dictionary<string, ParsableFactory<IParsable>>
             {
-                { "404", global::X39.Software.ExamMaker.Models.ProblemDetails.CreateFromDiscriminatorValue },
+                { "401", global::X39.Software.ExamMaker.Models.ProblemDetails.CreateFromDiscriminatorValue },
             };
             return await RequestAdapter.SendAsync<global::X39.Software.ExamMaker.Models.ExamQuestionListingDto>(requestInfo, global::X39.Software.ExamMaker.Models.ExamQuestionListingDto.CreateFromDiscriminatorValue, errorMapping, cancellationToken).ConfigureAwait(false);
+        }
+        /// <returns>A <see cref="RequestInformation"/></returns>
+        /// <param name="requestConfiguration">Configuration for the request such as headers, query parameters, and middleware options.</param>
+#if NETSTANDARD2_1_OR_GREATER || NETCOREAPP3_1_OR_GREATER
+#nullable enable
+        public RequestInformation ToDeleteRequestInformation(Action<RequestConfiguration<DefaultQueryParameters>>? requestConfiguration = default)
+        {
+#nullable restore
+#else
+        public RequestInformation ToDeleteRequestInformation(Action<RequestConfiguration<DefaultQueryParameters>> requestConfiguration = default)
+        {
+#endif
+            var requestInfo = new RequestInformation(Method.DELETE, UrlTemplate, PathParameters);
+            requestInfo.Configure(requestConfiguration);
+            requestInfo.Headers.TryAdd("Accept", "application/json, text/plain;q=0.9");
+            return requestInfo;
         }
         /// <returns>A <see cref="RequestInformation"/></returns>
         /// <param name="requestConfiguration">Configuration for the request such as headers, query parameters, and middleware options.</param>
@@ -95,6 +124,14 @@ namespace X39.Software.ExamMaker.Exam.Item.Topic.Item.Question.Item
         public global::X39.Software.ExamMaker.Exam.Item.Topic.Item.Question.Item.WithQuestionItemRequestBuilder WithUrl(string rawUrl)
         {
             return new global::X39.Software.ExamMaker.Exam.Item.Topic.Item.Question.Item.WithQuestionItemRequestBuilder(rawUrl, RequestAdapter);
+        }
+        /// <summary>
+        /// Configuration for the request such as headers, query parameters, and middleware options.
+        /// </summary>
+        [Obsolete("This class is deprecated. Please use the generic RequestConfiguration class generated by the generator.")]
+        [global::System.CodeDom.Compiler.GeneratedCode("Kiota", "1.0.0")]
+        public partial class WithQuestionItemRequestBuilderDeleteRequestConfiguration : RequestConfiguration<DefaultQueryParameters>
+        {
         }
         /// <summary>
         /// Configuration for the request such as headers, query parameters, and middleware options.

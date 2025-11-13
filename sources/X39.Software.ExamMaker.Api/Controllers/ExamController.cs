@@ -14,7 +14,8 @@ namespace X39.Software.ExamMaker.Api.Controllers;
 public sealed class ExamController(ExamDbContext examDbContext, ILogger<ExamController> logger) : ControllerBase
 {
     [HttpPut("{examId:guid}/emplace")]
-    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType<ExamListingDto>(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     public async Task<IActionResult> CreateOrUpdateAsync(
         [FromRoute] Guid examId,
         ExamUpdateDto examUpdateDto,
@@ -61,7 +62,7 @@ public sealed class ExamController(ExamDbContext examDbContext, ILogger<ExamCont
             );
             var now = SystemClock.Instance.GetCurrentInstant();
             await examDbContext.Exams.AddAsync(
-                new Exam
+                existing = new Exam
                 {
                     Identifier     = examId,
                     OrganizationId = organizationId,
@@ -98,11 +99,13 @@ public sealed class ExamController(ExamDbContext examDbContext, ILogger<ExamCont
         logger.LogDebug("Saving changes to database for exam {ExamId}", examId);
         await examDbContext.SaveChangesAsync(cancellationToken);
         logger.LogInformation("Successfully created/updated exam {ExamId}", examId);
-        return NoContent();
+        return Ok(new ExamListingDto(examId, existing.Title, existing.Preamble, existing.CreatedAt.ToDateTimeOffset()));
     }
 
     [HttpGet("all")]
     [ProducesResponseType<ExamListingDto[]>(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> GetAllAsync(
         [FromQuery, Required, Range(0, int.MaxValue)] int skip,
         [FromQuery, Required, Range(1, 100)] int take,
@@ -150,6 +153,7 @@ public sealed class ExamController(ExamDbContext examDbContext, ILogger<ExamCont
 
     [HttpGet("all/count")]
     [ProducesResponseType<long>(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     public async Task<IActionResult> GetAllCountAsync(CancellationToken cancellationToken = default)
     {
         logger.LogInformation("GetAllCountAsync called");
@@ -171,7 +175,7 @@ public sealed class ExamController(ExamDbContext examDbContext, ILogger<ExamCont
 
     [HttpGet("{examId:guid}")]
     [ProducesResponseType<ExamListingDto>(StatusCodes.Status200OK)]
-    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     public async Task<IActionResult> GetSingleAsync(
         [FromRoute] Guid examId,
         CancellationToken cancellationToken = default
@@ -193,7 +197,7 @@ public sealed class ExamController(ExamDbContext examDbContext, ILogger<ExamCont
         if (exam is null)
         {
             logger.LogInformation("Exam {ExamId} not found", examId);
-            return NotFound();
+            return Unauthorized();
         }
 
         if (exam.OrganizationId != organizationId)
@@ -210,8 +214,9 @@ public sealed class ExamController(ExamDbContext examDbContext, ILogger<ExamCont
         return Ok(new ExamListingDto(exam.Identifier, exam.Title, exam.Preamble, exam.CreatedAt.ToDateTimeOffset()));
     }
 
-    [HttpGet("{examId:guid}/delete")]
+    [HttpDelete("{examId:guid}")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     public async Task<IActionResult> DeleteAsync([FromRoute] Guid examId, CancellationToken cancellationToken = default)
     {
         logger.LogInformation("DeleteAsync called for examId: {ExamId}", examId);
@@ -234,7 +239,7 @@ public sealed class ExamController(ExamDbContext examDbContext, ILogger<ExamCont
         if (existing is null)
         {
             logger.LogInformation("Exam {ExamId} not found for deletion", examId);
-            return NoContent();
+            return Unauthorized();
         }
 
         if (existing.OrganizationId != organizationId)

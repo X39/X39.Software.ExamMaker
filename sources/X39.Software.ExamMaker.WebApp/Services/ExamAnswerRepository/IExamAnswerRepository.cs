@@ -31,4 +31,22 @@ public interface IExamAnswerRepository
         UpdateValue<bool>? isCorrect,
         CancellationToken cancellationToken = default
     );
+
+    Task<ExamAnswerListingDto> CreateAsync(
+        Guid examIdentifier,
+        Guid topicIdentifier,
+        Guid questionIdentifier,
+        string answer,
+        string? reason,
+        bool isCorrect,
+        CancellationToken cancellationToken = default
+    );
+
+    Task DeleteAsync(
+        Guid examIdentifier,
+        Guid topicIdentifier,
+        Guid questionIdentifier,
+        Guid answerIdentifier,
+        CancellationToken cancellationToken = default
+    );
 }

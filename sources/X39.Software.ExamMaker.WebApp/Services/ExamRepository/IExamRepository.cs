@@ -6,20 +6,25 @@ namespace X39.Software.ExamMaker.WebApp.Services.ExamRepository;
 
 public interface IExamRepository
 {
-    Task<long> GetAllExamsCountAsync(CancellationToken cancellationToken = default);
+    Task<long> GetAllCountAsync(CancellationToken cancellationToken = default);
 
-    Task<IReadOnlyCollection<ExamListingDto>> GetAllExamsAsync(
+    Task<IReadOnlyCollection<ExamListingDto>> GetAllAsync(
         int skip,
         int take,
         CancellationToken cancellationToken = default
     );
 
-    Task UpdateExamAsync(
+    Task UpdateAsync(
         Guid identifier,
         UpdateValue<string>? title,
         UpdateValue<string>? preamble,
         CancellationToken cancellationToken = default
     );
+    Task<ExamListingDto> CreateAsync(
+        string title,
+        string preamble,
+        CancellationToken cancellationToken = default
+    );
 
-    Task<ExamListingDto> GetExamAsync(Guid examIdentifier, CancellationToken cancellationToken = default);
+    Task<ExamListingDto> GetAsync(Guid examIdentifier, CancellationToken cancellationToken = default);
 }

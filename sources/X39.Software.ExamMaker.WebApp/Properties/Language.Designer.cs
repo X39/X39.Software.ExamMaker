@@ -492,11 +492,164 @@ namespace X39.Software.ExamMaker.WebApp.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Add Answer.
+        /// </summary>
+        internal static string Pages_Management_Exams_Arg_Button_AddAnswer {
+            get {
+                return ResourceManager.GetString("Pages_Management_Exams_Arg_Button_AddAnswer", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Add Question.
+        /// </summary>
+        internal static string Pages_Management_Exams_Arg_Button_AddQuestion {
+            get {
+                return ResourceManager.GetString("Pages_Management_Exams_Arg_Button_AddQuestion", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Add Topic.
+        /// </summary>
+        internal static string Pages_Management_Exams_Arg_Button_AddTopic {
+            get {
+                return ResourceManager.GetString("Pages_Management_Exams_Arg_Button_AddTopic", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Delete Answer.
+        /// </summary>
+        internal static string Pages_Management_Exams_Arg_Button_DeleteAnswer {
+            get {
+                return ResourceManager.GetString("Pages_Management_Exams_Arg_Button_DeleteAnswer", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Delete Question.
+        /// </summary>
+        internal static string Pages_Management_Exams_Arg_Button_DeleteQuestion {
+            get {
+                return ResourceManager.GetString("Pages_Management_Exams_Arg_Button_DeleteQuestion", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Delete Topic.
+        /// </summary>
+        internal static string Pages_Management_Exams_Arg_Button_DeleteTopic {
+            get {
+                return ResourceManager.GetString("Pages_Management_Exams_Arg_Button_DeleteTopic", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Answer.
+        /// </summary>
+        internal static string Pages_Management_Exams_Arg_Label_Answer {
+            get {
+                return ResourceManager.GetString("Pages_Management_Exams_Arg_Label_Answer", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Reason.
+        /// </summary>
+        internal static string Pages_Management_Exams_Arg_Label_AnswerReason {
+            get {
+                return ResourceManager.GetString("Pages_Management_Exams_Arg_Label_AnswerReason", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Correct Answers to Take.
+        /// </summary>
+        internal static string Pages_Management_Exams_Arg_Label_CorrectAnswersToTake {
+            get {
+                return ResourceManager.GetString("Pages_Management_Exams_Arg_Label_CorrectAnswersToTake", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Preamble.
+        /// </summary>
+        internal static string Pages_Management_Exams_Arg_Label_ExamPreamble {
+            get {
+                return ResourceManager.GetString("Pages_Management_Exams_Arg_Label_ExamPreamble", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Title.
         /// </summary>
         internal static string Pages_Management_Exams_Arg_Label_ExamTitle {
             get {
                 return ResourceManager.GetString("Pages_Management_Exams_Arg_Label_ExamTitle", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Incorrect Answers to Take.
+        /// </summary>
+        internal static string Pages_Management_Exams_Arg_Label_IncorrectAnswersToTake {
+            get {
+                return ResourceManager.GetString("Pages_Management_Exams_Arg_Label_IncorrectAnswersToTake", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Is Correct.
+        /// </summary>
+        internal static string Pages_Management_Exams_Arg_Label_IsCorrect {
+            get {
+                return ResourceManager.GetString("Pages_Management_Exams_Arg_Label_IsCorrect", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Questions to Take.
+        /// </summary>
+        internal static string Pages_Management_Exams_Arg_Label_QuestionAmountToTake {
+            get {
+                return ResourceManager.GetString("Pages_Management_Exams_Arg_Label_QuestionAmountToTake", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Question Kind.
+        /// </summary>
+        internal static string Pages_Management_Exams_Arg_Label_QuestionKind {
+            get {
+                return ResourceManager.GetString("Pages_Management_Exams_Arg_Label_QuestionKind", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Question Title.
+        /// </summary>
+        internal static string Pages_Management_Exams_Arg_Label_QuestionTitle {
+            get {
+                return ResourceManager.GetString("Pages_Management_Exams_Arg_Label_QuestionTitle", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Topic Title.
+        /// </summary>
+        internal static string Pages_Management_Exams_Arg_Label_TopicTitle {
+            get {
+                return ResourceManager.GetString("Pages_Management_Exams_Arg_Label_TopicTitle", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Preamble.
+        /// </summary>
+        internal static string Pages_Management_Exams_Arg_Placeholder_ExamPreamble {
+            get {
+                return ResourceManager.GetString("Pages_Management_Exams_Arg_Placeholder_ExamPreamble", resourceCulture);
             }
         }
         

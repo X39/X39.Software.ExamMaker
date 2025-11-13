@@ -37,9 +37,9 @@
 
     private async ValueTask<GridItemsProviderResult<ExamListingDto>> ProvideItemsAsync(GridItemsProviderRequest<ExamListingDto> request)
     {
-        _totalItemCount ??= (int) await ExamRepository.GetAllExamsCountAsync(request.CancellationToken);
+        _totalItemCount ??= (int) await ExamRepository.GetAllCountAsync(request.CancellationToken);
 
-        var items = await ExamRepository.GetAllExamsAsync(request.StartIndex, request.Count ?? 20, request.CancellationToken);
+        var items = await ExamRepository.GetAllAsync(request.StartIndex, request.Count ?? 20, request.CancellationToken);
 
         return new GridItemsProviderResult<ExamListingDto>
         {
@@ -59,7 +59,7 @@
     {
         // ToDo: Improve user experience, using toasts during and after creation and on error + busy hints
         var guid = Guid.NewGuid();
-        await ExamRepository.UpdateExamAsync(guid, string.Empty, string.Empty);
+        await ExamRepository.UpdateAsync(guid, string.Empty, string.Empty);
         OpenExamAsync(guid);
     }
 

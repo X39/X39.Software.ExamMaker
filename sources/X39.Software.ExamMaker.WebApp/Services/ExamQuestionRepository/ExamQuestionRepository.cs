@@ -55,7 +55,7 @@ internal sealed class ExamQuestionRepository(IHttpClientFactory httpClientFactor
         UpdateValue<string>? title,
         UpdateValue<int?>? correctAnswersToTake,
         UpdateValue<int?>? incorrectAnswersToTake,
-        UpdateValue<EQuestionKind>? kind,
+        UpdateValue<EQuestionKindEnum>? kind,
         CancellationToken cancellationToken = default
     )
     {
@@ -73,5 +73,47 @@ internal sealed class ExamQuestionRepository(IHttpClientFactory httpClientFactor
                 },
                 cancellationToken: cancellationToken
             );
+    }
+
+    public async Task<ExamQuestionListingDto> CreateAsync(
+        Guid examIdentifier,
+        Guid topicIdentifier,
+        string title,
+        int? correctAnswersToTake,
+        int? incorrectAnswersToTake,
+        EQuestionKindEnum kind,
+        CancellationToken cancellationToken = default
+    )
+    {
+        var result = await Client.Exam[examIdentifier]
+            .Topic[topicIdentifier]
+            .Question[Guid.NewGuid()]
+            .Emplace
+            .PutAsync(
+                new ExamQuestionUpdateDto
+                {
+                    Title = new NullableOfUpdateValueOfstring { Value = title },
+                    CorrectAnswersToTake = new NullableOfUpdateValueOfNullableOfint { Value = correctAnswersToTake },
+                    IncorrectAnswersToTake = new NullableOfUpdateValueOfNullableOfint { Value = incorrectAnswersToTake },
+                    Kind = new NullableOfUpdateValueOfEQuestionKind { Value = (int)kind },
+                },
+                cancellationToken: cancellationToken
+            );
+        if (result is null)
+            throw new Exception("Server responded with null");
+        return result;
+    }
+
+    public async Task DeleteAsync(
+        Guid examIdentifier,
+        Guid topicIdentifier,
+        Guid questionIdentifier,
+        CancellationToken cancellationToken = default
+    )
+    {
+        await Client.Exam[examIdentifier]
+            .Topic[topicIdentifier]
+            .Question[questionIdentifier]
+            .DeleteAsync(cancellationToken: cancellationToken);
     }
 }

@@ -25,10 +25,10 @@ namespace X39.Software.ExamMaker.Models
         /// <summary>The kind property</summary>
 #if NETSTANDARD2_1_OR_GREATER || NETCOREAPP3_1_OR_GREATER
 #nullable enable
-        public global::X39.Software.ExamMaker.Models.EQuestionKind2? Kind { get; set; }
+        public global::X39.Software.ExamMaker.Models.EQuestionKind? Kind { get; set; }
 #nullable restore
 #else
-        public global::X39.Software.ExamMaker.Models.EQuestionKind2 Kind { get; set; }
+        public global::X39.Software.ExamMaker.Models.EQuestionKind Kind { get; set; }
 #endif
         /// <summary>The title property</summary>
 #if NETSTANDARD2_1_OR_GREATER || NETCOREAPP3_1_OR_GREATER
@@ -67,7 +67,7 @@ namespace X39.Software.ExamMaker.Models
                 { "createdAt", n => { CreatedAt = n.GetDateTimeOffsetValue(); } },
                 { "identifier", n => { Identifier = n.GetGuidValue(); } },
                 { "incorrectAnswersToTake", n => { IncorrectAnswersToTake = n.GetIntValue(); } },
-                { "kind", n => { Kind = n.GetObjectValue<global::X39.Software.ExamMaker.Models.EQuestionKind2>(global::X39.Software.ExamMaker.Models.EQuestionKind2.CreateFromDiscriminatorValue); } },
+                { "kind", n => { Kind = n.GetObjectValue<global::X39.Software.ExamMaker.Models.EQuestionKind>(global::X39.Software.ExamMaker.Models.EQuestionKind.CreateFromDiscriminatorValue); } },
                 { "title", n => { Title = n.GetStringValue(); } },
             };
         }
@@ -82,7 +82,7 @@ namespace X39.Software.ExamMaker.Models
             writer.WriteDateTimeOffsetValue("createdAt", CreatedAt);
             writer.WriteGuidValue("identifier", Identifier);
             writer.WriteIntValue("incorrectAnswersToTake", IncorrectAnswersToTake);
-            writer.WriteObjectValue<global::X39.Software.ExamMaker.Models.EQuestionKind2>("kind", Kind);
+            writer.WriteObjectValue<global::X39.Software.ExamMaker.Models.EQuestionKind>("kind", Kind);
             writer.WriteStringValue("title", Title);
             writer.WriteAdditionalData(AdditionalData);
         }
