@@ -1,8 +1,8 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.OpenApi;
-using Microsoft.OpenApi.Models;
+using Microsoft.OpenApi;
 
-namespace X39.Software.ExamMaker.Api;
+namespace X39.Software.ExamMaker.Api.OpenApiTransformers;
 
 /// <summary>
 /// Represents an operation transformer that tags an OpenAPI operation with metadata based on
@@ -22,23 +22,24 @@ internal sealed class XAnonymousAnnotationOperationTransformer : IOpenApiOperati
         CancellationToken cancellationToken
     )
     {
-        var metadata = context.Description.ActionDescriptor.EndpointMetadata ?? Array.Empty<object>();
+        var metadata = context.Description.ActionDescriptor.EndpointMetadata;
 
         // Handle both attribute- and endpoint-metadata-based anonymous markers
         var isAnonymous = metadata.OfType<AllowAnonymousAttribute>()
                               .Any()
                           || metadata.OfType<IAllowAnonymous>()
                               .Any();
+        operation.Metadata ??= new Dictionary<string, object>();
 
         if (isAnonymous)
         {
-            operation.Annotations["x-anonymous"] = true;
+            operation.Metadata["x-anonymous"] = true;
             // Override document-level security: this operation does not require auth
             operation.Security = new List<OpenApiSecurityRequirement>();
         }
         else
         {
-            operation.Annotations["x-anonymous"] = false;
+            operation.Metadata["x-anonymous"] = false;
         }
 
         return Task.CompletedTask;

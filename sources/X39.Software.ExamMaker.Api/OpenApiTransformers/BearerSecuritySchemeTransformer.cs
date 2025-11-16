@@ -1,8 +1,8 @@
 ﻿using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.OpenApi;
-using Microsoft.OpenApi.Models;
+using Microsoft.OpenApi;
 
-namespace X39.Software.ExamMaker.Api;
+namespace X39.Software.ExamMaker.Api.OpenApiTransformers;
 
 internal sealed class BearerSecuritySchemeTransformer(IAuthenticationSchemeProvider authenticationSchemeProvider)
     : IOpenApiDocumentTransformer
@@ -16,9 +16,9 @@ internal sealed class BearerSecuritySchemeTransformer(IAuthenticationSchemeProvi
         var authenticationSchemes = await authenticationSchemeProvider.GetAllSchemesAsync();
         if (authenticationSchemes.Any(authScheme => authScheme.Name == "Bearer"))
         {
-            var requirements = new Dictionary<string, OpenApiSecurityScheme>
+            var requirements = new Dictionary<string, IOpenApiSecurityScheme>
             {
-                ["Bearer"] = new()
+                ["Bearer"] = new OpenApiSecurityScheme
                 {
                     Type         = SecuritySchemeType.Http,
                     Scheme       = "bearer",
@@ -33,20 +33,19 @@ internal sealed class BearerSecuritySchemeTransformer(IAuthenticationSchemeProvi
             document.Components.SecuritySchemes =   requirements;
 
             // Apply it as a requirement for all operations
-            foreach (var operation in document.Paths.Values.SelectMany(path => path.Operations))
+            foreach (var operation in document.Paths.Values.SelectMany(path => path.Operations ?? []))
             {
-                if (!operation.Value.Annotations.TryGetValue("x-anonymous", out var obj) || obj is not true)
-                {
-                    operation.Value.Security.Add(
-                        new OpenApiSecurityRequirement
-                        {
-                            [new OpenApiSecurityScheme
-                            {
-                                Reference = new OpenApiReference { Id = "Bearer", Type = ReferenceType.SecurityScheme },
-                            }] = Array.Empty<string>(),
-                        }
-                    );
-                }
+                if (operation.Value.Metadata is not null
+                    && operation.Value.Metadata.TryGetValue("x-anonymous", out var obj)
+                    && obj is true)
+                    continue;
+                operation.Value.Security ??= new List<OpenApiSecurityRequirement>();
+                operation.Value.Security.Add(
+                    new OpenApiSecurityRequirement
+                    {
+                        [new OpenApiSecuritySchemeReference("Bearer")] = [],
+                    }
+                );
             }
         }
     }

@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using Scalar.AspNetCore;
 using X39.Software.ExamMaker.Api.Configuration;
+using X39.Software.ExamMaker.Api.OpenApiTransformers;
 using X39.Software.ExamMaker.Api.Services;
 using X39.Software.ExamMaker.Api.Storage.Authority;
 using X39.Software.ExamMaker.Api.Storage.Exam;
