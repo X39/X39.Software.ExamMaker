@@ -6,7 +6,7 @@ namespace X39.Software.ExamMaker.Api.Storage.Exam.Meta;
 public interface IOrganization : IRefersToOneRequired<Organization, long>
 {
     Organization? Organization { get; set; }
-    long OrganizationId { get; set; }
+    long OrganizationFk { get; set; }
 
     Organization? IRefersToOneRequired<Organization, long>.Entity
     {
@@ -16,7 +16,7 @@ public interface IOrganization : IRefersToOneRequired<Organization, long>
 
     long IRefersToOneRequired<Organization, long>.EntityId
     {
-        get => OrganizationId;
-        set => OrganizationId = value;
+        get => OrganizationFk;
+        set => OrganizationFk = value;
     }
 }

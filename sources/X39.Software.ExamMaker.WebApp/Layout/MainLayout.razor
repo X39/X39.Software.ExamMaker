@@ -1,7 +1,6 @@
 ﻿@using Microsoft.AspNetCore.Components.Authorization
 @using Microsoft.AspNetCore.Components.Sections
 @using X39.Software.ExamMaker.Shared
-@using X39.Software.ExamMaker.WebApp.Properties
 @using X39.Software.ExamMaker.WebApp.Services
 @using X39.Software.ExamMaker.WebApp.Services.UserRepository
 @inherits LayoutComponentBase
@@ -32,7 +31,8 @@
                 />
             </Authorized>
             <NotAuthorized>
-                <FluentButton IconStart="@(new Icons.Regular.Size24.DoorArrowLeft())" OnClick="@(() => NavigationManager.NavigateTo(BaseUrl.ResolveSelfUrl("/authentication/login")))">
+                <FluentButton IconStart="@(new Icons.Regular.Size24.DoorArrowLeft())"
+                              OnClick="@(() => NavigationManager.NavigateTo(BaseUrl.ResolveSelfUrl("/authentication/login")))">
                     @Localizer[nameof(Language.Layout_MainLayout_Header_Login)]
                 </FluentButton>
             </NotAuthorized>
@@ -40,16 +40,20 @@
     </FluentHeader>
 
     <FluentStack Orientation="Orientation.Horizontal" Width="100%" Class="main-layout-body-container">
-        <FluentNavMenu Width="250">
-            <FluentNavLink Icon="@(new Icons.Regular.Size24.Home())">Item 1</FluentNavLink>
-            <FluentNavLink Icon="@(new Icons.Regular.Size24.Cloud())">Item 2</FluentNavLink>
-            <FluentNavGroup Title="Item 3">
-                <FluentNavLink Icon="@(new Icons.Regular.Size24.LeafOne())">Item 3.1</FluentNavLink>
-                <FluentNavLink Icon="@(new Icons.Regular.Size24.LeafTwo())">Item 3.2</FluentNavLink>
-            </FluentNavGroup>
-            <FluentNavLink Icon="@(new Icons.Regular.Size24.CalendarAgenda())" Disabled="true">Item 4</FluentNavLink>
-        </FluentNavMenu>
-
+        <AuthorizeView>
+            <FluentAppBar>
+                <FluentAppBarItem Href="/dashboard"
+                                  Match="NavLinkMatch.All"
+                                  IconRest="@(new Icons.Regular.Size24.Board())"
+                                  IconActive="@(new Icons.Filled.Size24.Board())"
+                                  Text="@Localizer[nameof(Language.Layout_MainLayout_AppBar_Dashboard)]"/>
+                <FluentAppBarItem Href="/management/exams"
+                                  Match="NavLinkMatch.Prefix"
+                                  IconRest="@(new Icons.Regular.Size24.DocumentFolder())"
+                                  IconActive="@(new Icons.Filled.Size24.DocumentFolder())"
+                                  Text="@Localizer[nameof(Language.Layout_MainLayout_AppBar_Exams)]"/>
+            </FluentAppBar>
+        </AuthorizeView>
         <FluentBodyContent Class="main-layout-body-content">
             @Body
         </FluentBodyContent>
@@ -60,9 +64,9 @@
         <FluentSpacer/>
         <SectionOutlet SectionName="@FooterEndSectionOutlet"/>
         <a href="@BaseUrl.ResolveSelfUrl("imprint")">
-            <FluentLabel>@Localizer[nameof(Language.Layout_MainLayout_Footer_Imprint)]</FluentLabel>
+            <FluentLabel Style="color: white;">@Localizer[nameof(Language.Layout_MainLayout_Footer_Imprint)]</FluentLabel>
         </a>
-        <FluentLabel>@Version</FluentLabel>
+        <FluentLabel Style="color: white;">@Version</FluentLabel>
     </FluentFooter>
 </FluentLayout>
 

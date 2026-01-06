@@ -23,13 +23,7 @@ namespace X39.Software.ExamMaker.Models
         /// <summary>The incorrectAnswersToTake property</summary>
         public int? IncorrectAnswersToTake { get; set; }
         /// <summary>The kind property</summary>
-#if NETSTANDARD2_1_OR_GREATER || NETCOREAPP3_1_OR_GREATER
-#nullable enable
         public global::X39.Software.ExamMaker.Models.EQuestionKind? Kind { get; set; }
-#nullable restore
-#else
-        public global::X39.Software.ExamMaker.Models.EQuestionKind Kind { get; set; }
-#endif
         /// <summary>The title property</summary>
 #if NETSTANDARD2_1_OR_GREATER || NETCOREAPP3_1_OR_GREATER
 #nullable enable
@@ -52,7 +46,7 @@ namespace X39.Software.ExamMaker.Models
         /// <param name="parseNode">The parse node to use to read the discriminator value and create the object</param>
         public static global::X39.Software.ExamMaker.Models.ExamQuestionListingDto CreateFromDiscriminatorValue(IParseNode parseNode)
         {
-            _ = parseNode ?? throw new ArgumentNullException(nameof(parseNode));
+            if(ReferenceEquals(parseNode, null)) throw new ArgumentNullException(nameof(parseNode));
             return new global::X39.Software.ExamMaker.Models.ExamQuestionListingDto();
         }
         /// <summary>
@@ -67,7 +61,7 @@ namespace X39.Software.ExamMaker.Models
                 { "createdAt", n => { CreatedAt = n.GetDateTimeOffsetValue(); } },
                 { "identifier", n => { Identifier = n.GetGuidValue(); } },
                 { "incorrectAnswersToTake", n => { IncorrectAnswersToTake = n.GetIntValue(); } },
-                { "kind", n => { Kind = n.GetObjectValue<global::X39.Software.ExamMaker.Models.EQuestionKind>(global::X39.Software.ExamMaker.Models.EQuestionKind.CreateFromDiscriminatorValue); } },
+                { "kind", n => { Kind = (global::X39.Software.ExamMaker.Models.EQuestionKind?) n.GetIntValue(); } },
                 { "title", n => { Title = n.GetStringValue(); } },
             };
         }
@@ -77,12 +71,12 @@ namespace X39.Software.ExamMaker.Models
         /// <param name="writer">Serialization writer to use to serialize this model</param>
         public virtual void Serialize(ISerializationWriter writer)
         {
-            _ = writer ?? throw new ArgumentNullException(nameof(writer));
+            if(ReferenceEquals(writer, null)) throw new ArgumentNullException(nameof(writer));
             writer.WriteIntValue("correctAnswersToTake", CorrectAnswersToTake);
             writer.WriteDateTimeOffsetValue("createdAt", CreatedAt);
             writer.WriteGuidValue("identifier", Identifier);
             writer.WriteIntValue("incorrectAnswersToTake", IncorrectAnswersToTake);
-            writer.WriteObjectValue<global::X39.Software.ExamMaker.Models.EQuestionKind>("kind", Kind);
+            writer.WriteIntValue("kind", (int?)Kind);
             writer.WriteStringValue("title", Title);
             writer.WriteAdditionalData(AdditionalData);
         }

@@ -47,7 +47,7 @@ namespace X39.Software.ExamMaker.Exam.Item.Topic.Item.Question.Item.Emplace
         public async Task<global::X39.Software.ExamMaker.Models.ExamQuestionListingDto> PutAsync(global::X39.Software.ExamMaker.Models.ExamQuestionUpdateDto body, Action<RequestConfiguration<DefaultQueryParameters>> requestConfiguration = default, CancellationToken cancellationToken = default)
         {
 #endif
-            _ = body ?? throw new ArgumentNullException(nameof(body));
+            if(ReferenceEquals(body, null)) throw new ArgumentNullException(nameof(body));
             var requestInfo = ToPutRequestInformation(body, requestConfiguration);
             var errorMapping = new Dictionary<string, ParsableFactory<IParsable>>
             {
@@ -67,7 +67,7 @@ namespace X39.Software.ExamMaker.Exam.Item.Topic.Item.Question.Item.Emplace
         public RequestInformation ToPutRequestInformation(global::X39.Software.ExamMaker.Models.ExamQuestionUpdateDto body, Action<RequestConfiguration<DefaultQueryParameters>> requestConfiguration = default)
         {
 #endif
-            _ = body ?? throw new ArgumentNullException(nameof(body));
+            if(ReferenceEquals(body, null)) throw new ArgumentNullException(nameof(body));
             var requestInfo = new RequestInformation(Method.PUT, UrlTemplate, PathParameters);
             requestInfo.Configure(requestConfiguration);
             requestInfo.Headers.TryAdd("Accept", "application/json, text/plain;q=0.9");

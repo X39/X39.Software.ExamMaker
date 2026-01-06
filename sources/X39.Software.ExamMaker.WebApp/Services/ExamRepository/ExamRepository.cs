@@ -1,5 +1,4 @@
-﻿using X39.Software.ExamMaker.Api.DataTransferObjects;
-using X39.Software.ExamMaker.Models;
+﻿using X39.Software.ExamMaker.Models;
 
 namespace X39.Software.ExamMaker.WebApp.Services.ExamRepository;
 
@@ -45,8 +44,8 @@ public sealed class ExamRepository(IHttpClientFactory httpClientFactory, BaseUrl
             .PutAsync(
                 new ExamUpdateDto
                 {
-                    Title    = title is null ? null : new NullableOfUpdateValueOfstring { Value    = title },
-                    Preamble = preamble is null ? null : new NullableOfUpdateValueOfstring { Value = preamble },
+                    Title    = title is null ? null : new UpdateValueOfstring { Value    = title },
+                    Preamble = preamble is null ? null : new UpdateValueOfstring { Value = preamble },
                 },
                 cancellationToken: cancellationToken
             );
@@ -63,8 +62,8 @@ public sealed class ExamRepository(IHttpClientFactory httpClientFactory, BaseUrl
             .PutAsync(
                 new ExamUpdateDto
                 {
-                    Title    = new NullableOfUpdateValueOfstring { Value    = title },
-                    Preamble = new NullableOfUpdateValueOfstring { Value = preamble },
+                    Title    = new UpdateValueOfstring { Value = title },
+                    Preamble = new UpdateValueOfstring { Value = preamble },
                 },
                 cancellationToken: cancellationToken
             );

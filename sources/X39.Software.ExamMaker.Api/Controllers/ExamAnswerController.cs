@@ -64,18 +64,7 @@ public sealed class ExamAnswerController(ExamDbContext examDbContext, ILogger<Ex
             return Unauthorized();
         }
 
-        if (question.ExamTopic?.Identifier != topicId || question.ExamTopic?.Exam?.Identifier != examId)
-        {
-            logger.LogWarning(
-                "Parent mismatch for answer {AnswerId}: topicId={TopicId}, examId={ExamId}",
-                answerId,
-                topicId,
-                examId
-            );
-            return Unauthorized();
-        }
-
-        if (question.OrganizationId != organizationId)
+        if (question.OrganizationFk != organizationId)
         {
             logger.LogWarning(
                 "Unauthorized: Organization {OrganizationId} tried to modify answer {AnswerId} under question {QuestionId}",
@@ -86,17 +75,28 @@ public sealed class ExamAnswerController(ExamDbContext examDbContext, ILogger<Ex
             return Unauthorized();
         }
 
+        if (question.ExamTopic?.Identifier != topicId || question.ExamTopic?.Exam?.Identifier != examId)
+        {
+            logger.LogWarning(
+                "Parent mismatch for answer {AnswerId}: topicId={TopicId}, examId={ExamId}",
+                answerId,
+                topicId,
+                examId
+            );
+            return BadRequest();
+        }
+
         logger.LogDebug("Querying for existing answer {AnswerId}", answerId);
         var existing = await examDbContext.ExamAnswers
             .Where(a => a.Identifier == answerId)
             .SingleOrDefaultAsync(cancellationToken);
-        if (existing is not null && existing.OrganizationId != organizationId)
+        if (existing is not null && existing.OrganizationFk != organizationId)
         {
             logger.LogWarning(
                 "Unauthorized: Organization {OrganizationId} tried to modify answer {AnswerId} belonging to another org {OtherOrg}",
                 organizationId,
                 answerId,
-                existing.OrganizationId
+                existing.OrganizationFk
             );
             return Unauthorized();
         }
@@ -109,7 +109,7 @@ public sealed class ExamAnswerController(ExamDbContext examDbContext, ILogger<Ex
                 existing = new ExamAnswer
                 {
                     Identifier     = answerId,
-                    OrganizationId = organizationId,
+                    OrganizationFk = organizationId,
                     CreatedAt      = now,
                     UpdatedAt      = now,
                     ExamQuestion   = question,
@@ -207,7 +207,7 @@ public sealed class ExamAnswerController(ExamDbContext examDbContext, ILogger<Ex
             take
         );
         var query = examDbContext.ExamAnswers
-            .Where(a => a.OrganizationId == organizationId
+            .Where(a => a.OrganizationFk == organizationId
                         && a.ExamQuestion!.Identifier == questionId
                         && a.ExamQuestion!.ExamTopic!.Identifier == topicId
                         && a.ExamQuestion!.ExamTopic!.Exam!.Identifier == examId
@@ -271,7 +271,7 @@ public sealed class ExamAnswerController(ExamDbContext examDbContext, ILogger<Ex
             return Unauthorized();
         }
 
-        if (answer.OrganizationId != organizationId)
+        if (answer.OrganizationFk != organizationId)
         {
             logger.LogWarning(
                 "Unauthorized access to answer {AnswerId} from organization {OrganizationId}",
@@ -334,7 +334,7 @@ public sealed class ExamAnswerController(ExamDbContext examDbContext, ILogger<Ex
             questionId
         );
         var count = await examDbContext.ExamAnswers
-            .Where(a => a.OrganizationId == organizationId
+            .Where(a => a.OrganizationFk == organizationId
                         && a.ExamQuestion!.Identifier == questionId
                         && a.ExamQuestion!.ExamTopic!.Identifier == topicId
                         && a.ExamQuestion!.ExamTopic!.Exam!.Identifier == examId
@@ -385,13 +385,13 @@ public sealed class ExamAnswerController(ExamDbContext examDbContext, ILogger<Ex
             return Unauthorized();
         }
 
-        if (existing.OrganizationId != organizationId)
+        if (existing.OrganizationFk != organizationId)
         {
             logger.LogWarning(
                 "Unauthorized deletion attempt: Org {OrganizationId} tried to delete answer {AnswerId} belonging to org {AnswerOrg}",
                 organizationId,
                 answerId,
-                existing.OrganizationId
+                existing.OrganizationFk
             );
             return NoContent();
         }

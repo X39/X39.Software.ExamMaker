@@ -1,5 +1,4 @@
-﻿using X39.Software.ExamMaker.Api.DataTransferObjects;
-using X39.Software.ExamMaker.Models;
+﻿using X39.Software.ExamMaker.Models;
 
 namespace X39.Software.ExamMaker.WebApp.Services.ExamQuestionRepository;
 
@@ -55,7 +54,7 @@ internal sealed class ExamQuestionRepository(IHttpClientFactory httpClientFactor
         UpdateValue<string>? title,
         UpdateValue<int?>? correctAnswersToTake,
         UpdateValue<int?>? incorrectAnswersToTake,
-        UpdateValue<EQuestionKindEnum>? kind,
+        UpdateValue<EQuestionKind>? kind,
         CancellationToken cancellationToken = default
     )
     {
@@ -66,10 +65,10 @@ internal sealed class ExamQuestionRepository(IHttpClientFactory httpClientFactor
             .PutAsync(
                 new ExamQuestionUpdateDto
                 {
-                    Title = title is null ? null : new NullableOfUpdateValueOfstring { Value = title },
-                    CorrectAnswersToTake = correctAnswersToTake is null ? null : new NullableOfUpdateValueOfNullableOfint { Value = correctAnswersToTake },
-                    IncorrectAnswersToTake = incorrectAnswersToTake is null ? null : new NullableOfUpdateValueOfNullableOfint { Value = incorrectAnswersToTake },
-                    Kind = kind is null ? null : new NullableOfUpdateValueOfEQuestionKind { Value = (int)kind.Value.Value },
+                    Title = title is null ? null : new UpdateValueOfstring { Value = title },
+                    CorrectAnswersToTake = correctAnswersToTake is null ? null : new UpdateValueOfint { Value = correctAnswersToTake },
+                    IncorrectAnswersToTake = incorrectAnswersToTake is null ? null : new UpdateValueOfint { Value = incorrectAnswersToTake },
+                    Kind = kind is null ? null : new UpdateValueOfEQuestionKind { Value = kind.Value.Value },
                 },
                 cancellationToken: cancellationToken
             );
@@ -81,7 +80,7 @@ internal sealed class ExamQuestionRepository(IHttpClientFactory httpClientFactor
         string title,
         int? correctAnswersToTake,
         int? incorrectAnswersToTake,
-        EQuestionKindEnum kind,
+        EQuestionKind kind,
         CancellationToken cancellationToken = default
     )
     {
@@ -92,10 +91,10 @@ internal sealed class ExamQuestionRepository(IHttpClientFactory httpClientFactor
             .PutAsync(
                 new ExamQuestionUpdateDto
                 {
-                    Title = new NullableOfUpdateValueOfstring { Value = title },
-                    CorrectAnswersToTake = new NullableOfUpdateValueOfNullableOfint { Value = correctAnswersToTake },
-                    IncorrectAnswersToTake = new NullableOfUpdateValueOfNullableOfint { Value = incorrectAnswersToTake },
-                    Kind = new NullableOfUpdateValueOfEQuestionKind { Value = (int)kind },
+                    Title = new UpdateValueOfstring { Value = title },
+                    CorrectAnswersToTake = new UpdateValueOfint { Value = correctAnswersToTake },
+                    IncorrectAnswersToTake = new UpdateValueOfint { Value = incorrectAnswersToTake },
+                    Kind = new UpdateValueOfEQuestionKind { Value = kind },
                 },
                 cancellationToken: cancellationToken
             );

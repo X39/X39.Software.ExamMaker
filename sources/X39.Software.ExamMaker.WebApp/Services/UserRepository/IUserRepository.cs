@@ -22,4 +22,6 @@ public interface IUserRepository
         string registrationToken,
         CancellationToken cancellationToken = default
     );
+
+    Task<bool> RefreshTokenAsync(string refreshToken, CancellationToken cancellationToken = default);
 }

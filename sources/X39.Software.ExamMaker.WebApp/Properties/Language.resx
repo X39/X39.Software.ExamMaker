@@ -219,4 +219,25 @@
     <data name="Pages_Management_Exams_Arg_Button_DeleteAnswer" xml:space="preserve">
         <value>Delete Answer</value>
     </data>
+    <data name="Pages_Authentication_Register_Toast_RegisteringNewOrganization" xml:space="preserve">
+        <value>Registering new Organization</value>
+    </data>
+    <data name="Pages_Authentication_RegisterUser_Toast_RegisteringUserWithOrganization" xml:space="preserve">
+        <value>Registering user with organization</value>
+    </data>
+    <data name="Pages_Authentication_RegisterUser_Toast_RegistrationFailed" xml:space="preserve">
+        <value>Registration failed</value>
+    </data>
+    <data name="Pages_Authentication_Register_Toast_RegistrationFailed" xml:space="preserve">
+        <value>Registration failed</value>
+    </data>
+    <data name="Layout_MainLayout_AppBar_Dashboard" xml:space="preserve">
+        <value>Dashboard</value>
+    </data>
+    <data name="Layout_MainLayout_AppBar_Exams" xml:space="preserve">
+        <value>Exams</value>
+    </data>
+    <data name="Pages_Management_Exams_All_Index_GridOperation_DownloadAsPdf" xml:space="preserve">
+        <value>Download as PDF</value>
+    </data>
 </root>

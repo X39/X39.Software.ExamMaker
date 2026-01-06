@@ -17,26 +17,26 @@ namespace X39.Software.ExamMaker.Models
         /// <summary>The answer property</summary>
 #if NETSTANDARD2_1_OR_GREATER || NETCOREAPP3_1_OR_GREATER
 #nullable enable
-        public global::X39.Software.ExamMaker.Models.NullableOfUpdateValueOfstring? Answer { get; set; }
+        public global::X39.Software.ExamMaker.Models.UpdateValueOfstring? Answer { get; set; }
 #nullable restore
 #else
-        public global::X39.Software.ExamMaker.Models.NullableOfUpdateValueOfstring Answer { get; set; }
+        public global::X39.Software.ExamMaker.Models.UpdateValueOfstring Answer { get; set; }
 #endif
         /// <summary>The isCorrect property</summary>
 #if NETSTANDARD2_1_OR_GREATER || NETCOREAPP3_1_OR_GREATER
 #nullable enable
-        public global::X39.Software.ExamMaker.Models.NullableOfUpdateValueOfboolean? IsCorrect { get; set; }
+        public global::X39.Software.ExamMaker.Models.UpdateValueOfboolean? IsCorrect { get; set; }
 #nullable restore
 #else
-        public global::X39.Software.ExamMaker.Models.NullableOfUpdateValueOfboolean IsCorrect { get; set; }
+        public global::X39.Software.ExamMaker.Models.UpdateValueOfboolean IsCorrect { get; set; }
 #endif
         /// <summary>The reason property</summary>
 #if NETSTANDARD2_1_OR_GREATER || NETCOREAPP3_1_OR_GREATER
 #nullable enable
-        public global::X39.Software.ExamMaker.Models.NullableOfUpdateValueOfstring? Reason { get; set; }
+        public global::X39.Software.ExamMaker.Models.UpdateValueOfstring? Reason { get; set; }
 #nullable restore
 #else
-        public global::X39.Software.ExamMaker.Models.NullableOfUpdateValueOfstring Reason { get; set; }
+        public global::X39.Software.ExamMaker.Models.UpdateValueOfstring Reason { get; set; }
 #endif
         /// <summary>
         /// Instantiates a new <see cref="global::X39.Software.ExamMaker.Models.ExamAnswerUpdateDto"/> and sets the default values.
@@ -52,7 +52,7 @@ namespace X39.Software.ExamMaker.Models
         /// <param name="parseNode">The parse node to use to read the discriminator value and create the object</param>
         public static global::X39.Software.ExamMaker.Models.ExamAnswerUpdateDto CreateFromDiscriminatorValue(IParseNode parseNode)
         {
-            _ = parseNode ?? throw new ArgumentNullException(nameof(parseNode));
+            if(ReferenceEquals(parseNode, null)) throw new ArgumentNullException(nameof(parseNode));
             return new global::X39.Software.ExamMaker.Models.ExamAnswerUpdateDto();
         }
         /// <summary>
@@ -63,9 +63,9 @@ namespace X39.Software.ExamMaker.Models
         {
             return new Dictionary<string, Action<IParseNode>>
             {
-                { "answer", n => { Answer = n.GetObjectValue<global::X39.Software.ExamMaker.Models.NullableOfUpdateValueOfstring>(global::X39.Software.ExamMaker.Models.NullableOfUpdateValueOfstring.CreateFromDiscriminatorValue); } },
-                { "isCorrect", n => { IsCorrect = n.GetObjectValue<global::X39.Software.ExamMaker.Models.NullableOfUpdateValueOfboolean>(global::X39.Software.ExamMaker.Models.NullableOfUpdateValueOfboolean.CreateFromDiscriminatorValue); } },
-                { "reason", n => { Reason = n.GetObjectValue<global::X39.Software.ExamMaker.Models.NullableOfUpdateValueOfstring>(global::X39.Software.ExamMaker.Models.NullableOfUpdateValueOfstring.CreateFromDiscriminatorValue); } },
+                { "answer", n => { Answer = n.GetObjectValue<global::X39.Software.ExamMaker.Models.UpdateValueOfstring>(global::X39.Software.ExamMaker.Models.UpdateValueOfstring.CreateFromDiscriminatorValue); } },
+                { "isCorrect", n => { IsCorrect = n.GetObjectValue<global::X39.Software.ExamMaker.Models.UpdateValueOfboolean>(global::X39.Software.ExamMaker.Models.UpdateValueOfboolean.CreateFromDiscriminatorValue); } },
+                { "reason", n => { Reason = n.GetObjectValue<global::X39.Software.ExamMaker.Models.UpdateValueOfstring>(global::X39.Software.ExamMaker.Models.UpdateValueOfstring.CreateFromDiscriminatorValue); } },
             };
         }
         /// <summary>
@@ -74,10 +74,10 @@ namespace X39.Software.ExamMaker.Models
         /// <param name="writer">Serialization writer to use to serialize this model</param>
         public virtual void Serialize(ISerializationWriter writer)
         {
-            _ = writer ?? throw new ArgumentNullException(nameof(writer));
-            writer.WriteObjectValue<global::X39.Software.ExamMaker.Models.NullableOfUpdateValueOfstring>("answer", Answer);
-            writer.WriteObjectValue<global::X39.Software.ExamMaker.Models.NullableOfUpdateValueOfboolean>("isCorrect", IsCorrect);
-            writer.WriteObjectValue<global::X39.Software.ExamMaker.Models.NullableOfUpdateValueOfstring>("reason", Reason);
+            if(ReferenceEquals(writer, null)) throw new ArgumentNullException(nameof(writer));
+            writer.WriteObjectValue<global::X39.Software.ExamMaker.Models.UpdateValueOfstring>("answer", Answer);
+            writer.WriteObjectValue<global::X39.Software.ExamMaker.Models.UpdateValueOfboolean>("isCorrect", IsCorrect);
+            writer.WriteObjectValue<global::X39.Software.ExamMaker.Models.UpdateValueOfstring>("reason", Reason);
             writer.WriteAdditionalData(AdditionalData);
         }
     }

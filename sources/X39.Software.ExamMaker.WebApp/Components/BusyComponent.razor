@@ -14,6 +14,8 @@
     [Parameter]
     public RenderFragment ChildContent { get; set; } = _ => { };
 
+    public bool IsBusy => _busyCounter != 0;
+
     public IDisposable Busy()
     {
         Interlocked.Increment(ref _busyCounter);
@@ -24,4 +26,54 @@
             _ = InvokeAsync(StateHasChanged);
         });
     }
+    public void ExclusiveBusy(Action action)
+    {
+        var result = Interlocked.Increment(ref _busyCounter);
+        try
+        {
+            if (result != 1)
+                return;
+            _ = InvokeAsync(StateHasChanged);
+            action();
+        }
+        finally
+        {
+            Interlocked.Decrement(ref _busyCounter);
+        }
+    }
+
+    public async Task ExclusiveBusyAsync(Func<Task> action)
+    {
+        var result = Interlocked.Increment(ref _busyCounter);
+        try
+        {
+            if (result != 1)
+                return;
+            _ = InvokeAsync(StateHasChanged);
+            await action();
+        }
+        finally
+        {
+            Interlocked.Decrement(ref _busyCounter);
+        }
+    }
+
+    public async Task<T> ExclusiveBusyAsync<T>(Func<Task<T>> action, Func<T> defaultValueFactory)
+    {
+        var result = Interlocked.Increment(ref _busyCounter);
+        try
+        {
+            if (result != 1)
+                return defaultValueFactory();
+            _ = InvokeAsync(StateHasChanged);
+            return await action();
+        }
+        finally
+        {
+            Interlocked.Decrement(ref _busyCounter);
+        }
+    }
+
+    public static implicit operator bool(BusyComponent self) => self.IsBusy;
+
 }

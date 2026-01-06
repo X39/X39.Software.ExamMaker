@@ -1,4 +1,5 @@
 using System.Text;
+using System.Text.Json.Serialization;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using Scalar.AspNetCore;
@@ -8,6 +9,7 @@ using X39.Software.ExamMaker.Api.Services;
 using X39.Software.ExamMaker.Api.Storage.Authority;
 using X39.Software.ExamMaker.Api.Storage.Exam;
 using X39.Software.ExamMaker.Api.Storage.Meta;
+using X39.Software.ExamMaker.ServiceDefaults;
 using X39.Solutions.PdfTemplate;
 
 namespace X39.Software.ExamMaker.Api;
@@ -22,15 +24,26 @@ internal static class Program
         builder.AddServiceDefaults();
         builder.AddAuthorityDb("auth-db");
         builder.AddExamDb("exam-db");
-        builder.Services.AddControllers();
+        builder.Services.AddControllers().AddJsonOptions(options =>
+        {
+            options.JsonSerializerOptions.NumberHandling = JsonNumberHandling.Strict;
+        });
         builder.Services.AddPdfTemplateServices();
         
-        // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
         builder.Services.AddOpenApi(options =>
             {
                 options.AddDocumentTransformer<BearerSecuritySchemeTransformer>();
+        
                 options.AddOperationTransformer<XAnonymousAnnotationOperationTransformer>();
+        
                 options.AddSchemaTransformer<FixEnumsSchemaTransformer>();
+
+                options.AddSchemaTransformer<FixBySuppressionOfNumberTypesExposingString>();
+        
+                options.AddOperationTransformer<FixFileResultsOperationTransformer>();
+                options.AddSchemaTransformer<FixFileResultsSchemaTransformer>();
+                
+                options.AddSchemaTransformer<KiotaFixNullableNumberTypeAnnotation>();
             }
         );
         
@@ -71,6 +84,8 @@ internal static class Program
                 }
             );
         
+        builder.Services.AddTransient<PdfService>();
+        builder.Services.AddPdfTemplateServices();
         
         ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
         

@@ -1,4 +1,4 @@
-﻿@page "/management/exams/all"
+﻿@page "/management/exams"
 @using Microsoft.AspNetCore.Components.Sections
 @using X39.Software.ExamMaker.Models
 @using X39.Software.ExamMaker.WebApp.Services
@@ -6,6 +6,8 @@
 @inject NavigationManager NavigationManager
 @inject BaseUrl BaseUrl
 @inject IExamRepository ExamRepository
+@inject JsUtil JsUtil
+@inject JwtAuthenticationStateProvider JwtAuthenticationStateProvider
 
 <SectionContent SectionName="@MainLayout.FooterStartSectionOutlet">
     <FluentToolbar>
@@ -15,7 +17,7 @@
     </FluentToolbar>
 </SectionContent>
 
-<FluentDataGrid TGridItem="ExamListingDto" ItemsProvider="ProvideItemsAsync">
+<FluentDataGrid TGridItem="ExamListingDto" ItemsProvider="ProvideItemsAsync" ItemSize="45">
     <PropertyColumn Title="@Localizer[nameof(Language.Pages_Management_Exams_All_Index_GridHeaders_CreatedAt)]"
                     Property="@(e => e.CreatedAt)"
                     Sortable="false"/>
@@ -28,6 +30,9 @@
     <TemplateColumn Title="@Localizer[nameof(Language.Pages_Management_Exams_All_Index_GridHeaders_Operations)]">
         <FluentButton Appearance="Appearance.Accent" OnClick="@(() => OpenExamAsync(context.Identifier))">
             @Localizer[nameof(Language.Pages_Management_Exams_All_Index_GridOperation_OpenExam)]
+        </FluentButton>
+        <FluentButton Appearance="Appearance.Accent" OnClick="@(() => DownloadExamPdfAsync(context))">
+            @Localizer[nameof(Language.Pages_Management_Exams_All_Index_GridOperation_DownloadAsPdf)]
         </FluentButton>
     </TemplateColumn>
 </FluentDataGrid>
@@ -61,6 +66,16 @@
         var guid = Guid.NewGuid();
         await ExamRepository.UpdateAsync(guid, string.Empty, string.Empty);
         OpenExamAsync(guid);
+    }
+
+    private async Task DownloadExamPdfAsync(ExamListingDto exam)
+    {
+        var token = await JwtAuthenticationStateProvider.GetTokenAsync();
+        if (token is null)
+            throw new InvalidOperationException("No JWT token available");
+
+        var url = BaseUrl.ResolveApiUrl($"Exam/{exam.Identifier}/pdf");
+        await JsUtil.ApiDownload(url, $"{exam.Title}.pdf", token);
     }
 
 }

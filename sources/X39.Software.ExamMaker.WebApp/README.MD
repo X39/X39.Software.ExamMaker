@@ -8,3 +8,7 @@ Afterwards, you may use the following command, at project root, to generate the 
 ```bash
 kiota generate -d http://localhost:8080/openapi/v1.json -l CSharp -n X39.Software.ExamMaker -o Api
 ```
+
+```bash
+D:\dev\git\kiota\src\kiota\bin\Release\net8.0\publish\kiota.exe generate -d http://localhost:8080/openapi/v1.json -l CSharp -n X39.Software.ExamMaker -o Api
+```

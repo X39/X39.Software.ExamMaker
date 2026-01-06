@@ -40,12 +40,38 @@ public sealed partial class UsersController(
     )]
     private partial Regex EmailRegex { get; }
 
+    /// <summary>Registers a new tenant organization with the provided details.</summary>
+    /// <param name="payload">
+    /// The payload containing the organization's identifier, title, and the administrator's details,
+    /// including email, first name, last name, and password.
+    /// </param>
+    /// <returns>
+    /// An <see cref="Microsoft.AspNetCore.Mvc.IActionResult"/> indicating the result of the operation.
+    /// Returns <see cref="Microsoft.AspNetCore.Http.StatusCodes.Status204NoContent"/> if successful,
+    /// <see cref="Microsoft.AspNetCore.Http.StatusCodes.Status422UnprocessableEntity"/> for invalid input,
+    /// or <see cref="Microsoft.AspNetCore.Http.StatusCodes.Status409Conflict"/> if a conflict is detected (e.g., duplicate email or identifier).
+    /// </returns>
+    /// <exception cref="System.ArgumentNullException">Thrown when <paramref name="payload"/> is <see langword="null"/>.</exception>
+    /// <remarks>
+    /// <para>
+    /// This method validates the input, ensuring all required fields are populated and meet the required
+    /// constraints (e.g., non-empty strings, proper formats). It also ensures that the admin email and organization identifier
+    /// are unique across the system before proceeding with the registration process.
+    /// </para>
+    /// <para>
+    /// If the provided input is invalid or conflicts exist, the appropriate HTTP status code is returned with a descriptive
+    /// error message.
+    /// </para>
+    /// </remarks>
+    /// <seealso cref="X39.Software.ExamMaker.Api.DataTransferObjects.Users.RegisterOrganizationDto"/>
+    /// <seealso cref="Microsoft.AspNetCore.Mvc.ControllerBase.UnprocessableEntity()"/>
+    /// <seealso cref="Microsoft.AspNetCore.Mvc.ControllerBase.Conflict(object)"/>
     [AllowAnonymous]
     [HttpPost("register/organization")]
     [ProducesResponseType(StatusCodes.Status422UnprocessableEntity)]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status409Conflict)]
-    public async Task<IActionResult> RegisterTenantAsync([FromBody] RegisterOrganizationDto payload)
+    public async Task<IActionResult> RegisterOrganizationAsync([FromBody] RegisterOrganizationDto payload)
     {
         if (!EmailRegex.IsMatch(payload.AdminEmail)
             || payload.AdminFirstName.IsNullOrWhiteSpace()
@@ -98,13 +124,15 @@ public sealed partial class UsersController(
                                     CreatedAt  = now,
                                 }
                             );
+                            await examDbContext.SaveChangesAsync();
                             await examDbContext.Users.AddAsync(
                                 new Storage.Exam.Entities.User
                                 {
                                     Id             = authUserEntry.Entity.Id,
-                                    OrganizationId = organizationEntry.Entity.Id,
+                                    OrganizationFk = organizationEntry.Entity.Id,
                                 }
                             );
+                            await examDbContext.SaveChangesAsync();
                             await authorityDbTransaction.CommitAsync();
                             await examDbTransaction.CommitAsync();
                         }
@@ -122,6 +150,25 @@ public sealed partial class UsersController(
         return NoContent();
     }
 
+    /// <summary>Creates a registration link for an organization using the provided expiration details.</summary>
+    /// <param name="payload">The payload containing the expiration duration for the registration link.</param>
+    /// <returns>
+    /// A <see cref="Microsoft.AspNetCore.Mvc.ActionResult{TValue}"/> containing the registration token as a <see cref="string"/> if successful,
+    /// or an appropriate HTTP status code such as <see cref="Microsoft.AspNetCore.Http.StatusCodes.Status401Unauthorized"/> if unauthorized.
+    /// </returns>
+    /// <exception cref="System.ArgumentNullException">Thrown when <paramref name="payload"/> is <see langword="null"/>.</exception>
+    /// <remarks>
+    /// <para>
+    /// This method generates a registration link for an organization. The link is valid until the expiration date
+    /// specified in the <paramref name="payload"/>.
+    /// </para>
+    /// <para>
+    /// The method ensures that the current user is authenticated and belongs to an organization. If the user is not
+    /// authenticated or does not belong to an organization, an unauthorized response is returned.
+    /// </para>
+    /// </remarks>
+    /// <seealso cref="X39.Software.ExamMaker.Api.Storage.Exam.Entities.OrganizationRegistrationToken" />
+    /// <seealso cref="X39.Software.ExamMaker.Api.DataTransferObjects.Users.CreateRegistrationLinkDto" />
     [Authorize]
     [HttpPost("create-registration-link")]
     [ProducesResponseType<string>(StatusCodes.Status200OK)]
@@ -145,7 +192,7 @@ public sealed partial class UsersController(
             Token          = Convert.ToBase64String(bytes),
             ExpiresAt      = expiresAt,
             CreatedAt      = now,
-            OrganizationId = user.OrganizationId,
+            OrganizationFk = user.OrganizationFk,
             CreatedBy      = user,
         };
 
@@ -155,6 +202,27 @@ public sealed partial class UsersController(
         return Ok(registrationLink.Token);
     }
 
+    /// <summary>Registers a new user using the provided registration token and user details.</summary>
+    /// <param name="payload">The registration details containing the token, email, first name, last name, and password of the user.</param>
+    /// <returns>
+    /// An <see cref="Microsoft.AspNetCore.Mvc.IActionResult"/> indicating the result of the registration process.
+    /// This can be a <see cref="Microsoft.AspNetCore.Http.StatusCodes.Status204NoContent"/> if the registration is successful,
+    /// <see cref="Microsoft.AspNetCore.Http.StatusCodes.Status409Conflict"/> if the user already exists,
+    /// <see cref="Microsoft.AspNetCore.Http.StatusCodes.Status422UnprocessableEntity"/> if the registration details are invalid,
+    /// <see cref="Microsoft.AspNetCore.Http.StatusCodes.Status401Unauthorized"/> if the token is unauthorized, or
+    /// <see cref="Microsoft.AspNetCore.Http.StatusCodes.Status400BadRequest"/> if the token is invalid or expired.
+    /// </returns>
+    /// <exception cref="System.ArgumentNullException">Thrown when <paramref name="payload"/> is <see langword="null"/>.</exception>
+    /// <remarks>
+    /// <para>
+    /// This method validates the provided registration details and the associated token. If valid, it creates a new user
+    /// in the system and returns the appropriate status code.
+    /// </para>
+    /// <para>
+    /// The token must be valid and not expired. The registration details, including email, names, and password,
+    /// must meet validation criteria, such as length and format constraints.
+    /// </para>
+    /// </remarks>
     [AllowAnonymous]
     [HttpPost("register/user")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
@@ -212,7 +280,7 @@ public sealed partial class UsersController(
                                 return Conflict(new { message = "Email already exists" });
                             }
 
-                            registrationLink.UsedById = authUser.Id;
+                            registrationLink.UsedByFk = authUser.Id;
                             registrationLink.UsedAt   = now;
 
                             var authUserEntry = await authorityDbContext.Users.AddAsync(authUser);
@@ -222,7 +290,7 @@ public sealed partial class UsersController(
                                 new Storage.Exam.Entities.User
                                 {
                                     Id             = authUserEntry.Entity.Id,
-                                    OrganizationId = registrationLink.OrganizationId,
+                                    OrganizationFk = registrationLink.OrganizationFk,
                                 }
                             );
                             await authorityDbTransaction.CommitAsync();
@@ -241,6 +309,20 @@ public sealed partial class UsersController(
         );
     }
 
+    /// <summary>Authenticates a user with the provided credentials and returns authentication tokens on success.</summary>
+    /// <param name="payload">The login credentials containing the user's email and password.</param>
+    /// <returns>
+    /// An <see cref="Microsoft.AspNetCore.Mvc.ActionResult{T}" /> containing a <see cref="X39.Software.ExamMaker.Api.DataTransferObjects.Users.LoginResponseDto" />
+    /// with authentication tokens and user details if the login is successful, or an appropriate error response.
+    /// </returns>
+    /// <exception cref="Microsoft.AspNetCore.Http.StatusCodes.Status401Unauthorized">Thrown when the email or password is invalid or does not match any user.</exception>
+    /// <exception cref="Microsoft.AspNetCore.Http.StatusCodes.Status400BadRequest">Thrown when the user is not associated with a valid organization.</exception>
+    /// <remarks>
+    /// <para>
+    /// This method validates the user's credentials. If valid, it retrieves the user's details and their associated organization
+    /// to generate access and refresh tokens. Invalid credentials or disconnected users result in appropriate error responses.
+    /// </para>
+    /// </remarks>
     [AllowAnonymous]
     [HttpPost("login")]
     [ProducesResponseType<LoginResponseDto>(StatusCodes.Status200OK)]
@@ -263,17 +345,48 @@ public sealed partial class UsersController(
 
         var (accessToken, refreshToken, expiresAt) = await jwtService.GenerateTokenAsync(authUser, organization);
 
-        return Ok(new LoginResponseDto(accessToken, refreshToken, expiresAt, authUser.FirstName, authUser.LastName, authUser.EMail));
+        return Ok(
+            new LoginResponseDto(
+                accessToken,
+                refreshToken,
+                expiresAt,
+                authUser.FirstName,
+                authUser.LastName,
+                authUser.EMail
+            )
+        );
     }
 
-    [Authorize]
+    /// <summary>Refreshes the user's access and refresh tokens using a valid refresh token.</summary>
+    /// <param name="refreshTokenDto">An object containing the refresh token provided by the client.</param>
+    /// <returns>
+    /// An <see cref="Microsoft.AspNetCore.Mvc.ActionResult{T}" /> containing a <see cref="X39.Software.ExamMaker.Api.DataTransferObjects.Users.TokenDto" />
+    /// with the newly generated tokens if successful, or an appropriate error response.
+    /// </returns>
+    /// <exception cref="Microsoft.AspNetCore.Http.StatusCodes.Status401Unauthorized">
+    /// Thrown when the provided refresh token cannot be associated with an existing user.
+    /// </exception>
+    /// <exception cref="Microsoft.AspNetCore.Http.StatusCodes.Status400BadRequest">
+    /// Thrown when the user's authenticated account or associated organization cannot be resolved.
+    /// </exception>
+    /// <remarks>
+    /// <para>
+    /// This method verifies the provided refresh token, revokes the existing token, and generates a new pair of access
+    /// and refresh tokens. It ensures the tokens are valid and linked to an authenticated user and organization.
+    /// </para>
+    /// </remarks>
+    [AllowAnonymous]
     [HttpPost("refresh")]
     [ProducesResponseType<TokenDto>(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     public async Task<ActionResult<TokenDto>> RefreshTokenAsync([FromBody] RefreshTokenDto refreshTokenDto)
     {
-        if (!User.ResolveUserId(out var userId) || await jwtService.IsTokenRevokedAsync(refreshTokenDto.RefreshToken))
+        var user = await examDbContext.Users
+            .Where(e => e.UserTokens!.Any(t => t.RefreshToken == refreshTokenDto.RefreshToken))
+            .SingleOrDefaultAsync();
+        if (user == null)
             return Unauthorized();
+        var userId = user.Id;
         await jwtService.RevokeTokenAsync(refreshTokenDto.RefreshToken);
         var authUser = await authorityDbContext.Users.FindAsync([userId]);
         if (authUser == null)
@@ -287,6 +400,14 @@ public sealed partial class UsersController(
         return Ok(new TokenDto(accessToken, refreshToken, expiresAt));
     }
 
+    /// <summary>Logs out the current user and revokes all associated tokens.</summary>
+    /// <returns>A <see cref="Microsoft.AspNetCore.Mvc.IActionResult"/> indicating the result of the operation.</returns>
+    /// <exception cref="System.UnauthorizedAccessException">Thrown when the current user's ID cannot be resolved.</exception>
+    /// <remarks>
+    /// <para>The method revokes all active tokens associated with the user identified by the current <see cref="System.Security.Claims.ClaimsPrincipal"/>.</para>
+    /// </remarks>
+    /// <seealso cref="X39.Software.ExamMaker.Shared.ClaimsPrincipalExtensions.ResolveUserId" />
+    /// <seealso cref="X39.Software.ExamMaker.Api.Services.JwtService.RevokeTokensOfUserAsync" />
     [Authorize]
     [HttpPost("logout")]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]

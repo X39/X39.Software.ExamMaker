@@ -29,15 +29,15 @@ public sealed partial class ExamAnswer
     public partial Instant CreatedAt { get; set; }
     public partial Instant UpdatedAt { get; set; }
 
-    [ForeignKey(nameof(OrganizationId))]
+    [ForeignKey(nameof(OrganizationFk))]
     public partial Organization? Organization { get; set; }
 
-    public partial long OrganizationId { get; set; }
+    public partial long OrganizationFk { get; set; }
 
-    [ForeignKey(nameof(ExamQuestionId))]
+    [ForeignKey(nameof(ExamQuestionFk))]
     public partial ExamQuestion? ExamQuestion { get; set; }
 
-    public partial long ExamQuestionId { get; set; }
+    public partial long ExamQuestionFk { get; set; }
 
     ExamQuestion? IRefersToOneRequired<ExamQuestion, long>.Entity
     {
@@ -47,7 +47,7 @@ public sealed partial class ExamAnswer
 
     long IRefersToOneRequired<ExamQuestion, long>.EntityId
     {
-        get => ExamQuestionId;
-        set => ExamQuestionId = value;
+        get => ExamQuestionFk;
+        set => ExamQuestionFk = value;
     }
 }

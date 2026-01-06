@@ -42,6 +42,9 @@ internal sealed class XAnonymousAnnotationOperationTransformer : IOpenApiOperati
             operation.Metadata["x-anonymous"] = false;
         }
 
+        operation.Metadata["x-comment"] = operation.Metadata.TryGetValue("x-comment", out var value) is false
+            ? "Applied XAnonymousAnnotationOperationTransformer"
+            : string.Join(Environment.NewLine, value, "Applied XAnonymousAnnotationOperationTransformer");
         return Task.CompletedTask;
     }
 }

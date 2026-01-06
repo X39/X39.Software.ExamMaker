@@ -49,23 +49,25 @@ else
                     </FluentButton>
                 </FluentStack>
 
-                <FluentAccordion>
+                <FluentAccordion Class="w-100p">
                     @foreach (var topic in _examViewModel.Topics)
                     {
                         <FluentAccordionItem @key="topic.Identifier">
                             <HeadingTemplate>
-                                <FluentStack Orientation="Orientation.Horizontal" VerticalAlignment="VerticalAlignment.Center" Style="width: 100%;">
+                                <FluentStack Orientation="Orientation.Horizontal"
+                                             VerticalAlignment="VerticalAlignment.Center" Style="width: 100%;">
                                     <span style="flex: 1;">@topic.Title</span>
-                                    <FluentButton
-                                        Appearance="Appearance.Lightweight"
-                                        OnClick="@(async (e) => { await _examViewModel.DeleteTopicAsync(topic); })"
-                                        IconStart="@(new Icons.Regular.Size20.Delete())">
-                                        @Localizer[nameof(Language.Pages_Management_Exams_Arg_Button_DeleteTopic)]
-                                    </FluentButton>
                                 </FluentStack>
                             </HeadingTemplate>
                             <ChildContent>
                                 <FluentStack Orientation="Orientation.Vertical" Style="gap: 15px; padding: 10px;">
+                                    <FluentButton
+                                        Appearance="Appearance.Lightweight"
+                                        Color="red"
+                                        OnClick="@(async (e) => { await _examViewModel.DeleteTopicAsync(topic); })"
+                                        IconStart="@(new Icons.Regular.Size20.Delete())">
+                                        @Localizer[nameof(Language.Pages_Management_Exams_Arg_Button_DeleteTopic)]
+                                    </FluentButton>
                                     <FluentTextField
                                         Label="@Localizer[nameof(Language.Pages_Management_Exams_Arg_Label_TopicTitle)]"
                                         @bind-Value="@topic.Title"
@@ -77,9 +79,10 @@ else
                                         Style="width: 100%;"
                                     />
 
-                                    <FluentDivider />
+                                    <FluentDivider/>
 
-                                    <FluentStack Orientation="Orientation.Horizontal" VerticalAlignment="VerticalAlignment.Center">
+                                    <FluentStack Orientation="Orientation.Horizontal"
+                                                 VerticalAlignment="VerticalAlignment.Center">
                                         <h4 style="margin: 0; flex: 1;">Questions</h4>
                                         <FluentButton
                                             Appearance="Appearance.Accent"
@@ -89,23 +92,27 @@ else
                                         </FluentButton>
                                     </FluentStack>
 
-                                    <FluentAccordion>
+                                    <FluentAccordion Class="w-100p">
                                         @foreach (var question in topic.Questions)
                                         {
                                             <FluentAccordionItem @key="question.Identifier">
                                                 <HeadingTemplate>
-                                                    <FluentStack Orientation="Orientation.Horizontal" VerticalAlignment="VerticalAlignment.Center" Style="width: 100%;">
+                                                    <FluentStack Orientation="Orientation.Horizontal"
+                                                                 VerticalAlignment="VerticalAlignment.Center"
+                                                                 Style="width: 100%;">
                                                         <span style="flex: 1;">@question.Title</span>
-                                                        <FluentButton
-                                                            Appearance="Appearance.Lightweight"
-                                                            OnClick="@(async (e) => {  await topic.DeleteQuestionAsync(question); })"
-                                                            IconStart="@(new Icons.Regular.Size20.Delete())">
-                                                            @Localizer[nameof(Language.Pages_Management_Exams_Arg_Button_DeleteQuestion)]
-                                                        </FluentButton>
                                                     </FluentStack>
                                                 </HeadingTemplate>
                                                 <ChildContent>
-                                                    <FluentStack Orientation="Orientation.Vertical" Style="gap: 15px; padding: 10px;">
+                                                    <FluentStack Orientation="Orientation.Vertical"
+                                                                 Style="gap: 15px; padding: 10px;">
+                                                        <FluentButton
+                                                            Appearance="Appearance.Lightweight"
+                                                            Color="red"
+                                                            OnClick="@(async (e) => { await topic.DeleteQuestionAsync(question); })"
+                                                            IconStart="@(new Icons.Regular.Size20.Delete())">
+                                                            @Localizer[nameof(Language.Pages_Management_Exams_Arg_Button_DeleteQuestion)]
+                                                        </FluentButton>
                                                         <FluentTextField
                                                             Label="@Localizer[nameof(Language.Pages_Management_Exams_Arg_Label_QuestionTitle)]"
                                                             @bind-Value="@question.Title"
@@ -123,9 +130,10 @@ else
                                                             Style="width: 100%;"
                                                         />
 
-                                                        <FluentDivider />
+                                                        <FluentDivider/>
 
-                                                        <FluentStack Orientation="Orientation.Horizontal" VerticalAlignment="VerticalAlignment.Center">
+                                                        <FluentStack Orientation="Orientation.Horizontal"
+                                                                     VerticalAlignment="VerticalAlignment.Center">
                                                             <h5 style="margin: 0; flex: 1;">Answers</h5>
                                                             <FluentButton
                                                                 Appearance="Appearance.Accent"
@@ -134,40 +142,57 @@ else
                                                                 @Localizer[nameof(Language.Pages_Management_Exams_Arg_Button_AddAnswer)]
                                                             </FluentButton>
                                                         </FluentStack>
-
-                                                        <FluentStack Orientation="Orientation.Vertical" Style="gap: 10px;">
+                                                        <FluentAccordion Class="w-100p">
                                                             @foreach (var answer in question.Answers)
                                                             {
-                                                                <FluentCard @key="answer.Identifier">
-                                                                    <FluentStack Orientation="Orientation.Vertical" Style="gap: 10px;">
-                                                                        <FluentStack Orientation="Orientation.Horizontal" VerticalAlignment="VerticalAlignment.Center">
-                                                                            <FluentCheckbox
-                                                                                Label="@Localizer[nameof(Language.Pages_Management_Exams_Arg_Label_IsCorrect)]"
-                                                                                @bind-Value="@answer.IsCorrect"
-                                                                            />
-                                                                            <div style="flex: 1;"></div>
-                                                                            <FluentButton
-                                                                                Appearance="Appearance.Lightweight"
-                                                                                OnClick="@(() => question.DeleteAnswerAsync(answer))"
-                                                                                IconStart="@(new Icons.Regular.Size20.Delete())">
-                                                                                @Localizer[nameof(Language.Pages_Management_Exams_Arg_Button_DeleteAnswer)]
-                                                                            </FluentButton>
+                                                                <FluentAccordionItem @key="answer.Identifier">
+                                                                    <HeadingTemplate>
+                                                                        <FluentStack
+                                                                            Orientation="Orientation.Horizontal"
+                                                                            VerticalAlignment="VerticalAlignment.Center"
+                                                                            Style="width: 100%;">
+                                                                            @if (answer.IsCorrect)
+                                                                            {
+                                                                                <FluentIcon Value="@(new Icons.Regular.Size20.Checkmark())" Color="@Color.Success" />
+                                                                            }
+                                                                            else
+                                                                            {
+                                                                                <FluentIcon Value="@(new Icons.Regular.Size20.Dismiss())" Color="@Color.Error" />
+                                                                            }
+                                                                            <span style="flex: 1;">@answer.Answer</span>
                                                                         </FluentStack>
-                                                                        <FluentTextField
-                                                                            Label="@Localizer[nameof(Language.Pages_Management_Exams_Arg_Label_Answer)]"
-                                                                            @bind-Value="@answer.Answer"
-                                                                            Style="width: 100%;"
-                                                                        />
-                                                                        <FluentTextArea
-                                                                            Label="@Localizer[nameof(Language.Pages_Management_Exams_Arg_Label_AnswerReason)]"
-                                                                            @bind-Value="@answer.Reason"
-                                                                            Rows="3"
-                                                                            Style="width: 100%;"
-                                                                        />
-                                                                    </FluentStack>
-                                                                </FluentCard>
+                                                                    </HeadingTemplate>
+                                                                    <ChildContent>
+                                                                        <FluentStack Orientation="Orientation.Vertical"
+                                                                                     Style="gap: 10px;">
+                                                                                <FluentCheckbox
+                                                                                    Label="@Localizer[nameof(Language.Pages_Management_Exams_Arg_Label_IsCorrect)]"
+                                                                                    @bind-Value="@answer.IsCorrect"
+                                                                                />
+                                                                                <FluentButton
+                                                                                    Appearance="Appearance.Lightweight"
+                                                                                    Color="red"
+                                                                                    OnClick="@(() => question.DeleteAnswerAsync(answer))"
+                                                                                    IconStart="@(new Icons.Regular.Size20.Delete())">
+                                                                                    @Localizer[nameof(Language.Pages_Management_Exams_Arg_Button_DeleteAnswer)]
+                                                                                </FluentButton>
+                                                                            <FluentTextField
+                                                                                Label="@Localizer[nameof(Language.Pages_Management_Exams_Arg_Label_Answer)]"
+                                                                                @bind-Value="@answer.Answer"
+                                                                                Style="width: 100%;"
+                                                                            />
+                                                                            <FluentTextArea
+                                                                                Label="@Localizer[nameof(Language.Pages_Management_Exams_Arg_Label_AnswerReason)]"
+                                                                                @bind-Value="@answer.Reason"
+                                                                                Rows="3"
+                                                                                Style="width: 100%;"
+                                                                            />
+                                                                        </FluentStack>
+
+                                                                    </ChildContent>
+                                                                </FluentAccordionItem>
                                                             }
-                                                        </FluentStack>
+                                                        </FluentAccordion>
                                                     </FluentStack>
                                                 </ChildContent>
                                             </FluentAccordionItem>

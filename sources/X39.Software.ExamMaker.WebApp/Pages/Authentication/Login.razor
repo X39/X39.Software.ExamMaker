@@ -1,6 +1,5 @@
 ﻿@page "/authentication/login"
 @using System.ComponentModel.DataAnnotations
-@using X39.Software.ExamMaker.WebApp.Components
 @using X39.Software.ExamMaker.WebApp.Services
 @using X39.Software.ExamMaker.WebApp.Services.UserRepository
 @attribute [Microsoft.AspNetCore.Authorization.AllowAnonymous]
@@ -11,35 +10,38 @@
 @inject ILogger<Login> Logger
 
 
-<BusyComponent @ref="_busy" Class="container">
-    <FluentCard MinimalStyle="true" Class="card">
+<BusyComponent @ref="_busy" Class="d-flex flex-column h-100p p-a-1em">
+    <FluentCard MinimalStyle="true" Class="w-max-512px m-auto h-auto-bang">
         <FluentEditForm Model="_model">
-            <FluentLabel Typo="Typography.Subject">
+            <FluentLabel Class="flex-grow-1 m-b-2em" Typo="Typography.Subject">
                 @Localizer[nameof(Language.Pages_Authentication_Login_Card_LoginSubject)]
             </FluentLabel>
-            <FluentTextField AriaLabel="@Localizer[nameof(Language.Pages_Authentication_Login_Card_EMailAria)]"
+            <FluentTextField Class="flex-grow-1"
+                             AriaLabel="@Localizer[nameof(Language.Pages_Authentication_Login_Card_EMailAria)]"
                              Label="@Localizer[nameof(Language.Pages_Authentication_Login_Card_EMailLabel)]"
                              TextFieldType="TextFieldType.Email"
                              @bind-Value="@_model.EMail"
                              Minlength="2"
                              Placeholder="email"/>
-            <FluentValidationMessage For="@(() => _model.EMail)"/>
-            <FluentTextField AriaLabel="@Localizer[nameof(Language.Pages_Authentication_Login_Card_PasswordAria)]"
+            <FluentValidationMessage Class="flex-grow-1" For="@(() => _model.EMail)"/>
+            <FluentTextField Class="flex-grow-1"
+                             AriaLabel="@Localizer[nameof(Language.Pages_Authentication_Login_Card_PasswordAria)]"
                              Label="@Localizer[nameof(Language.Pages_Authentication_Login_Card_PasswordLabel)]"
                              TextFieldType="TextFieldType.Password"
                              @bind-Value="@_model.Password"
                              Placeholder="password"
                              Minlength="2"/>
-            <FluentValidationMessage For="@(() => _model.Password)"/>
-
-            <FluentStack Orientation="Orientation.Horizontal" Class="actions">
-                <FluentButton OnClick="OnToRegistrationButtonClickAsync">
+            <FluentValidationMessage Class="flex-grow-1" For="@(() => _model.Password)"/>
+            <FluentStack Class="flex-grow-1 m-t-4em" Orientation="Orientation.Horizontal">
+                <FluentButton OnClick="OnToRegistrationButtonClickAsync"
+                              Disabled="@_busy.IsBusy">
                     @Localizer[nameof(Language.Pages_Authentication_Login_Card_ToRegistrationButton)]
                 </FluentButton>
                 <FluentSpacer/>
                 <FluentButton Type="ButtonType.Submit"
                               OnClick="OnLoginButtonClickAsync"
-                              Appearance="Appearance.Accent">
+                              Appearance="Appearance.Accent"
+                              Disabled="@_busy.IsBusy">
                     @Localizer[nameof(Language.Pages_Authentication_Login_Card_LoginButton)]
                 </FluentButton>
             </FluentStack>
@@ -61,33 +63,34 @@
         public string Password { get; set; } = string.Empty;
     }
 
-    private async Task OnLoginButtonClickAsync()
-    {
-        using var busy = _busy.Busy();
-        var parameters = new ToastParameters<ProgressToastContent>
+    private Task OnLoginButtonClickAsync() => _busy.ExclusiveBusyAsync(async () =>
         {
-            Id      = "pages-authentication-login-toast",
-            Content = new ProgressToastContent(),
-            Title   = Localizer[nameof(Language.Pages_Authentication_Login_Toast_LoggingIn)],
-        };
-        ToastService.ShowProgressToast(parameters);
-        try
-        {
-            Logger.LogDebug("Logging in with {EMail}", _model.EMail);
-            await UserRepository.LoginAsync(_model.EMail, _model.Password);
-            ToastService.ShowSuccess(Localizer[nameof(Language.Pages_Authentication_Login_Toast_LoginSuccessful)]);
-            NavigationManager.NavigateTo(BaseUrl.ResolveSelfUrl("/"));
+            var parameters = new ToastParameters<ProgressToastContent>
+            {
+                // Ticks are added as otherwise when the user keeps pressing enter we may end up erroring the UI, due to ToastService limitations
+                Id      = $"pages-authentication-login-toast-{DateTime.Now.Ticks}",
+                Content = new ProgressToastContent(),
+                Title   = Localizer[nameof(Language.Pages_Authentication_Login_Toast_LoggingIn)],
+            };
+            ToastService.ShowProgressToast(parameters);
+            try
+            {
+                Logger.LogDebug("Logging in with {EMail}", _model.EMail);
+                await UserRepository.LoginAsync(_model.EMail, _model.Password);
+                ToastService.ShowSuccess(Localizer[nameof(Language.Pages_Authentication_Login_Toast_LoginSuccessful)]);
+                NavigationManager.NavigateTo(BaseUrl.ResolveSelfUrl("/"));
+            }
+            catch (Exception ex)
+            {
+                Logger.LogError(ex, "Failed to log in");
+                ToastService.ShowError(Localizer[nameof(Language.Pages_Authentication_Login_Toast_LoginFailed)]);
+            }
+            finally
+            {
+                ToastService.CloseToast(parameters.Id);
+            }
         }
-        catch (Exception ex)
-        {
-            Logger.LogError(ex, "Failed to log in");
-            ToastService.ShowError(Localizer[nameof(Language.Pages_Authentication_Login_Toast_LoginFailed)]);
-        }
-        finally
-        {
-            ToastService.CloseToast(parameters.Id);
-        }
-    }
+    );
 
     private Task OnToRegistrationButtonClickAsync()
     {

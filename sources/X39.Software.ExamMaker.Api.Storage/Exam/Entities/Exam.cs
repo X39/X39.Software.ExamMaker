@@ -29,10 +29,10 @@ public sealed partial class Exam
     public partial Instant CreatedAt { get; set; }
     public partial Instant UpdatedAt { get; set; }
 
-    [ForeignKey(nameof(OrganizationId))]
+    [ForeignKey(nameof(OrganizationFk))]
     public partial Organization? Organization { get; set; }
 
-    public partial long OrganizationId { get; set; }
+    public partial long OrganizationFk { get; set; }
 
 
     ICollection<ExamTopic>? IRefersToMany<ExamTopic>.Entities

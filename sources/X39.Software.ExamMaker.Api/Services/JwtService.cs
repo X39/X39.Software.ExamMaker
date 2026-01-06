@@ -12,7 +12,7 @@ using X39.Software.ExamMaker.Shared;
 
 namespace X39.Software.ExamMaker.Api.Services;
 
-public class JwtService(JwtConfig jwtConfig, ExamDbContext examDbContext)
+public sealed class JwtService(JwtConfig jwtConfig, ExamDbContext examDbContext)
 {
     public async Task<(string accessToken, string refreshToken, DateTimeOffset expiresAt)> GenerateTokenAsync(
         Storage.Authority.Entities.User user,
@@ -23,15 +23,22 @@ public class JwtService(JwtConfig jwtConfig, ExamDbContext examDbContext)
         var credentials = new SigningCredentials(securityKey, SecurityAlgorithms.HmacSha256);
 
         var expiresAt = DateTime.UtcNow.AddMinutes(jwtConfig.AccessTokenExpirationInMinutes);
-        var claims = new[]
+        var claims = new List<Claim>
         {
-            new Claim(ClaimTypes.Email, user.EMail),
-            new Claim(ClaimTypes.Name, string.Concat(user.FirstName, " ", user.LastName)),
-            new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
-            new Claim(CustomClaimTypes.OrganizationId, organization.Id.ToString()),
-            new Claim(CustomClaimTypes.OrganizationName, organization.Title),
-            new Claim(ClaimTypes.Expiration, expiresAt.ToString("O")),
+            new(ClaimTypes.Email, user.EMail),
+            new(ClaimTypes.Name, string.Concat(user.FirstName, " ", user.LastName)),
+            new(ClaimTypes.NameIdentifier, user.Id.ToString()),
+            new(CustomClaimTypes.OrganizationId, organization.Id.ToString()),
+            new(CustomClaimTypes.OrganizationName, organization.Title),
+            new(ClaimTypes.Expiration, expiresAt.ToString("O")),
         };
+
+        var userId = user.Id;
+        var examUser = await examDbContext.Users
+            .Include(e => e.Roles)
+            .SingleAsync(e => e.Id == userId);
+        foreach (var role in examUser.Roles ?? [])
+            claims.Add(new Claim(ClaimTypes.Role, role.Identifier));
 
         var token = new JwtSecurityToken(
             issuer: jwtConfig.Issuer,
@@ -49,12 +56,12 @@ public class JwtService(JwtConfig jwtConfig, ExamDbContext examDbContext)
 
         var userToken = new UserToken
         {
-            AccessToken  = accessToken,
-            RefreshToken = refreshToken,
-            ExpiresAt    = expiresAtUtc,
-            CreatedAt    = now,
-            IsRevoked    = false,
-            UserId       = user.Id,
+            AccessToken           = accessToken,
+            RefreshToken          = refreshToken,
+            RefreshTokenExpiresAt = expiresAtUtc,
+            CreatedAt             = now,
+            IsRevoked             = false,
+            UserFk                = user.Id,
         };
 
         await examDbContext.UserTokens.AddAsync(userToken);
@@ -73,7 +80,7 @@ public class JwtService(JwtConfig jwtConfig, ExamDbContext examDbContext)
     public async Task RevokeTokensOfUserAsync(long userId)
     {
         await examDbContext.UserTokens
-            .Where(ut => ut.UserId == userId)
+            .Where(ut => ut.UserFk == userId)
             .ExecuteUpdateAsync(calls => calls.SetProperty(e => e.IsRevoked, true));
     }
 

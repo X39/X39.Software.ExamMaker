@@ -1,5 +1,4 @@
-﻿using X39.Software.ExamMaker.Api.DataTransferObjects;
-using X39.Software.ExamMaker.Models;
+﻿using X39.Software.ExamMaker.Models;
 
 namespace X39.Software.ExamMaker.WebApp.Services.ExamQuestionRepository;
 
@@ -26,7 +25,7 @@ public interface IExamQuestionRepository
         UpdateValue<string>? title,
         UpdateValue<int?>? correctAnswersToTake,
         UpdateValue<int?>? incorrectAnswersToTake,
-        UpdateValue<EQuestionKindEnum>? kind,
+        UpdateValue<EQuestionKind>? kind,
         CancellationToken cancellationToken = default
     );
 
@@ -36,7 +35,7 @@ public interface IExamQuestionRepository
         string title,
         int? correctAnswersToTake,
         int? incorrectAnswersToTake,
-        EQuestionKindEnum kind,
+        EQuestionKind kind,
         CancellationToken cancellationToken = default);
 
     Task DeleteAsync(

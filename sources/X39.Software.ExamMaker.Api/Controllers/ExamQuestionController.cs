@@ -57,7 +57,7 @@ public sealed class ExamQuestionController(ExamDbContext examDbContext, ILogger<
             return Unauthorized();
         }
 
-        if (topic.OrganizationId != organizationId)
+        if (topic.OrganizationFk != organizationId)
         {
             logger.LogWarning(
                 "Unauthorized: Organization {OrganizationId} tried to modify question {QuestionId} under topic {TopicId}",
@@ -72,13 +72,13 @@ public sealed class ExamQuestionController(ExamDbContext examDbContext, ILogger<
         var existing = await examDbContext.ExamQuestions
             .Where(q => q.Identifier == questionId)
             .SingleOrDefaultAsync(cancellationToken);
-        if (existing is not null && existing.OrganizationId != organizationId)
+        if (existing is not null && existing.OrganizationFk != organizationId)
         {
             logger.LogWarning(
                 "Unauthorized: Organization {OrganizationId} tried to modify question {QuestionId} belonging to another org {OtherOrg}",
                 organizationId,
                 questionId,
-                existing.OrganizationId
+                existing.OrganizationFk
             );
             return Unauthorized();
         }
@@ -91,7 +91,7 @@ public sealed class ExamQuestionController(ExamDbContext examDbContext, ILogger<
                 existing = new ExamQuestion
                 {
                     Identifier             = questionId,
-                    OrganizationId         = organizationId,
+                    OrganizationFk         = organizationId,
                     CreatedAt              = now,
                     UpdatedAt              = now,
                     ExamTopic              = topic,
@@ -190,7 +190,7 @@ public sealed class ExamQuestionController(ExamDbContext examDbContext, ILogger<
             take
         );
         var query = examDbContext.ExamQuestions
-            .Where(q => q.OrganizationId == organizationId
+            .Where(q => q.OrganizationFk == organizationId
                         && q.ExamTopic!.Identifier == topicId
                         && q.ExamTopic!.Exam!.Identifier == examId
             )
@@ -244,7 +244,7 @@ public sealed class ExamQuestionController(ExamDbContext examDbContext, ILogger<
             topicId
         );
         var count = await examDbContext.ExamQuestions
-            .Where(q => q.OrganizationId == organizationId
+            .Where(q => q.OrganizationFk == organizationId
                         && q.ExamTopic!.Identifier == topicId
                         && q.ExamTopic!.Exam!.Identifier == examId
             )
@@ -291,7 +291,7 @@ public sealed class ExamQuestionController(ExamDbContext examDbContext, ILogger<
             return Unauthorized();
         }
 
-        if (question.OrganizationId != organizationId)
+        if (question.OrganizationFk != organizationId)
         {
             logger.LogWarning(
                 "Unauthorized access to question {QuestionId} from organization {OrganizationId}",
@@ -357,13 +357,13 @@ public sealed class ExamQuestionController(ExamDbContext examDbContext, ILogger<
             return NoContent();
         }
 
-        if (existing.OrganizationId != organizationId)
+        if (existing.OrganizationFk != organizationId)
         {
             logger.LogWarning(
                 "Unauthorized deletion attempt: Org {OrganizationId} tried to delete question {QuestionId} belonging to org {QuestionOrg}",
                 organizationId,
                 questionId,
-                existing.OrganizationId
+                existing.OrganizationFk
             );
             return NoContent();
         }

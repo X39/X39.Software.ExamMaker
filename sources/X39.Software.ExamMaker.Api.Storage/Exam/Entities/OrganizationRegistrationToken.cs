@@ -1,10 +1,12 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using JetBrains.Annotations;
 using X39.Software.ExamMaker.Api.Storage.Exam.Meta;
 using X39.Software.ExamMaker.Api.Storage.Meta;
 
 namespace X39.Software.ExamMaker.Api.Storage.Exam.Entities;
 
+[PublicAPI]
 [NotifyPropertyChanged, NotifyPropertyChanging]
 public sealed partial class OrganizationRegistrationToken
     : IPrimaryKey<long>,
@@ -15,26 +17,26 @@ public sealed partial class OrganizationRegistrationToken
         ICreatedAt
 {
     [Key]
-    private long _id;
+    public partial long Id { get; set; }
 
-    [ForeignKey(nameof(OrganizationId))]
-    private Organization? _organization;
+    [ForeignKey(nameof(OrganizationFk))]
+    public partial Organization? Organization { get; set; }
 
-    private long _organizationId;
+    public partial long OrganizationFk { get; set; }
 
-    [ForeignKey(nameof(CreatedById))]
-    private User? _createdBy;
+    [ForeignKey(nameof(CreatedByFk))]
+    public partial User? CreatedBy { get; set; }
 
-    private long _createdById;
+    public partial long CreatedByFk { get; set; }
 
-    [ForeignKey(nameof(UsedById))]
-    private User? _usedBy;
+    [ForeignKey(nameof(UsedByFk))]
+    public partial User? UsedBy { get; set; }
 
-    private long? _usedById;
+    public partial long? UsedByFk { get; set; }
 
-    private Instant  _createdAt;
-    private Instant? _usedAt;
-    private Instant  _expiresAt;
+    public partial Instant  CreatedAt { get; set; }
+    public partial Instant? UsedAt { get; set; }
+    public partial Instant  ExpiresAt { get; set; }
 
     /// <summary>
     /// A private field that is used to store a token associated with the tenant registration link.
@@ -47,37 +49,42 @@ public sealed partial class OrganizationRegistrationToken
     /// 4 * ( 255 / 3 ) = 340
     /// </code>
     /// </remarks>
-    [Length(340, 340)]
-    private string _token = string.Empty;
+    [StringLength(340)]
+    [DefaultValue<string>("")]
+    public partial string Token { get; set; }
 
-    [MaxLength(512)]
+    [NotMapped]
     string IIdentifier<string>.Identifier
     {
         get => Token;
         set => Token = value;
     }
 
+    [NotMapped]
     User? IRefersToOneOptional<User, long>.Entity
     {
         get => UsedBy;
         set => UsedBy = value;
     }
 
+    [NotMapped]
     long? IRefersToOneOptional<User, long>.EntityId
     {
-        get => UsedById;
-        set => UsedById = value;
+        get => UsedByFk;
+        set => UsedByFk = value;
     }
 
+    [NotMapped]
     User? IRefersToOneRequired<User, long>.Entity
     {
         get => CreatedBy;
         set => CreatedBy = value;
     }
 
+    [NotMapped]
     long IRefersToOneRequired<User, long>.EntityId
     {
-        get => CreatedById;
-        set => CreatedById = value;
+        get => CreatedByFk;
+        set => CreatedByFk = value;
     }
 }

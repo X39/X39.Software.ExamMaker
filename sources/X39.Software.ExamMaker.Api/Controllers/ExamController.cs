@@ -1,8 +1,10 @@
 using System.ComponentModel.DataAnnotations;
+using System.Globalization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using NodaTime;
 using X39.Software.ExamMaker.Api.DataTransferObjects.Exams;
+using X39.Software.ExamMaker.Api.Services;
 using X39.Software.ExamMaker.Api.Storage.Exam;
 using X39.Software.ExamMaker.Api.Storage.Exam.Entities;
 using X39.Software.ExamMaker.Shared;
@@ -42,13 +44,13 @@ public sealed class ExamController(ExamDbContext examDbContext, ILogger<ExamCont
             .Where(e => e.Identifier == examId)
             .SingleOrDefaultAsync(cancellationToken);
 
-        if (existing is not null && existing.OrganizationId != organizationId)
+        if (existing is not null && existing.OrganizationFk != organizationId)
         {
             logger.LogWarning(
                 "Unauthorized access attempt: User with organization {OrganizationId} tried to modify exam {ExamId} belonging to organization {ExamOrganizationId}",
                 organizationId,
                 examId,
-                existing.OrganizationId
+                existing.OrganizationFk
             );
             return Unauthorized();
         }
@@ -65,7 +67,7 @@ public sealed class ExamController(ExamDbContext examDbContext, ILogger<ExamCont
                 existing = new Exam
                 {
                     Identifier     = examId,
-                    OrganizationId = organizationId,
+                    OrganizationFk = organizationId,
                     CreatedAt      = now,
                     UpdatedAt      = now,
                     Preamble       = examUpdateDto.Preamble ?? string.Empty,
@@ -139,7 +141,7 @@ public sealed class ExamController(ExamDbContext examDbContext, ILogger<ExamCont
             take
         );
         var query = examDbContext.Exams
-            .Where(e => e.OrganizationId == organizationId)
+            .Where(e => e.OrganizationFk == organizationId)
             .OrderBy(e => e.Title);
         var data = await query.Skip(skip)
             .Take(take)
@@ -166,7 +168,7 @@ public sealed class ExamController(ExamDbContext examDbContext, ILogger<ExamCont
 
         logger.LogDebug("Counting exams for organization {OrganizationId}", organizationId);
         var result = await examDbContext.Exams
-            .Where(e => e.OrganizationId == organizationId)
+            .Where(e => e.OrganizationFk == organizationId)
             .LongCountAsync(cancellationToken);
 
         logger.LogInformation("Total exam count for organization {OrganizationId}: {Count}", organizationId, result);
@@ -200,7 +202,7 @@ public sealed class ExamController(ExamDbContext examDbContext, ILogger<ExamCont
             return Unauthorized();
         }
 
-        if (exam.OrganizationId != organizationId)
+        if (exam.OrganizationFk != organizationId)
         {
             logger.LogWarning(
                 "Unauthorized access to exam {ExamId} from organization {OrganizationId}",
@@ -242,13 +244,13 @@ public sealed class ExamController(ExamDbContext examDbContext, ILogger<ExamCont
             return Unauthorized();
         }
 
-        if (existing.OrganizationId != organizationId)
+        if (existing.OrganizationFk != organizationId)
         {
             logger.LogWarning(
                 "Unauthorized deletion attempt: User with organization {OrganizationId} tried to delete exam {ExamId} belonging to organization {ExamOrganizationId}",
                 organizationId,
                 examId,
-                existing.OrganizationId
+                existing.OrganizationFk
             );
             return NoContent();
         }
@@ -261,5 +263,65 @@ public sealed class ExamController(ExamDbContext examDbContext, ILogger<ExamCont
 
         logger.LogInformation("Successfully deleted exam {ExamId}", examId);
         return NoContent();
+    }
+
+    [HttpGet("{examId:guid}/pdf")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    public async Task<IActionResult> GetExamPdfAsync(
+        [FromRoute] Guid examId,
+        [FromQuery] bool showResults,
+        [FromServices] PdfService pdfService,
+        CancellationToken cancellationToken = default
+    )
+    {
+        logger.LogInformation("GetExamPdfAsync called for examId: {ExamId}", examId);
+
+        if (!User.ResolveOrganizationId(out var organizationId))
+        {
+            logger.LogWarning("Unauthorized access attempt to access exam {ExamId} - no organization ID found", examId);
+            return Unauthorized();
+        }
+
+        logger.LogDebug(
+            "Querying for exam {ExamId} to create a pdf from for organization {OrganizationId}",
+            examId,
+            organizationId
+        );
+        var existing = await examDbContext.Exams
+            .AsNoTracking()
+            .Include(e => e.ExamTopics!)
+            .ThenInclude(e => e.ExamQuestions!)
+            .ThenInclude(e => e.ExamAnswers!)
+            .AsSplitQuery()
+            .Where(e => e.Identifier == examId)
+            .SingleOrDefaultAsync(cancellationToken);
+
+        if (existing is null)
+        {
+            logger.LogInformation("Exam {ExamId} not found", examId);
+            return Unauthorized();
+        }
+
+        if (existing.OrganizationFk != organizationId)
+        {
+            logger.LogWarning(
+                "Unauthorized access attempt: User with organization {OrganizationId} tried to access exam {ExamId} belonging to organization {ExamOrganizationId}",
+                organizationId,
+                examId,
+                existing.OrganizationFk
+            );
+            return Unauthorized();
+        }
+
+        logger.LogInformation("Creating exam {ExamId} PDF of organization {OrganizationId}", examId, organizationId);
+        var pdfBytes = await pdfService.CreateExamPdfAsync(
+            existing,
+            showResults,
+            CultureInfo.CurrentCulture,
+            cancellationToken
+        );
+
+        return File(pdfBytes, "application/pdf", $"{existing.Title}.pdf");
     }
 }

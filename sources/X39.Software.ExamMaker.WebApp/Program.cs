@@ -9,7 +9,6 @@ using X39.Software.ExamMaker.WebApp.Services.ExamQuestionRepository;
 using X39.Software.ExamMaker.WebApp.Services.ExamRepository;
 using X39.Software.ExamMaker.WebApp.Services.ExamTopicRepository;
 using X39.Software.ExamMaker.WebApp.Services.UserRepository;
-using X39.Software.Thermalyzer.App;
 
 namespace X39.Software.ExamMaker.WebApp;
 
@@ -21,6 +20,9 @@ public static class Program
         builder.RootComponents.Add<App>("#app");
         builder.RootComponents.Add<HeadOutlet>("head::after");
 
+        // Auth + API client services
+        builder.UseKiotaRepositoryBase();
+        
         builder.Services.AddScoped(_ => new HttpClient { BaseAddress = new Uri(builder.HostEnvironment.BaseAddress) });
         builder.Services.AddApexCharts();
         builder.Services.AddLocalization();
@@ -28,6 +30,7 @@ public static class Program
         builder.Services.AddFluentUIComponents(options => options.ValidateClassNames = false);
         builder.Services.AddFluentUIComponents();
         builder.Services.AddScoped<LocalStorage>();
+        builder.Services.AddScoped<JsUtil>();
         builder.Services.AddScoped<JwtAuthenticationStateProvider>();
         builder.Services.AddScoped<AuthenticationStateProvider>(sp
             => sp.GetRequiredService<JwtAuthenticationStateProvider>()

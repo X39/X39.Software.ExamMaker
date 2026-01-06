@@ -1,8 +1,8 @@
 {
-  "descriptionHash": "3275359ED1E48039E9F60F3C5451A874BA37975175A4529B4D3E1000FE7299313815CA9020D5CC4B3C3A8A64A047B5B72EAA32C0F63C4B78B80674E549E6A267",
+  "descriptionHash": "E077639FBCF284ABA329B0E4A88B9FD42A88545A74566119050377FE479C56DAE8A1B006DD96A5B91C0C7FF811852EC4B2EBD26125B970560517668A25DF9C0A",
   "descriptionLocation": "http://localhost:8080/openapi/v1.json",
   "lockFileVersion": "1.0.0",
-  "kiotaVersion": "1.28.0",
+  "kiotaVersion": "1.30.0",
   "clientClassName": "ApiClient",
   "typeAccessModifier": "Public",
   "clientNamespaceName": "X39.Software.ExamMaker",

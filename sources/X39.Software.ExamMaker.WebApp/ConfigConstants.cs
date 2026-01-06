@@ -1,4 +1,4 @@
-﻿namespace X39.Software.Thermalyzer.App;
+﻿namespace X39.Software.ExamMaker.WebApp;
 
 public static class ConfigConstants
 {

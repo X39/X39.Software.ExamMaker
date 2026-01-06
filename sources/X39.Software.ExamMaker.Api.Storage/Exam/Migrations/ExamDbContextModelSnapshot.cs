@@ -18,10 +18,25 @@ namespace X39.Software.ExamMaker.Api.Storage.Exam.Migrations
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "9.0.10")
+                .HasAnnotation("ProductVersion", "10.0.1")
                 .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
+
+            modelBuilder.Entity("RoleUser", b =>
+                {
+                    b.Property<long>("RolesId")
+                        .HasColumnType("bigint");
+
+                    b.Property<long>("UsersId")
+                        .HasColumnType("bigint");
+
+                    b.HasKey("RolesId", "UsersId");
+
+                    b.HasIndex("UsersId");
+
+                    b.ToTable("RoleUser");
+                });
 
             modelBuilder.Entity("X39.Software.ExamMaker.Api.Storage.Exam.Entities.Exam", b =>
                 {
@@ -37,7 +52,7 @@ namespace X39.Software.ExamMaker.Api.Storage.Exam.Migrations
                     b.Property<Guid>("Identifier")
                         .HasColumnType("uuid");
 
-                    b.Property<long>("OrganizationId")
+                    b.Property<long>("OrganizationFk")
                         .HasColumnType("bigint");
 
                     b.Property<string>("Preamble")
@@ -58,7 +73,7 @@ namespace X39.Software.ExamMaker.Api.Storage.Exam.Migrations
                     b.HasIndex("Identifier")
                         .IsUnique();
 
-                    b.HasIndex("OrganizationId");
+                    b.HasIndex("OrganizationFk");
 
                     b.ToTable("Exams");
                 });
@@ -79,7 +94,7 @@ namespace X39.Software.ExamMaker.Api.Storage.Exam.Migrations
                     b.Property<Instant>("CreatedAt")
                         .HasColumnType("timestamp with time zone");
 
-                    b.Property<long>("ExamQuestionId")
+                    b.Property<long>("ExamQuestionFk")
                         .HasColumnType("bigint");
 
                     b.Property<Guid>("Identifier")
@@ -88,7 +103,7 @@ namespace X39.Software.ExamMaker.Api.Storage.Exam.Migrations
                     b.Property<bool>("IsCorrect")
                         .HasColumnType("boolean");
 
-                    b.Property<long>("OrganizationId")
+                    b.Property<long>("OrganizationFk")
                         .HasColumnType("bigint");
 
                     b.Property<string>("Reason")
@@ -100,9 +115,9 @@ namespace X39.Software.ExamMaker.Api.Storage.Exam.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("ExamQuestionId");
+                    b.HasIndex("ExamQuestionFk");
 
-                    b.HasIndex("OrganizationId");
+                    b.HasIndex("OrganizationFk");
 
                     b.ToTable("ExamAnswers");
                 });
@@ -121,7 +136,7 @@ namespace X39.Software.ExamMaker.Api.Storage.Exam.Migrations
                     b.Property<Instant>("CreatedAt")
                         .HasColumnType("timestamp with time zone");
 
-                    b.Property<long>("ExamTopicId")
+                    b.Property<long>("ExamTopicFk")
                         .HasColumnType("bigint");
 
                     b.Property<Guid>("Identifier")
@@ -133,7 +148,7 @@ namespace X39.Software.ExamMaker.Api.Storage.Exam.Migrations
                     b.Property<int>("Kind")
                         .HasColumnType("integer");
 
-                    b.Property<long>("OrganizationId")
+                    b.Property<long>("OrganizationFk")
                         .HasColumnType("bigint");
 
                     b.Property<string>("Title")
@@ -146,9 +161,9 @@ namespace X39.Software.ExamMaker.Api.Storage.Exam.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("ExamTopicId");
+                    b.HasIndex("ExamTopicFk");
 
-                    b.HasIndex("OrganizationId");
+                    b.HasIndex("OrganizationFk");
 
                     b.ToTable("ExamQuestions");
                 });
@@ -164,13 +179,13 @@ namespace X39.Software.ExamMaker.Api.Storage.Exam.Migrations
                     b.Property<Instant>("CreatedAt")
                         .HasColumnType("timestamp with time zone");
 
-                    b.Property<long>("ExamId")
+                    b.Property<long>("ExamFk")
                         .HasColumnType("bigint");
 
                     b.Property<Guid>("Identifier")
                         .HasColumnType("uuid");
 
-                    b.Property<long>("OrganizationId")
+                    b.Property<long>("OrganizationFk")
                         .HasColumnType("bigint");
 
                     b.Property<int?>("QuestionAmountToTake")
@@ -186,9 +201,9 @@ namespace X39.Software.ExamMaker.Api.Storage.Exam.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("ExamId");
+                    b.HasIndex("ExamFk");
 
-                    b.HasIndex("OrganizationId");
+                    b.HasIndex("OrganizationFk");
 
                     b.ToTable("ExamTopics");
                 });
@@ -206,11 +221,13 @@ namespace X39.Software.ExamMaker.Api.Storage.Exam.Migrations
 
                     b.Property<string>("Identifier")
                         .IsRequired()
-                        .HasColumnType("text");
+                        .HasMaxLength(255)
+                        .HasColumnType("character varying(255)");
 
                     b.Property<string>("Title")
                         .IsRequired()
-                        .HasColumnType("text");
+                        .HasMaxLength(255)
+                        .HasColumnType("character varying(255)");
 
                     b.HasKey("Id");
 
@@ -228,34 +245,73 @@ namespace X39.Software.ExamMaker.Api.Storage.Exam.Migrations
                     b.Property<Instant>("CreatedAt")
                         .HasColumnType("timestamp with time zone");
 
-                    b.Property<long>("CreatedById")
+                    b.Property<long>("CreatedByFk")
                         .HasColumnType("bigint");
 
                     b.Property<Instant>("ExpiresAt")
                         .HasColumnType("timestamp with time zone");
 
-                    b.Property<long>("OrganizationId")
+                    b.Property<long>("OrganizationFk")
                         .HasColumnType("bigint");
 
                     b.Property<string>("Token")
                         .IsRequired()
-                        .HasColumnType("text");
+                        .HasMaxLength(340)
+                        .HasColumnType("character varying(340)");
 
                     b.Property<Instant?>("UsedAt")
                         .HasColumnType("timestamp with time zone");
 
-                    b.Property<long?>("UsedById")
+                    b.Property<long?>("UsedByFk")
                         .HasColumnType("bigint");
 
                     b.HasKey("Id");
 
-                    b.HasIndex("CreatedById");
+                    b.HasIndex("CreatedByFk");
 
-                    b.HasIndex("OrganizationId");
+                    b.HasIndex("OrganizationFk");
 
-                    b.HasIndex("UsedById");
+                    b.HasIndex("UsedByFk");
 
                     b.ToTable("OrganizationRegistrationTokens");
+                });
+
+            modelBuilder.Entity("X39.Software.ExamMaker.Api.Storage.Exam.Entities.Role", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
+
+                    b.Property<string>("Identifier")
+                        .IsRequired()
+                        .HasMaxLength(255)
+                        .HasColumnType("character varying(255)");
+
+                    b.Property<bool>("IsInternalRole")
+                        .HasColumnType("boolean");
+
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasMaxLength(255)
+                        .HasColumnType("character varying(255)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Identifier")
+                        .IsUnique();
+
+                    b.ToTable("Roles");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1L,
+                            Identifier = "Administrators",
+                            IsInternalRole = true,
+                            Title = "Administrators"
+                        });
                 });
 
             modelBuilder.Entity("X39.Software.ExamMaker.Api.Storage.Exam.Entities.User", b =>
@@ -263,12 +319,12 @@ namespace X39.Software.ExamMaker.Api.Storage.Exam.Migrations
                     b.Property<long>("Id")
                         .HasColumnType("bigint");
 
-                    b.Property<long>("OrganizationId")
+                    b.Property<long>("OrganizationFk")
                         .HasColumnType("bigint");
 
                     b.HasKey("Id");
 
-                    b.HasIndex("OrganizationId");
+                    b.HasIndex("OrganizationFk");
 
                     b.ToTable("Users");
                 });
@@ -288,31 +344,47 @@ namespace X39.Software.ExamMaker.Api.Storage.Exam.Migrations
                     b.Property<Instant>("CreatedAt")
                         .HasColumnType("timestamp with time zone");
 
-                    b.Property<Instant>("ExpiresAt")
-                        .HasColumnType("timestamp with time zone");
-
                     b.Property<bool>("IsRevoked")
                         .HasColumnType("boolean");
 
                     b.Property<string>("RefreshToken")
                         .IsRequired()
-                        .HasColumnType("text");
+                        .HasMaxLength(88)
+                        .HasColumnType("character varying(88)");
 
-                    b.Property<long>("UserId")
+                    b.Property<Instant>("RefreshTokenExpiresAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<long>("UserFk")
                         .HasColumnType("bigint");
 
                     b.HasKey("Id");
 
-                    b.HasIndex("UserId");
+                    b.HasIndex("UserFk");
 
                     b.ToTable("UserTokens");
+                });
+
+            modelBuilder.Entity("RoleUser", b =>
+                {
+                    b.HasOne("X39.Software.ExamMaker.Api.Storage.Exam.Entities.Role", null)
+                        .WithMany()
+                        .HasForeignKey("RolesId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("X39.Software.ExamMaker.Api.Storage.Exam.Entities.User", null)
+                        .WithMany()
+                        .HasForeignKey("UsersId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("X39.Software.ExamMaker.Api.Storage.Exam.Entities.Exam", b =>
                 {
                     b.HasOne("X39.Software.ExamMaker.Api.Storage.Exam.Entities.Organization", "Organization")
                         .WithMany()
-                        .HasForeignKey("OrganizationId")
+                        .HasForeignKey("OrganizationFk")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
@@ -323,13 +395,13 @@ namespace X39.Software.ExamMaker.Api.Storage.Exam.Migrations
                 {
                     b.HasOne("X39.Software.ExamMaker.Api.Storage.Exam.Entities.ExamQuestion", "ExamQuestion")
                         .WithMany("ExamAnswers")
-                        .HasForeignKey("ExamQuestionId")
+                        .HasForeignKey("ExamQuestionFk")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.HasOne("X39.Software.ExamMaker.Api.Storage.Exam.Entities.Organization", "Organization")
                         .WithMany()
-                        .HasForeignKey("OrganizationId")
+                        .HasForeignKey("OrganizationFk")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
@@ -342,13 +414,13 @@ namespace X39.Software.ExamMaker.Api.Storage.Exam.Migrations
                 {
                     b.HasOne("X39.Software.ExamMaker.Api.Storage.Exam.Entities.ExamTopic", "ExamTopic")
                         .WithMany("ExamQuestions")
-                        .HasForeignKey("ExamTopicId")
+                        .HasForeignKey("ExamTopicFk")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.HasOne("X39.Software.ExamMaker.Api.Storage.Exam.Entities.Organization", "Organization")
                         .WithMany()
-                        .HasForeignKey("OrganizationId")
+                        .HasForeignKey("OrganizationFk")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
@@ -361,13 +433,13 @@ namespace X39.Software.ExamMaker.Api.Storage.Exam.Migrations
                 {
                     b.HasOne("X39.Software.ExamMaker.Api.Storage.Exam.Entities.Exam", "Exam")
                         .WithMany("ExamTopics")
-                        .HasForeignKey("ExamId")
+                        .HasForeignKey("ExamFk")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.HasOne("X39.Software.ExamMaker.Api.Storage.Exam.Entities.Organization", "Organization")
                         .WithMany()
-                        .HasForeignKey("OrganizationId")
+                        .HasForeignKey("OrganizationFk")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
@@ -380,19 +452,19 @@ namespace X39.Software.ExamMaker.Api.Storage.Exam.Migrations
                 {
                     b.HasOne("X39.Software.ExamMaker.Api.Storage.Exam.Entities.User", "CreatedBy")
                         .WithMany()
-                        .HasForeignKey("CreatedById")
+                        .HasForeignKey("CreatedByFk")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.HasOne("X39.Software.ExamMaker.Api.Storage.Exam.Entities.Organization", "Organization")
-                        .WithMany()
-                        .HasForeignKey("OrganizationId")
+                        .WithMany("RegistrationTokens")
+                        .HasForeignKey("OrganizationFk")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.HasOne("X39.Software.ExamMaker.Api.Storage.Exam.Entities.User", "UsedBy")
                         .WithMany()
-                        .HasForeignKey("UsedById");
+                        .HasForeignKey("UsedByFk");
 
                     b.Navigation("CreatedBy");
 
@@ -405,7 +477,7 @@ namespace X39.Software.ExamMaker.Api.Storage.Exam.Migrations
                 {
                     b.HasOne("X39.Software.ExamMaker.Api.Storage.Exam.Entities.Organization", "Organization")
                         .WithMany("Users")
-                        .HasForeignKey("OrganizationId")
+                        .HasForeignKey("OrganizationFk")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
@@ -415,8 +487,8 @@ namespace X39.Software.ExamMaker.Api.Storage.Exam.Migrations
             modelBuilder.Entity("X39.Software.ExamMaker.Api.Storage.Exam.Entities.UserToken", b =>
                 {
                     b.HasOne("X39.Software.ExamMaker.Api.Storage.Exam.Entities.User", "User")
-                        .WithMany()
-                        .HasForeignKey("UserId")
+                        .WithMany("UserTokens")
+                        .HasForeignKey("UserFk")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
@@ -440,7 +512,14 @@ namespace X39.Software.ExamMaker.Api.Storage.Exam.Migrations
 
             modelBuilder.Entity("X39.Software.ExamMaker.Api.Storage.Exam.Entities.Organization", b =>
                 {
+                    b.Navigation("RegistrationTokens");
+
                     b.Navigation("Users");
+                });
+
+            modelBuilder.Entity("X39.Software.ExamMaker.Api.Storage.Exam.Entities.User", b =>
+                {
+                    b.Navigation("UserTokens");
                 });
 #pragma warning restore 612, 618
         }

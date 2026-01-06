@@ -1,5 +1,4 @@
-﻿using X39.Software.ExamMaker.Api.DataTransferObjects;
-using X39.Software.ExamMaker.Models;
+﻿using X39.Software.ExamMaker.Models;
 
 namespace X39.Software.ExamMaker.WebApp.Services.ExamAnswerRepository;
 
@@ -71,9 +70,9 @@ internal sealed class ExamAnswerRepository(IHttpClientFactory httpClientFactory,
             .PutAsync(
                 new ExamAnswerUpdateDto()
                 {
-                    Answer    = answer is null ? null : new NullableOfUpdateValueOfstring { Value     = answer },
-                    Reason    = reason is null ? null : new NullableOfUpdateValueOfstring { Value     = reason },
-                    IsCorrect = isCorrect is null ? null : new NullableOfUpdateValueOfboolean { Value = isCorrect },
+                    Answer    = answer is null ? null : new UpdateValueOfstring { Value    = answer },
+                    Reason    = reason is null ? null : new UpdateValueOfstring { Value    = reason },
+                    IsCorrect = isCorrect is null ? null : new UpdateValueOfboolean { Value = isCorrect },
                 },
                 cancellationToken: cancellationToken
             );
@@ -97,9 +96,9 @@ internal sealed class ExamAnswerRepository(IHttpClientFactory httpClientFactory,
             .PutAsync(
                 new ExamAnswerUpdateDto
                 {
-                    Answer    = new NullableOfUpdateValueOfstring { Value  = answer },
-                    Reason    = new NullableOfUpdateValueOfstring { Value  = reason },
-                    IsCorrect = new NullableOfUpdateValueOfboolean { Value = isCorrect },
+                    Answer    = new UpdateValueOfstring { Value = answer },
+                    Reason    = new UpdateValueOfstring { Value = reason },
+                    IsCorrect = new UpdateValueOfboolean { Value = isCorrect },
                 },
                 cancellationToken: cancellationToken
             );

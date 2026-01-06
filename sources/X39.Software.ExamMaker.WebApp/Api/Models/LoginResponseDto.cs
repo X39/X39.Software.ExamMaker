@@ -70,7 +70,7 @@ namespace X39.Software.ExamMaker.Models
         /// <param name="parseNode">The parse node to use to read the discriminator value and create the object</param>
         public static global::X39.Software.ExamMaker.Models.LoginResponseDto CreateFromDiscriminatorValue(IParseNode parseNode)
         {
-            _ = parseNode ?? throw new ArgumentNullException(nameof(parseNode));
+            if(ReferenceEquals(parseNode, null)) throw new ArgumentNullException(nameof(parseNode));
             return new global::X39.Software.ExamMaker.Models.LoginResponseDto();
         }
         /// <summary>
@@ -95,7 +95,7 @@ namespace X39.Software.ExamMaker.Models
         /// <param name="writer">Serialization writer to use to serialize this model</param>
         public virtual void Serialize(ISerializationWriter writer)
         {
-            _ = writer ?? throw new ArgumentNullException(nameof(writer));
+            if(ReferenceEquals(writer, null)) throw new ArgumentNullException(nameof(writer));
             writer.WriteStringValue("eMail", EMail);
             writer.WriteDateTimeOffsetValue("expiresAt", ExpiresAt);
             writer.WriteStringValue("firstName", FirstName);

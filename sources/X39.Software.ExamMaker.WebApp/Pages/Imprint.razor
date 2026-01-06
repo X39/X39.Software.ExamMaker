@@ -1,4 +1,6 @@
 ﻿@page "/imprint"
+@using Microsoft.AspNetCore.Authorization
+@attribute [AllowAnonymous]
 <FluentLabel Typo="Typography.Header">@Localizer[nameof(Language.Pages_Imprint_Imprint)]</FluentLabel>
 <p>
     ToDo

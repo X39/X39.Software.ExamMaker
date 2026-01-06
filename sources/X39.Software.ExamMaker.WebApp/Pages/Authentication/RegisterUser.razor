@@ -6,35 +6,41 @@
 @inject NavigationManager NavigationManager
 @inject BaseUrl BaseUrl
 @inject IUserRepository UserRepository
+@inject IToastService ToastService
+@inject ILogger<RegisterUser> Logger
 
-<div class="container">
-    <FluentCard MinimalStyle="true" Class="card">
+<BusyComponent @ref="_busy" Class="d-flex flex-column h-100p p-a-1em">
+    <FluentCard MinimalStyle="true" Class="w-max-512px m-auto h-auto-bang">
         <FluentEditForm Model="_model">
-            <FluentLabel Typo="Typography.Subject">
+            <FluentLabel Class="flex-grow-1 m-b-2em" Typo="Typography.Subject">
                 @Localizer[nameof(Language.Pages_Authentication_RegisterUser_Card_RegisterSubject)]
             </FluentLabel>
-            <FluentTextField AriaLabel="@Localizer[nameof(Language.Pages_Authentication_RegisterUser_Card_EMailAria)]"
+            <FluentTextField Class="flex-grow-1"
+                             AriaLabel="@Localizer[nameof(Language.Pages_Authentication_RegisterUser_Card_EMailAria)]"
                              Label="@Localizer[nameof(Language.Pages_Authentication_RegisterUser_Card_EMailLabel)]"
                              TextFieldType="TextFieldType.Email"
                              @bind-Value="@_model.EMail"
                              Minlength="2"
                              Placeholder="email"/>
             <FluentValidationMessage For="@(() => _model.EMail)"/>
-            <FluentTextField AriaLabel="@Localizer[nameof(Language.Pages_Authentication_RegisterUser_Card_FirstNameAria)]"
+            <FluentTextField Class="flex-grow-1"
+                             AriaLabel="@Localizer[nameof(Language.Pages_Authentication_RegisterUser_Card_FirstNameAria)]"
                              Label="@Localizer[nameof(Language.Pages_Authentication_RegisterUser_Card_FirstNameLabel)]"
                              TextFieldType="TextFieldType.Text"
                              @bind-Value="@_model.FirstName"
                              Minlength="2"
                              Placeholder="first name"/>
             <FluentValidationMessage For="@(() => _model.FirstName)"/>
-            <FluentTextField AriaLabel="@Localizer[nameof(Language.Pages_Authentication_RegisterUser_Card_LastNameAria)]"
+            <FluentTextField Class="flex-grow-1"
+                             AriaLabel="@Localizer[nameof(Language.Pages_Authentication_RegisterUser_Card_LastNameAria)]"
                              Label="@Localizer[nameof(Language.Pages_Authentication_RegisterUser_Card_LastNameLabel)]"
                              TextFieldType="TextFieldType.Text"
                              @bind-Value="@_model.LastName"
                              Placeholder="last name"
                              Minlength="2"/>
             <FluentValidationMessage For="@(() => _model.LastName)"/>
-            <FluentTextField AriaLabel="@Localizer[nameof(Language.Pages_Authentication_RegisterUser_Card_PasswordAria)]"
+            <FluentTextField Class="flex-grow-1"
+                             AriaLabel="@Localizer[nameof(Language.Pages_Authentication_RegisterUser_Card_PasswordAria)]"
                              Label="@Localizer[nameof(Language.Pages_Authentication_RegisterUser_Card_PasswordLabel)]"
                              TextFieldType="TextFieldType.Password"
                              @bind-Value="@_model.Password"
@@ -42,24 +48,27 @@
                              Minlength="2"/>
             <FluentValidationMessage For="@(() => _model.Password)"/>
 
-            <FluentStack Orientation="Orientation.Horizontal" Class="actions">
-                <FluentButton OnClick="OnToLoginClickAsync">
+            <FluentStack Class="flex-grow-1 m-t-4em" Orientation="Orientation.Horizontal">
+                <FluentButton OnClick="OnToLoginClickAsync"
+                              Disabled="@_busy.IsBusy">
                     @Localizer[nameof(Language.Pages_Authentication_RegisterUser_Card_ToLoginButton)]
                 </FluentButton>
                 <FluentSpacer/>
                 <FluentButton Type="ButtonType.Submit"
                               OnClick="OnRegisterButtonClickAsync"
-                              Appearance="Appearance.Accent">
+                              Appearance="Appearance.Accent"
+                              Disabled="@_busy.IsBusy">
                     @Localizer[nameof(Language.Pages_Authentication_RegisterUser_Card_RegisterButton)]
                 </FluentButton>
             </FluentStack>
         </FluentEditForm>
     </FluentCard>
-</div>
+</BusyComponent>
 
 @code {
 
-    private readonly Model _model = new();
+    private readonly Model         _model = new();
+    private          BusyComponent _busy  = null!;
 
     public sealed class Model
     {
@@ -86,16 +95,37 @@
         return Task.CompletedTask;
     }
 
-    private async Task OnRegisterButtonClickAsync()
-    {
-        await UserRepository.RegisterUserAsync(_model.EMail, _model.Password, _model.Token, _model.FirstName, _model.LastName);
-        await UserRepository.LoginAsync(_model.EMail, _model.Password);
-        NavigationManager.NavigateTo(BaseUrl.ResolveSelfUrl("/"));
-    }
+    private Task OnRegisterButtonClickAsync() => _busy.ExclusiveBusyAsync(async () =>
+        {
+            var parameters = new ToastParameters<ProgressToastContent>
+            {
+                // Ticks are added as otherwise when the user keeps pressing enter we may end up erroring the UI, due to ToastService limitations
+                Id      = $"pages-authentication-register-link-toast-{DateTime.Now.Ticks}",
+                Content = new ProgressToastContent(),
+                Title   = Localizer[nameof(Language.Pages_Authentication_RegisterUser_Toast_RegisteringUserWithOrganization)],
+            };
+            ToastService.ShowProgressToast(parameters);
+            try
+            {
+                await UserRepository.RegisterUserAsync(_model.EMail, _model.Password, _model.Token, _model.FirstName, _model.LastName);
+                await UserRepository.LoginAsync(_model.EMail, _model.Password);
+                NavigationManager.NavigateTo(BaseUrl.ResolveSelfUrl("/"));
+            }
+            catch (Exception ex)
+            {
+                Logger.LogError(ex, "Failed to register user");
+                ToastService.ShowError(Localizer[nameof(Language.Pages_Authentication_RegisterUser_Toast_RegistrationFailed)]);
+            }
+            finally
+            {
+                ToastService.CloseToast(parameters.Id);
+            }
+        }
+    );
 
     private Task OnToLoginClickAsync()
     {
-        NavigationManager.NavigateTo(BaseUrl.ResolveSelfUrl("/authentication/register"));
+        NavigationManager.NavigateTo(BaseUrl.ResolveSelfUrl("/authentication/login"));
         return Task.CompletedTask;
     }
 

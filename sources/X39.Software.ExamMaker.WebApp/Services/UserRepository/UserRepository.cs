@@ -42,14 +42,30 @@ internal sealed class UserRepository(
         await Client.Users.Register.Organization.PostAsync(
             new RegisterOrganizationDto
             {
-                AdminEmail        = email,
-                AdminPassword     = password,
-                OrganizationTitle = organizationName,
-                AdminFirstName    = firstName,
-                AdminLastName     = lastName,
+                AdminEmail             = email,
+                AdminPassword          = password,
+                OrganizationTitle      = organizationName,
+                AdminFirstName         = firstName,
+                AdminLastName          = lastName,
+                OrganizationIdentifier = organizationName.ToIdentifierString(),
             },
             cancellationToken: cancellationToken
         );
+    }
+
+    public async Task<bool> RefreshTokenAsync(string refreshToken, CancellationToken cancellationToken = default)
+    {
+        var response = await Client.Users.Refresh.PostAsync(
+            new RefreshTokenDto
+            {
+                RefreshToken = refreshToken,
+            },
+            cancellationToken: cancellationToken
+        );
+        if (response is null)
+            return false;
+        await jwtAuthenticationStateProvider.SetTokenAsync(response.AccessToken, response.RefreshToken);
+        return true;
     }
 
     public async Task RegisterUserAsync(

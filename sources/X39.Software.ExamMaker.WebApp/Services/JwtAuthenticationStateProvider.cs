@@ -1,10 +1,12 @@
 ﻿using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using Microsoft.AspNetCore.Components.Authorization;
+using X39.Software.ExamMaker.WebApp.Services.UserRepository;
 
 namespace X39.Software.ExamMaker.WebApp.Services;
 
-public sealed class JwtAuthenticationStateProvider(LocalStorage localStorage) : AuthenticationStateProvider
+public sealed class JwtAuthenticationStateProvider(LocalStorage localStorage, IServiceProvider serviceProvider)
+    : AuthenticationStateProvider
 {
     private const string JwtTokenKey        = nameof(JwtAuthenticationStateProvider) + "." + nameof(JwtTokenKey);
     private const string JwtRefreshTokenKey = nameof(JwtAuthenticationStateProvider) + "." + nameof(JwtRefreshTokenKey);
@@ -17,11 +19,23 @@ public sealed class JwtAuthenticationStateProvider(LocalStorage localStorage) : 
             return new AuthenticationState(new ClaimsPrincipal(new ClaimsIdentity()));
 
         var principal = CreateClaimsPrincipalFromJwt(token, out var expired);
-        if (expired)
+        if (!expired)
+            return new AuthenticationState(principal);
+        var refreshToken = await GetRefreshTokenAsync();
+        if (refreshToken is null || await serviceProvider.GetRequiredService<IUserRepository>().RefreshTokenAsync(refreshToken) is false)
         {
             await localStorage.RemoveAsync(JwtTokenKey);
             return new AuthenticationState(new ClaimsPrincipal(new ClaimsIdentity()));
         }
+
+        token = await localStorage.GetAsync<string>(JwtTokenKey);
+        principal = CreateClaimsPrincipalFromJwt(token, out expired);
+        if (expired) // If token is still expired, remove it
+        {
+            await localStorage.RemoveAsync(JwtTokenKey);
+            return new AuthenticationState(new ClaimsPrincipal(new ClaimsIdentity()));
+        }
+        NotifyAuthenticationStateChanged(Task.FromResult(new AuthenticationState(principal)));
 
         return new AuthenticationState(principal);
     }
@@ -46,6 +60,7 @@ public sealed class JwtAuthenticationStateProvider(LocalStorage localStorage) : 
     }
 
     public async Task<string?> GetTokenAsync() => await localStorage.GetAsync<string>(JwtTokenKey);
+    public async Task<string?> GetRefreshTokenAsync() => await localStorage.GetAsync<string>(JwtRefreshTokenKey);
 
     private static ClaimsPrincipal CreateClaimsPrincipalFromJwt(string jwt, out bool expired)
     {
@@ -63,7 +78,6 @@ public sealed class JwtAuthenticationStateProvider(LocalStorage localStorage) : 
                 if (exp < DateTimeOffset.UtcNow)
                 {
                     expired = true;
-                    return new ClaimsPrincipal(new ClaimsIdentity());
                 }
             }
 

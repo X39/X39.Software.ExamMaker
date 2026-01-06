@@ -50,14 +50,14 @@ public sealed class ExamTopicController(ExamDbContext examDbContext, ILogger<Exa
             return Unauthorized();
         }
 
-        if (exam.OrganizationId != organizationId)
+        if (exam.OrganizationFk != organizationId)
         {
             logger.LogWarning(
                 "Unauthorized: Organization {OrganizationId} tried to modify topic {TopicId} under exam {ExamId} belonging to organization {ExamOrgId}",
                 organizationId,
                 topicId,
                 examId,
-                exam.OrganizationId
+                exam.OrganizationFk
             );
             return Unauthorized();
         }
@@ -67,13 +67,13 @@ public sealed class ExamTopicController(ExamDbContext examDbContext, ILogger<Exa
             .Where(t => t.Identifier == topicId)
             .SingleOrDefaultAsync(cancellationToken);
 
-        if (existing is not null && existing.OrganizationId != organizationId)
+        if (existing is not null && existing.OrganizationFk != organizationId)
         {
             logger.LogWarning(
                 "Unauthorized: Organization {OrganizationId} tried to modify topic {TopicId} belonging to organization {TopicOrgId}",
                 organizationId,
                 topicId,
-                existing.OrganizationId
+                existing.OrganizationFk
             );
             return Unauthorized();
         }
@@ -86,7 +86,7 @@ public sealed class ExamTopicController(ExamDbContext examDbContext, ILogger<Exa
                 existing = new ExamTopic
                 {
                     Identifier           = topicId,
-                    OrganizationId       = organizationId,
+                    OrganizationFk       = organizationId,
                     CreatedAt            = now,
                     UpdatedAt            = now,
                     Exam                 = exam,
@@ -175,7 +175,7 @@ public sealed class ExamTopicController(ExamDbContext examDbContext, ILogger<Exa
             take
         );
         var query = examDbContext.ExamTopics
-            .Where(t => t.OrganizationId == organizationId && t.Exam!.Identifier == examId)
+            .Where(t => t.OrganizationFk == organizationId && t.Exam!.Identifier == examId)
             .OrderBy(t => t.Title);
         var data = await query.Skip(skip)
             .Take(take)
@@ -214,7 +214,7 @@ public sealed class ExamTopicController(ExamDbContext examDbContext, ILogger<Exa
 
         logger.LogDebug("Counting topics for org {OrganizationId}, exam {ExamId}", organizationId, examId);
         var count = await examDbContext.ExamTopics
-            .Where(t => t.OrganizationId == organizationId && t.Exam!.Identifier == examId)
+            .Where(t => t.OrganizationFk == organizationId && t.Exam!.Identifier == examId)
             .LongCountAsync(cancellationToken);
         logger.LogInformation("Total topic count for exam {ExamId}: {Count}", examId, count);
         return Ok(count);
@@ -256,7 +256,7 @@ public sealed class ExamTopicController(ExamDbContext examDbContext, ILogger<Exa
             return Unauthorized();
         }
 
-        if (topic.OrganizationId != organizationId)
+        if (topic.OrganizationFk != organizationId)
         {
             logger.LogWarning(
                 "Unauthorized access to topic {TopicId} from organization {OrganizationId}",
@@ -314,13 +314,13 @@ public sealed class ExamTopicController(ExamDbContext examDbContext, ILogger<Exa
             return Unauthorized();
         }
 
-        if (existing.OrganizationId != organizationId)
+        if (existing.OrganizationFk != organizationId)
         {
             logger.LogWarning(
                 "Unauthorized deletion attempt: Org {OrganizationId} tried to delete topic {TopicId} belonging to org {TopicOrg}",
                 organizationId,
                 topicId,
-                existing.OrganizationId
+                existing.OrganizationFk
             );
             return NoContent();
         }

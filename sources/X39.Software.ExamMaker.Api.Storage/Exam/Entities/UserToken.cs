@@ -8,17 +8,23 @@ namespace X39.Software.ExamMaker.Api.Storage.Exam.Entities;
 public sealed partial class UserToken : IPrimaryKey<long>, IRefersToOneRequired<User, long>, ICreatedAt
 {
     [Key]
-    private long _id;
+    public partial long Id { get; set; }
 
-    private string  _accessToken  = string.Empty;
-    private string  _refreshToken = string.Empty;
-    private Instant _expiresAt;
-    private Instant _createdAt;
-    private bool    _isRevoked;
-    private long    _userId;
+    [DefaultValue<string>("")]
+    public partial string AccessToken { get; set; }
 
-    [ForeignKey(nameof(UserId))]
-    private User? _user;
+    [DefaultValue<string>("")]
+    [StringLength(88)]
+    public partial string RefreshToken { get; set; }
+
+    public partial Instant RefreshTokenExpiresAt { get; set; }
+    public partial Instant CreatedAt { get; set; }
+    public partial bool IsRevoked { get; set; }
+
+    [ForeignKey(nameof(UserFk))]
+    public partial User? User { get; set; }
+
+    public partial long UserFk { get; set; }
 
     User? IRefersToOneRequired<User, long>.Entity
     {
@@ -28,7 +34,7 @@ public sealed partial class UserToken : IPrimaryKey<long>, IRefersToOneRequired<
 
     long IRefersToOneRequired<User, long>.EntityId
     {
-        get => UserId;
-        set => UserId = value;
+        get => UserFk;
+        set => UserFk = value;
     }
 }

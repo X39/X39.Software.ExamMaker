@@ -31,15 +31,15 @@ public sealed partial class ExamTopic
     public partial int? QuestionAmountToTake { get; set; }
 
 
-    [ForeignKey(nameof(OrganizationId))]
+    [ForeignKey(nameof(OrganizationFk))]
     public partial Organization? Organization { get; set; }
 
-    public partial long OrganizationId { get; set; }
+    public partial long OrganizationFk { get; set; }
 
-    [ForeignKey(nameof(ExamId))]
+    [ForeignKey(nameof(ExamFk))]
     public partial Exam? Exam { get; set; }
 
-    public partial long ExamId { get; set; }
+    public partial long ExamFk { get; set; }
 
     ICollection<ExamQuestion>? IRefersToMany<ExamQuestion>.Entities
     {
@@ -55,7 +55,7 @@ public sealed partial class ExamTopic
 
     long IRefersToOneRequired<Exam, long>.EntityId
     {
-        get => ExamId;
-        set => ExamId = value;
+        get => ExamFk;
+        set => ExamFk = value;
     }
 }

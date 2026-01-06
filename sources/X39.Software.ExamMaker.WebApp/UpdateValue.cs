@@ -1,7 +1,4 @@
-﻿using System.Diagnostics.CodeAnalysis;
-using System.Runtime.CompilerServices;
-
-namespace X39.Software.ExamMaker.Api.DataTransferObjects;
+﻿namespace X39.Software.ExamMaker.WebApp;
 
 public record struct UpdateValue<T>(T Value)
 {

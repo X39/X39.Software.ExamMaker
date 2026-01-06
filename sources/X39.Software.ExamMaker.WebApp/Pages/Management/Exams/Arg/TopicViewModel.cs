@@ -89,7 +89,7 @@ public sealed class TopicViewModel(
             string.Empty,
             null,
             null,
-            EQuestionKindEnum.MultipleChoice
+            EQuestionKind.MultipleChoice
         );
         var viewModel = new QuestionViewModel(
             examIdentifier,

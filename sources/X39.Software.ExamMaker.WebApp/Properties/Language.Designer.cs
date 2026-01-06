@@ -60,6 +60,24 @@ namespace X39.Software.ExamMaker.WebApp.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Dashboard.
+        /// </summary>
+        internal static string Layout_MainLayout_AppBar_Dashboard {
+            get {
+                return ResourceManager.GetString("Layout_MainLayout_AppBar_Dashboard", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Exams.
+        /// </summary>
+        internal static string Layout_MainLayout_AppBar_Exams {
+            get {
+                return ResourceManager.GetString("Layout_MainLayout_AppBar_Exams", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Imprint.
         /// </summary>
         internal static string Layout_MainLayout_Footer_Imprint {
@@ -321,6 +339,24 @@ namespace X39.Software.ExamMaker.WebApp.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Registering new Organization.
+        /// </summary>
+        internal static string Pages_Authentication_Register_Toast_RegisteringNewOrganization {
+            get {
+                return ResourceManager.GetString("Pages_Authentication_Register_Toast_RegisteringNewOrganization", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Registration failed.
+        /// </summary>
+        internal static string Pages_Authentication_Register_Toast_RegistrationFailed {
+            get {
+                return ResourceManager.GetString("Pages_Authentication_Register_Toast_RegistrationFailed", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Input E-Mail address.
         /// </summary>
         internal static string Pages_Authentication_RegisterUser_Card_EMailAria {
@@ -429,6 +465,24 @@ namespace X39.Software.ExamMaker.WebApp.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Registering user with organization.
+        /// </summary>
+        internal static string Pages_Authentication_RegisterUser_Toast_RegisteringUserWithOrganization {
+            get {
+                return ResourceManager.GetString("Pages_Authentication_RegisterUser_Toast_RegisteringUserWithOrganization", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Registration failed.
+        /// </summary>
+        internal static string Pages_Authentication_RegisterUser_Toast_RegistrationFailed {
+            get {
+                return ResourceManager.GetString("Pages_Authentication_RegisterUser_Toast_RegistrationFailed", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Imprint.
         /// </summary>
         internal static string Pages_Imprint_Imprint {
@@ -470,6 +524,15 @@ namespace X39.Software.ExamMaker.WebApp.Properties {
         internal static string Pages_Management_Exams_All_Index_GridHeaders_Title {
             get {
                 return ResourceManager.GetString("Pages_Management_Exams_All_Index_GridHeaders_Title", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Download as PDF.
+        /// </summary>
+        internal static string Pages_Management_Exams_All_Index_GridOperation_DownloadAsPdf {
+            get {
+                return ResourceManager.GetString("Pages_Management_Exams_All_Index_GridOperation_DownloadAsPdf", resourceCulture);
             }
         }
         

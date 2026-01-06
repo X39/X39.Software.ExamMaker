@@ -1,3 +1,29 @@
+html, body {
+    font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+}
+
+h1:focus {
+    outline: none;
+}
+
+a, .btn-link {
+    color: #0071c1;
+}
+
+.btn-primary {
+    color: #fff;
+    background-color: #1b6ec2;
+    border-color: #1861ac;
+}
+
+.btn:focus, .btn:active:focus, .btn-link.nav-link:focus, .form-control:focus, .form-check-input:focus {
+    box-shadow: 0 0 0 0.1rem white, 0 0 0 0.25rem #258cfb;
+}
+
+.content {
+    padding-top: 1.1rem;
+}
+
 .valid.modified:not([type=checkbox]) {
     outline: 1px solid #26b050;
 }
@@ -8,11 +34,6 @@
 
 .validation-message {
     color: red;
-}
-
-#app {
-    height: 100dvh;
-    width: 100dvw;
 }
 
 #blazor-error-ui {
@@ -47,11 +68,12 @@
 }
 
 .loading-progress {
-    position: relative;
+    position: absolute;
     display: block;
     width: 8rem;
     height: 8rem;
-    margin: 20vh auto 1rem auto;
+    inset: 20vh 0 auto 0;
+    margin: 0 auto 0 auto;
 }
 
 .loading-progress circle {
@@ -92,14 +114,16 @@ code {
     text-align: start;
 }
 
+
 /* Main Layout */
 .main-layout-container {
-    height: 100%;
-    width: 100%;
+    height: 100dvh !important;
+    width: 100dvw !important;
 }
 .main-layout-footer {
     background: black;
-    color: white;
+    gap: 1em;
+    padding: 0.25em;
 }
 .main-layout-body-container {
     flex-grow: 1;

@@ -1,5 +1,4 @@
 ﻿using System.Diagnostics.CodeAnalysis;
-using X39.Software.ExamMaker.Api.DataTransferObjects;
 using X39.Software.ExamMaker.Models;
 
 namespace X39.Software.ExamMaker.WebApp.Services.ExamRepository;

@@ -45,7 +45,7 @@ namespace X39.Software.ExamMaker
             ApiClientBuilder.RegisterDefaultDeserializer<FormParseNodeFactory>();
             if (string.IsNullOrEmpty(RequestAdapter.BaseUrl))
             {
-                RequestAdapter.BaseUrl = "http://localhost:8080";
+                RequestAdapter.BaseUrl = "https://localhost:8081";
             }
             PathParameters.TryAdd("baseurl", RequestAdapter.BaseUrl);
         }

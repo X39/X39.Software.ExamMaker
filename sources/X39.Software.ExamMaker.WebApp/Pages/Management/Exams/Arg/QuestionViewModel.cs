@@ -91,9 +91,9 @@ public sealed class QuestionViewModel(
         }
     }
 
-    public EQuestionKindEnum Kind
+    public EQuestionKind Kind
     {
-        get => (EQuestionKindEnum) (question.Kind?.Integer ?? default);
+        get => (EQuestionKind) (question.Kind ?? default);
         set
         {
             Task.Run(async () =>
@@ -108,7 +108,7 @@ public sealed class QuestionViewModel(
                         null,
                         value
                     );
-                    question.Kind = new EQuestionKind { Integer = (int) value };
+                    question.Kind = value;
                     await stateHasChanged();
                 }
             );
@@ -132,7 +132,7 @@ public sealed class QuestionViewModel(
             {
                 var viewModel = new AnswerViewModel(
                     examIdentifier,
-                    Identifier,
+                    topicIdentifier,
                     Identifier,
                     answer,
                     stateHasChanged,

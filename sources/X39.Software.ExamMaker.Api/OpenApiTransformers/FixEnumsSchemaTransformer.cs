@@ -3,24 +3,24 @@ using System.Reflection;
 using System.Text.Json.Nodes;
 using Microsoft.AspNetCore.OpenApi;
 using Microsoft.OpenApi;
+using X39.Util;
 using X39.Util.Collections;
 
 namespace X39.Software.ExamMaker.Api.OpenApiTransformers;
 
 internal class FixEnumsSchemaTransformer : IOpenApiSchemaTransformer
 {
-    public Task TransformAsync(
+    public async Task TransformAsync(
         OpenApiSchema schema,
         OpenApiSchemaTransformerContext context,
         CancellationToken cancellationToken
     )
     {
-        Console.WriteLine(context.JsonTypeInfo.Type.Name);
+        var enumType = context.JsonTypeInfo.Type.GetDeNulledType();
+        var isNullable = !enumType.IsEquivalentTo(context.JsonTypeInfo.Type);
+        if (!context.JsonTypeInfo.Type.GetDeNulledType().IsEnum)
+            return;
 
-        if (!context.JsonTypeInfo.Type.IsEnum)
-            return Task.CompletedTask;
-
-        var enumType = context.JsonTypeInfo.Type;
         schema.Enum       ??= new List<JsonNode>();
         schema.Extensions ??= new Dictionary<string, IOpenApiExtension>();
         schema.OneOf      ??= new List<IOpenApiSchema>();
@@ -52,19 +52,9 @@ internal class FixEnumsSchemaTransformer : IOpenApiSchemaTransformer
             }
         );
 
-        // Add enum schemas to OneOf
-        foreach (var name in Enum.GetNames(enumType))
-        {
-            var enumValue = (int) Enum.Parse(enumType, name);
-            var enumSchema = new OpenApiSchema
-            {
-                Type = JsonSchemaType.Integer, Enum = new List<JsonNode> { enumValue }, Title = name,
-            };
-
-            schema.OneOf.Add(enumSchema);
-        }
-
-        return Task.CompletedTask;
+        schema.Comment = schema.Comment is null
+            ? "Applied FixEnumsSchemaTransformer"
+            : string.Join(Environment.NewLine, schema.Comment, "Applied FixEnumsSchemaTransformer");
     }
 
     private string GetEnumDescription(Type type, string name)
