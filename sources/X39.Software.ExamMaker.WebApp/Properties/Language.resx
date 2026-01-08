@@ -240,4 +240,49 @@
     <data name="Pages_Management_Exams_All_Index_GridOperation_DownloadAsPdf" xml:space="preserve">
         <value>Download as PDF</value>
     </data>
+    <data name="Pages_Management_Exams_Arg_PdfTemplate_Title" xml:space="preserve">
+        <value>PDF Template</value>
+    </data>
+    <data name="Pages_Management_Exams_Arg_PdfTemplate_Editor_Label" xml:space="preserve">
+        <value>XML Template</value>
+    </data>
+    <data name="Pages_Management_Exams_Arg_PdfTemplate_Editor_Placeholder" xml:space="preserve">
+        <value>Enter XML Template here...</value>
+    </data>
+    <data name="Pages_Management_Exams_Arg_PdfTemplate_Button_Save" xml:space="preserve">
+        <value>Save</value>
+    </data>
+    <data name="Pages_Management_Exams_Arg_PdfTemplate_Button_Preview" xml:space="preserve">
+        <value>Preview</value>
+    </data>
+    <data name="Pages_Management_Exams_Arg_PdfTemplate_Preview_Header" xml:space="preserve">
+        <value>Preview</value>
+    </data>
+    <data name="Pages_Management_Exams_Arg_PdfTemplate_Error_Header" xml:space="preserve">
+        <value>Errors</value>
+    </data>
+    <data name="Pages_Management_Exams_Arg_PdfTemplate_UnsavedChanges_Warning" xml:space="preserve">
+        <value>You have unsaved changes. Are you sure you want to leave?</value>
+    </data>
+    <data name="Pages_Management_Exams_Arg_Button_EditPdfTemplate" xml:space="preserve">
+        <value>Edit PDF Template</value>
+    </data>
+    <data name="Pages_Management_Exams_Arg_PdfTemplate_NoPreview" xml:space="preserve">
+        <value>No preview generated yet.</value>
+    </data>
+    <data name="Pages_Management_Exams_Arg_PdfTemplate_Toast_SaveSuccess" xml:space="preserve">
+        <value>Template saved successfully.</value>
+    </data>
+    <data name="Pages_Management_Exams_Arg_PdfTemplate_Toast_SaveError" xml:space="preserve">
+        <value>Failed to save template: {0}</value>
+    </data>
+    <data name="Pages_Management_Exams_Arg_PdfTemplate_StackTrace" xml:space="preserve">
+        <value>Stack Trace</value>
+    </data>
+    <data name="Pages_Management_Exams_All_Index_ToolBar_ImportFromCsv" xml:space="preserve">
+        <value>Import from CSV</value>
+    </data>
+    <data name="Pages_Management_Exams_All_Index_GridOperation_ExportToCsv" xml:space="preserve">
+        <value>Export to CSV</value>
+    </data>
 </root>

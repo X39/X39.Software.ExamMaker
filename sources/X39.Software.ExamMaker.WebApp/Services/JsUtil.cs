@@ -44,4 +44,21 @@ public sealed class JsUtil : IAsyncDisposable
         await _accessor.Value.InvokeVoidAsync("ApiDownload", url, fileName, jwtToken).ConfigureAwait(false);
     }
 
+    public async ValueTask DownloadAsync(string fileName, string mimeType, string content)
+    {
+        await EnsureAccessor().ConfigureAwait(false);
+        await _accessor.Value.InvokeVoidAsync("Download", fileName, mimeType, content).ConfigureAwait(false);
+    }
+
+    public async ValueTask<bool> Confirm(string message)
+    {
+        await EnsureAccessor().ConfigureAwait(false);
+        return await _accessor.Value.InvokeAsync<bool>("Confirm", message).ConfigureAwait(false);
+    }
+
+    public async ValueTask ClickAsync(string id)
+    {
+        await EnsureAccessor().ConfigureAwait(false);
+        await _accessor.Value.InvokeVoidAsync("Click", id).ConfigureAwait(false);
+    }
 }

@@ -17,6 +17,7 @@ public interface IExamRepository
         Guid identifier,
         UpdateValue<string>? title,
         UpdateValue<string>? preamble,
+        UpdateValue<string>? pdfTemplate,
         CancellationToken cancellationToken = default
     );
     Task<ExamListingDto> CreateAsync(
@@ -26,4 +27,5 @@ public interface IExamRepository
     );
 
     Task<ExamListingDto> GetAsync(Guid examIdentifier, CancellationToken cancellationToken = default);
+    Task<PdfPreviewDto> GetPdfPreviewAsync(Guid examIdentifier, string? xmlTemplate, CancellationToken cancellationToken = default);
 }

@@ -18,6 +18,14 @@ namespace X39.Software.ExamMaker.Models
         public DateTimeOffset? CreatedAt { get; set; }
         /// <summary>The identifier property</summary>
         public Guid? Identifier { get; set; }
+        /// <summary>The pdfTemplate property</summary>
+#if NETSTANDARD2_1_OR_GREATER || NETCOREAPP3_1_OR_GREATER
+#nullable enable
+        public string? PdfTemplate { get; set; }
+#nullable restore
+#else
+        public string PdfTemplate { get; set; }
+#endif
         /// <summary>The preamble property</summary>
 #if NETSTANDARD2_1_OR_GREATER || NETCOREAPP3_1_OR_GREATER
 #nullable enable
@@ -61,6 +69,7 @@ namespace X39.Software.ExamMaker.Models
             {
                 { "createdAt", n => { CreatedAt = n.GetDateTimeOffsetValue(); } },
                 { "identifier", n => { Identifier = n.GetGuidValue(); } },
+                { "pdfTemplate", n => { PdfTemplate = n.GetStringValue(); } },
                 { "preamble", n => { Preamble = n.GetStringValue(); } },
                 { "title", n => { Title = n.GetStringValue(); } },
             };
@@ -74,6 +83,7 @@ namespace X39.Software.ExamMaker.Models
             if(ReferenceEquals(writer, null)) throw new ArgumentNullException(nameof(writer));
             writer.WriteDateTimeOffsetValue("createdAt", CreatedAt);
             writer.WriteGuidValue("identifier", Identifier);
+            writer.WriteStringValue("pdfTemplate", PdfTemplate);
             writer.WriteStringValue("preamble", Preamble);
             writer.WriteStringValue("title", Title);
             writer.WriteAdditionalData(AdditionalData);

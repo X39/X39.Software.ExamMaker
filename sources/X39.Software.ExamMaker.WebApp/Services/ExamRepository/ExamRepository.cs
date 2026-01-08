@@ -36,6 +36,7 @@ public sealed class ExamRepository(IHttpClientFactory httpClientFactory, BaseUrl
         Guid identifier,
         UpdateValue<string>? title,
         UpdateValue<string>? preamble,
+        UpdateValue<string>? pdfTemplate,
         CancellationToken cancellationToken = default
     )
     {
@@ -44,8 +45,9 @@ public sealed class ExamRepository(IHttpClientFactory httpClientFactory, BaseUrl
             .PutAsync(
                 new ExamUpdateDto
                 {
-                    Title    = title is null ? null : new UpdateValueOfstring { Value    = title },
-                    Preamble = preamble is null ? null : new UpdateValueOfstring { Value = preamble },
+                    Title       = title is null ? null : new UpdateValueOfstring { Value       = title },
+                    Preamble    = preamble is null ? null : new UpdateValueOfstring { Value    = preamble },
+                    PdfTemplate = pdfTemplate is null ? null : new UpdateValueOfstring { Value = pdfTemplate },
                 },
                 cancellationToken: cancellationToken
             );
@@ -64,6 +66,79 @@ public sealed class ExamRepository(IHttpClientFactory httpClientFactory, BaseUrl
                 {
                     Title    = new UpdateValueOfstring { Value = title },
                     Preamble = new UpdateValueOfstring { Value = preamble },
+                    PdfTemplate = new UpdateValueOfstring
+                    {
+                        Value = """
+                                <template>
+                                    <body>
+                                        <text>@title(organization(context))</text>
+                                        <text weight="bold" fontsize="24">@title(context)</text>
+                                        <line thickness="5pt" color="black"/>
+                                        <text margin="0 5pt">@preamble(context)</text>
+                                        <line thickness="5pt" color="black"/>
+                                        <table>
+                                            @foreach topic in topics(context) {
+                                                <tr>
+                                                    <td>
+                                                        <text weight="bold" margin="0 15pt 0 0">@title(topic)</text>
+                                                        <line thickness="1pt" color="gray" margin="0 0 0 5pt"/>
+                                                    </td>
+                                                </tr>
+                                                <tr>
+                                                    <td>
+                                                    @foreach question in take-random-questions(topic) {
+                                                        <text weight="bold" margin="0 10pt 0 0">@title(question)</text>
+                                                        @foreach answer in take-random-answers(question) {
+                                                            <table>
+                                                                    <tr>
+                                                                        <td width="0.5cm">
+                                                                            @if include-answers {
+                                                                                @if is-correct(answer) {
+                                                                                <border padding="1mm"
+                                                                                        margin="0 1mm 0 0"
+                                                                                        thickness="0.3mm"
+                                                                                        color="black"
+                                                                                        background="black"
+                                                                                        verticalalignment="top"
+                                                                                        horizontalalignment="center"/>
+                                                                                }
+                                                                                @if is-correct(answer) == false {
+                                                                                <border padding="1mm"
+                                                                                        margin="0 1mm 0 0"
+                                                                                        thickness="0.3mm"
+                                                                                        color="black"
+                                                                                        verticalalignment="top"
+                                                                                        horizontalalignment="center"/>
+                                                                                }
+                                                                            }
+                                                                            @if include-answers == false {
+                                                                                <border padding="1mm"
+                                                                                        margin="0 1mm 0 0"
+                                                                                        thickness="0.3mm"
+                                                                                        color="black"
+                                                                                        verticalalignment="top"
+                                                                                        horizontalalignment="center"/>
+                                                                            }
+                                                                        </td>
+                                                                        <td><text>@answer-text(answer)</text></td>
+                                                                    </tr>
+                                                                    @if include-answers {
+                                                                        <tr>
+                                                                            <td/>
+                                                                            <td><text>@reason-text(answer)</text></td>
+                                                                        </tr>
+                                                                    }
+                                                            </table>
+                                                        }
+                                                    }
+                                                    </td>
+                                                </tr>
+                                            }
+                                        </table>
+                                    </body>
+                                </template>
+                                """,
+                    },
                 },
                 cancellationToken: cancellationToken
             );
@@ -76,6 +151,21 @@ public sealed class ExamRepository(IHttpClientFactory httpClientFactory, BaseUrl
     {
         var result = await Client.Exam[examIdentifier]
             .GetAsync(cancellationToken: cancellationToken);
+        if (result is null)
+            throw new Exception("Server responded with null");
+        return result;
+    }
+
+    public async Task<PdfPreviewDto> GetPdfPreviewAsync(
+        Guid examIdentifier,
+        string? xmlTemplate,
+        CancellationToken cancellationToken = default
+    )
+    {
+        var result = await Client.Exam[examIdentifier]
+            .Image
+            .All
+            .PostAsync(xmlTemplate ?? string.Empty, cancellationToken: cancellationToken);
         if (result is null)
             throw new Exception("Server responded with null");
         return result;

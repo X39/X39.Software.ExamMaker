@@ -3,11 +3,13 @@ using System.Globalization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using NodaTime;
+using X39.Software.ExamMaker.Api.DataTransferObjects;
 using X39.Software.ExamMaker.Api.DataTransferObjects.Exams;
 using X39.Software.ExamMaker.Api.Services;
 using X39.Software.ExamMaker.Api.Storage.Exam;
 using X39.Software.ExamMaker.Api.Storage.Exam.Entities;
 using X39.Software.ExamMaker.Shared;
+using X39.Util;
 
 namespace X39.Software.ExamMaker.Api.Controllers;
 
@@ -95,13 +97,23 @@ public sealed class ExamController(ExamDbContext examDbContext, ILogger<ExamCont
                     existing.Preamble = examUpdateDto.Preamble.Value;
                 if (examUpdateDto.Title is not null)
                     existing.Title = examUpdateDto.Title.Value;
+                if (examUpdateDto.PdfTemplate is not null)
+                    existing.PdfTemplate = examUpdateDto.PdfTemplate.Value;
             }
         }
 
         logger.LogDebug("Saving changes to database for exam {ExamId}", examId);
         await examDbContext.SaveChangesAsync(cancellationToken);
         logger.LogInformation("Successfully created/updated exam {ExamId}", examId);
-        return Ok(new ExamListingDto(examId, existing.Title, existing.Preamble, existing.CreatedAt.ToDateTimeOffset()));
+        return Ok(
+            new ExamListingDto(
+                examId,
+                existing.Title,
+                existing.Preamble,
+                existing.PdfTemplate,
+                existing.CreatedAt.ToDateTimeOffset()
+            )
+        );
     }
 
     [HttpGet("all")]
@@ -149,7 +161,14 @@ public sealed class ExamController(ExamDbContext examDbContext, ILogger<ExamCont
 
         logger.LogInformation("Retrieved {Count} exams for organization {OrganizationId}", data.Count, organizationId);
         return Ok(
-            data.Select(e => new ExamListingDto(e.Identifier, e.Title, e.Preamble, e.CreatedAt.ToDateTimeOffset()))
+            data.Select(e => new ExamListingDto(
+                    e.Identifier,
+                    e.Title,
+                    e.Preamble,
+                    e.PdfTemplate,
+                    e.CreatedAt.ToDateTimeOffset()
+                )
+            )
         );
     }
 
@@ -213,7 +232,15 @@ public sealed class ExamController(ExamDbContext examDbContext, ILogger<ExamCont
         }
 
         logger.LogInformation("Returning exam {ExamId}", examId);
-        return Ok(new ExamListingDto(exam.Identifier, exam.Title, exam.Preamble, exam.CreatedAt.ToDateTimeOffset()));
+        return Ok(
+            new ExamListingDto(
+                exam.Identifier,
+                exam.Title,
+                exam.Preamble,
+                exam.PdfTemplate,
+                exam.CreatedAt.ToDateTimeOffset()
+            )
+        );
     }
 
     [HttpDelete("{examId:guid}")]
@@ -266,11 +293,12 @@ public sealed class ExamController(ExamDbContext examDbContext, ILogger<ExamCont
     }
 
     [HttpGet("{examId:guid}/pdf")]
-    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType<FileResult>(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     public async Task<IActionResult> GetExamPdfAsync(
         [FromRoute] Guid examId,
         [FromQuery] bool showResults,
+        [FromQuery] int? seed,
         [FromServices] PdfService pdfService,
         CancellationToken cancellationToken = default
     )
@@ -290,6 +318,7 @@ public sealed class ExamController(ExamDbContext examDbContext, ILogger<ExamCont
         );
         var existing = await examDbContext.Exams
             .AsNoTracking()
+            .Include(e => e.Organization)
             .Include(e => e.ExamTopics!)
             .ThenInclude(e => e.ExamQuestions!)
             .ThenInclude(e => e.ExamAnswers!)
@@ -317,11 +346,164 @@ public sealed class ExamController(ExamDbContext examDbContext, ILogger<ExamCont
         logger.LogInformation("Creating exam {ExamId} PDF of organization {OrganizationId}", examId, organizationId);
         var pdfBytes = await pdfService.CreateExamPdfAsync(
             existing,
+            existing.PdfTemplate,
             showResults,
             CultureInfo.CurrentCulture,
+            seed,
             cancellationToken
         );
 
         return File(pdfBytes, "application/pdf", $"{existing.Title}.pdf");
+    }
+
+    [HttpGet("{examId:guid}/image/{index:int}")]
+    [ProducesResponseType<FileResult>(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    public async Task<IActionResult> GetImagesAsync(
+        [FromRoute] Guid examId,
+        [FromRoute] int index,
+        [FromQuery] bool showResults,
+        [FromQuery] int? seed,
+        [FromServices] PdfService pdfService,
+        CancellationToken cancellationToken = default
+    )
+    {
+        logger.LogInformation("GetExamPdfAsync called for examId: {ExamId}", examId);
+
+        if (!User.ResolveOrganizationId(out var organizationId))
+        {
+            logger.LogWarning("Unauthorized access attempt to access exam {ExamId} - no organization ID found", examId);
+            return Unauthorized();
+        }
+
+        logger.LogDebug(
+            "Querying for exam {ExamId} to create a pdf from for organization {OrganizationId}",
+            examId,
+            organizationId
+        );
+        var existing = await examDbContext.Exams
+            .AsNoTracking()
+            .Include(e => e.Organization)
+            .Include(e => e.ExamTopics!)
+            .ThenInclude(e => e.ExamQuestions!)
+            .ThenInclude(e => e.ExamAnswers!)
+            .AsSplitQuery()
+            .Where(e => e.Identifier == examId)
+            .SingleOrDefaultAsync(cancellationToken);
+
+        if (existing is null)
+        {
+            logger.LogInformation("Exam {ExamId} not found", examId);
+            return Unauthorized();
+        }
+
+        if (existing.OrganizationFk != organizationId)
+        {
+            logger.LogWarning(
+                "Unauthorized access attempt: User with organization {OrganizationId} tried to access exam {ExamId} belonging to organization {ExamOrganizationId}",
+                organizationId,
+                examId,
+                existing.OrganizationFk
+            );
+            return Unauthorized();
+        }
+
+        logger.LogInformation("Creating exam {ExamId} PDF of organization {OrganizationId}", examId, organizationId);
+        var images = await pdfService.CreateExamImagesAsync(
+            existing,
+            existing.PdfTemplate,
+            showResults,
+            CultureInfo.CurrentCulture,
+            seed,
+            cancellationToken
+        );
+
+
+        var image = images.Skip(index)
+            .FirstOrDefault();
+        if (image is null)
+            return NoContent();
+        return File(image, "image/bmp", $"{existing.Title}-{index}.bmp");
+    }
+
+    [HttpPost("{examId:guid}/image/all")]
+    [ProducesResponseType<PdfPreviewDto>(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    public async Task<IActionResult> GetImagesAsync(
+        [FromRoute] Guid examId,
+        [FromQuery] bool showResults,
+        [FromQuery] int? seed,
+        [FromBody] string? xml,
+        [FromServices] PdfService pdfService,
+        CancellationToken cancellationToken = default
+    )
+    {
+        logger.LogInformation("GetExamPdfAsync called for examId: {ExamId}", examId);
+
+        if (!User.ResolveOrganizationId(out var organizationId))
+        {
+            logger.LogWarning("Unauthorized access attempt to access exam {ExamId} - no organization ID found", examId);
+            return Unauthorized();
+        }
+
+        logger.LogDebug(
+            "Querying for exam {ExamId} to create a pdf from for organization {OrganizationId}",
+            examId,
+            organizationId
+        );
+        var existing = await examDbContext.Exams
+            .AsNoTracking()
+            .Include(e => e.Organization)
+            .Include(e => e.ExamTopics!)
+            .ThenInclude(e => e.ExamQuestions!)
+            .ThenInclude(e => e.ExamAnswers!)
+            .AsSplitQuery()
+            .Where(e => e.Identifier == examId)
+            .SingleOrDefaultAsync(cancellationToken);
+
+        if (existing is null)
+        {
+            logger.LogInformation("Exam {ExamId} not found", examId);
+            return Unauthorized();
+        }
+
+        if (existing.OrganizationFk != organizationId)
+        {
+            logger.LogWarning(
+                "Unauthorized access attempt: User with organization {OrganizationId} tried to access exam {ExamId} belonging to organization {ExamOrganizationId}",
+                organizationId,
+                examId,
+                existing.OrganizationFk
+            );
+            return Unauthorized();
+        }
+
+        logger.LogInformation("Creating exam {ExamId} PDF of organization {OrganizationId}", examId, organizationId);
+        try
+        {
+            var images = await pdfService.CreateExamImagesAsync(
+                existing,
+                xml.IsNullOrWhiteSpace() ? existing.PdfTemplate : xml,
+                showResults,
+                CultureInfo.CurrentCulture,
+                seed,
+                cancellationToken
+            );
+
+
+            return Ok(
+                new PdfPreviewDto(
+                    images.Select((image, index) => new ImageDto(image, "image/webp", $"{existing.Title}-{index}.webp"))
+                        .ToArray(),
+                    null,
+                    null
+                )
+            );
+        }
+        catch (Exception ex)
+        {
+            return Ok(new PdfPreviewDto(null, ex.Message, ex.StackTrace));
+        }
     }
 }

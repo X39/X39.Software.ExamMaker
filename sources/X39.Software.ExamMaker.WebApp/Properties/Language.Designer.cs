@@ -537,6 +537,15 @@ namespace X39.Software.ExamMaker.WebApp.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Export to CSV.
+        /// </summary>
+        internal static string Pages_Management_Exams_All_Index_GridOperation_ExportToCsv {
+            get {
+                return ResourceManager.GetString("Pages_Management_Exams_All_Index_GridOperation_ExportToCsv", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Open.
         /// </summary>
         internal static string Pages_Management_Exams_All_Index_GridOperation_OpenExam {
@@ -551,6 +560,15 @@ namespace X39.Software.ExamMaker.WebApp.Properties {
         internal static string Pages_Management_Exams_All_Index_ToolBar_CreateAndOpenNewExam {
             get {
                 return ResourceManager.GetString("Pages_Management_Exams_All_Index_ToolBar_CreateAndOpenNewExam", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Import from CSV.
+        /// </summary>
+        internal static string Pages_Management_Exams_All_Index_ToolBar_ImportFromCsv {
+            get {
+                return ResourceManager.GetString("Pages_Management_Exams_All_Index_ToolBar_ImportFromCsv", resourceCulture);
             }
         }
         
@@ -605,6 +623,15 @@ namespace X39.Software.ExamMaker.WebApp.Properties {
         internal static string Pages_Management_Exams_Arg_Button_DeleteTopic {
             get {
                 return ResourceManager.GetString("Pages_Management_Exams_Arg_Button_DeleteTopic", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Edit PDF Template.
+        /// </summary>
+        internal static string Pages_Management_Exams_Arg_Button_EditPdfTemplate {
+            get {
+                return ResourceManager.GetString("Pages_Management_Exams_Arg_Button_EditPdfTemplate", resourceCulture);
             }
         }
         
@@ -704,6 +731,114 @@ namespace X39.Software.ExamMaker.WebApp.Properties {
         internal static string Pages_Management_Exams_Arg_Label_TopicTitle {
             get {
                 return ResourceManager.GetString("Pages_Management_Exams_Arg_Label_TopicTitle", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Preview.
+        /// </summary>
+        internal static string Pages_Management_Exams_Arg_PdfTemplate_Button_Preview {
+            get {
+                return ResourceManager.GetString("Pages_Management_Exams_Arg_PdfTemplate_Button_Preview", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Save.
+        /// </summary>
+        internal static string Pages_Management_Exams_Arg_PdfTemplate_Button_Save {
+            get {
+                return ResourceManager.GetString("Pages_Management_Exams_Arg_PdfTemplate_Button_Save", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to XML Template.
+        /// </summary>
+        internal static string Pages_Management_Exams_Arg_PdfTemplate_Editor_Label {
+            get {
+                return ResourceManager.GetString("Pages_Management_Exams_Arg_PdfTemplate_Editor_Label", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Enter XML Template here....
+        /// </summary>
+        internal static string Pages_Management_Exams_Arg_PdfTemplate_Editor_Placeholder {
+            get {
+                return ResourceManager.GetString("Pages_Management_Exams_Arg_PdfTemplate_Editor_Placeholder", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Errors.
+        /// </summary>
+        internal static string Pages_Management_Exams_Arg_PdfTemplate_Error_Header {
+            get {
+                return ResourceManager.GetString("Pages_Management_Exams_Arg_PdfTemplate_Error_Header", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to No preview generated yet..
+        /// </summary>
+        internal static string Pages_Management_Exams_Arg_PdfTemplate_NoPreview {
+            get {
+                return ResourceManager.GetString("Pages_Management_Exams_Arg_PdfTemplate_NoPreview", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Preview.
+        /// </summary>
+        internal static string Pages_Management_Exams_Arg_PdfTemplate_Preview_Header {
+            get {
+                return ResourceManager.GetString("Pages_Management_Exams_Arg_PdfTemplate_Preview_Header", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Stack Trace.
+        /// </summary>
+        internal static string Pages_Management_Exams_Arg_PdfTemplate_StackTrace {
+            get {
+                return ResourceManager.GetString("Pages_Management_Exams_Arg_PdfTemplate_StackTrace", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to PDF Template.
+        /// </summary>
+        internal static string Pages_Management_Exams_Arg_PdfTemplate_Title {
+            get {
+                return ResourceManager.GetString("Pages_Management_Exams_Arg_PdfTemplate_Title", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Failed to save template: {0}.
+        /// </summary>
+        internal static string Pages_Management_Exams_Arg_PdfTemplate_Toast_SaveError {
+            get {
+                return ResourceManager.GetString("Pages_Management_Exams_Arg_PdfTemplate_Toast_SaveError", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Template saved successfully..
+        /// </summary>
+        internal static string Pages_Management_Exams_Arg_PdfTemplate_Toast_SaveSuccess {
+            get {
+                return ResourceManager.GetString("Pages_Management_Exams_Arg_PdfTemplate_Toast_SaveSuccess", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to You have unsaved changes. Are you sure you want to leave?.
+        /// </summary>
+        internal static string Pages_Management_Exams_Arg_PdfTemplate_UnsavedChanges_Warning {
+            get {
+                return ResourceManager.GetString("Pages_Management_Exams_Arg_PdfTemplate_UnsavedChanges_Warning", resourceCulture);
             }
         }
         

@@ -29,7 +29,7 @@ public sealed class ExamViewModel(
             Task.Run(async () =>
                 {
                     using var busy = BusyHelper.Busy();
-                    await examRepository.UpdateAsync(Identifier, value, null);
+                    await examRepository.UpdateAsync(Identifier, value, null, null);
                     exam.Title = value;
                     await stateHasChanged();
                 }
@@ -45,7 +45,7 @@ public sealed class ExamViewModel(
             Task.Run(async () =>
                 {
                     using var busy = BusyHelper.Busy();
-                    await examRepository.UpdateAsync(Identifier, null, value);
+                    await examRepository.UpdateAsync(Identifier, null, value, null);
                     exam.Preamble = value;
                     await stateHasChanged();
                 }

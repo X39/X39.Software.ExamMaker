@@ -9,51 +9,51 @@ namespace X39.Software.ExamMaker.Models
 {
     [global::System.CodeDom.Compiler.GeneratedCode("Kiota", "1.0.0")]
     #pragma warning disable CS1591
-    public partial class ExamUpdateDto : IAdditionalDataHolder, IParsable
+    public partial class PdfPreviewDto : IAdditionalDataHolder, IParsable
     #pragma warning restore CS1591
     {
         /// <summary>Stores additional data not described in the OpenAPI description found when deserializing. Can be used for serialization as well.</summary>
         public IDictionary<string, object> AdditionalData { get; set; }
-        /// <summary>The pdfTemplate property</summary>
+        /// <summary>The errorMessage property</summary>
 #if NETSTANDARD2_1_OR_GREATER || NETCOREAPP3_1_OR_GREATER
 #nullable enable
-        public global::X39.Software.ExamMaker.Models.UpdateValueOfstring? PdfTemplate { get; set; }
+        public string? ErrorMessage { get; set; }
 #nullable restore
 #else
-        public global::X39.Software.ExamMaker.Models.UpdateValueOfstring PdfTemplate { get; set; }
+        public string ErrorMessage { get; set; }
 #endif
-        /// <summary>The preamble property</summary>
+        /// <summary>The images property</summary>
 #if NETSTANDARD2_1_OR_GREATER || NETCOREAPP3_1_OR_GREATER
 #nullable enable
-        public global::X39.Software.ExamMaker.Models.UpdateValueOfstring? Preamble { get; set; }
+        public List<global::X39.Software.ExamMaker.Models.ImageDto>? Images { get; set; }
 #nullable restore
 #else
-        public global::X39.Software.ExamMaker.Models.UpdateValueOfstring Preamble { get; set; }
+        public List<global::X39.Software.ExamMaker.Models.ImageDto> Images { get; set; }
 #endif
-        /// <summary>The title property</summary>
+        /// <summary>The stackTrace property</summary>
 #if NETSTANDARD2_1_OR_GREATER || NETCOREAPP3_1_OR_GREATER
 #nullable enable
-        public global::X39.Software.ExamMaker.Models.UpdateValueOfstring? Title { get; set; }
+        public string? StackTrace { get; set; }
 #nullable restore
 #else
-        public global::X39.Software.ExamMaker.Models.UpdateValueOfstring Title { get; set; }
+        public string StackTrace { get; set; }
 #endif
         /// <summary>
-        /// Instantiates a new <see cref="global::X39.Software.ExamMaker.Models.ExamUpdateDto"/> and sets the default values.
+        /// Instantiates a new <see cref="global::X39.Software.ExamMaker.Models.PdfPreviewDto"/> and sets the default values.
         /// </summary>
-        public ExamUpdateDto()
+        public PdfPreviewDto()
         {
             AdditionalData = new Dictionary<string, object>();
         }
         /// <summary>
         /// Creates a new instance of the appropriate class based on discriminator value
         /// </summary>
-        /// <returns>A <see cref="global::X39.Software.ExamMaker.Models.ExamUpdateDto"/></returns>
+        /// <returns>A <see cref="global::X39.Software.ExamMaker.Models.PdfPreviewDto"/></returns>
         /// <param name="parseNode">The parse node to use to read the discriminator value and create the object</param>
-        public static global::X39.Software.ExamMaker.Models.ExamUpdateDto CreateFromDiscriminatorValue(IParseNode parseNode)
+        public static global::X39.Software.ExamMaker.Models.PdfPreviewDto CreateFromDiscriminatorValue(IParseNode parseNode)
         {
             if(ReferenceEquals(parseNode, null)) throw new ArgumentNullException(nameof(parseNode));
-            return new global::X39.Software.ExamMaker.Models.ExamUpdateDto();
+            return new global::X39.Software.ExamMaker.Models.PdfPreviewDto();
         }
         /// <summary>
         /// The deserialization information for the current model
@@ -63,9 +63,9 @@ namespace X39.Software.ExamMaker.Models
         {
             return new Dictionary<string, Action<IParseNode>>
             {
-                { "pdfTemplate", n => { PdfTemplate = n.GetObjectValue<global::X39.Software.ExamMaker.Models.UpdateValueOfstring>(global::X39.Software.ExamMaker.Models.UpdateValueOfstring.CreateFromDiscriminatorValue); } },
-                { "preamble", n => { Preamble = n.GetObjectValue<global::X39.Software.ExamMaker.Models.UpdateValueOfstring>(global::X39.Software.ExamMaker.Models.UpdateValueOfstring.CreateFromDiscriminatorValue); } },
-                { "title", n => { Title = n.GetObjectValue<global::X39.Software.ExamMaker.Models.UpdateValueOfstring>(global::X39.Software.ExamMaker.Models.UpdateValueOfstring.CreateFromDiscriminatorValue); } },
+                { "errorMessage", n => { ErrorMessage = n.GetStringValue(); } },
+                { "images", n => { Images = n.GetCollectionOfObjectValues<global::X39.Software.ExamMaker.Models.ImageDto>(global::X39.Software.ExamMaker.Models.ImageDto.CreateFromDiscriminatorValue)?.AsList(); } },
+                { "stackTrace", n => { StackTrace = n.GetStringValue(); } },
             };
         }
         /// <summary>
@@ -75,9 +75,9 @@ namespace X39.Software.ExamMaker.Models
         public virtual void Serialize(ISerializationWriter writer)
         {
             if(ReferenceEquals(writer, null)) throw new ArgumentNullException(nameof(writer));
-            writer.WriteObjectValue<global::X39.Software.ExamMaker.Models.UpdateValueOfstring>("pdfTemplate", PdfTemplate);
-            writer.WriteObjectValue<global::X39.Software.ExamMaker.Models.UpdateValueOfstring>("preamble", Preamble);
-            writer.WriteObjectValue<global::X39.Software.ExamMaker.Models.UpdateValueOfstring>("title", Title);
+            writer.WriteStringValue("errorMessage", ErrorMessage);
+            writer.WriteCollectionOfObjectValues<global::X39.Software.ExamMaker.Models.ImageDto>("images", Images);
+            writer.WriteStringValue("stackTrace", StackTrace);
             writer.WriteAdditionalData(AdditionalData);
         }
     }

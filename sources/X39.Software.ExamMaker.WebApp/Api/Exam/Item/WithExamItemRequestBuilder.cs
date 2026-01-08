@@ -9,6 +9,8 @@ using System.Threading.Tasks;
 using System.Threading;
 using System;
 using X39.Software.ExamMaker.Exam.Item.Emplace;
+using X39.Software.ExamMaker.Exam.Item.Image;
+using X39.Software.ExamMaker.Exam.Item.Pdf;
 using X39.Software.ExamMaker.Exam.Item.Topic;
 using X39.Software.ExamMaker.Models;
 namespace X39.Software.ExamMaker.Exam.Item
@@ -23,6 +25,16 @@ namespace X39.Software.ExamMaker.Exam.Item
         public global::X39.Software.ExamMaker.Exam.Item.Emplace.EmplaceRequestBuilder Emplace
         {
             get => new global::X39.Software.ExamMaker.Exam.Item.Emplace.EmplaceRequestBuilder(PathParameters, RequestAdapter);
+        }
+        /// <summary>The image property</summary>
+        public global::X39.Software.ExamMaker.Exam.Item.Image.ImageRequestBuilder Image
+        {
+            get => new global::X39.Software.ExamMaker.Exam.Item.Image.ImageRequestBuilder(PathParameters, RequestAdapter);
+        }
+        /// <summary>The pdf property</summary>
+        public global::X39.Software.ExamMaker.Exam.Item.Pdf.PdfRequestBuilder Pdf
+        {
+            get => new global::X39.Software.ExamMaker.Exam.Item.Pdf.PdfRequestBuilder(PathParameters, RequestAdapter);
         }
         /// <summary>The topic property</summary>
         public global::X39.Software.ExamMaker.Exam.Item.Topic.TopicRequestBuilder Topic

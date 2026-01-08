@@ -24,3 +24,24 @@
             }
         });
 }
+
+export function Confirm(message) {
+    return confirm(message);
+}
+
+export function Download(fileName, mimeType, content) {
+    const blob = new Blob([content], {type: mimeType});
+    const url = URL.createObjectURL(blob);
+    const element = document.createElement('a');
+    element.style.display = 'none';
+    document.body.appendChild(element);
+    element.setAttribute('href', url);
+    element.setAttribute('download', fileName);
+    element.click();
+    window.URL.revokeObjectURL(url);
+    element.remove();
+}
+
+export function Click(id) {
+    document.getElementById(id).click();
+}

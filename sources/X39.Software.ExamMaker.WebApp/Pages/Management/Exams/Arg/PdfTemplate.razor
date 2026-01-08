@@ -1,0 +1,170 @@
+﻿@page "/management/exams/{Identifier:guid}/pdf-template"
+@using X39.Software.ExamMaker.WebApp.Services
+@using X39.Software.ExamMaker.WebApp.Services.ExamRepository
+@using X39.Software.ExamMaker.Models
+@inject IExamRepository ExamRepository
+@inject BaseUrl BaseUrl
+@inject IToastService ToastService
+
+<PageTitle>@Localizer[nameof(Language.Pages_Management_Exams_Arg_PdfTemplate_Title)]</PageTitle>
+
+<NavigationLock ConfirmExternalNavigation="@_isDirty" OnBeforeInternalNavigation="OnBeforeInternalNavigation"/>
+
+<FluentGrid Spacing="3" Class="w-100p h-100p" Style="overflow: hidden;">
+    @if (_preview is not null && !string.IsNullOrEmpty(_preview.ErrorMessage))
+    {
+        <FluentGridItem xs="12" sm="12">
+            <FluentMessageBar
+                Title="@Localizer[nameof(Language.Pages_Management_Exams_Arg_PdfTemplate_Error_Header)]"
+                Intent="MessageIntent.Error" AllowDismiss="true">
+                <pre style="white-space: pre-wrap; word-break: break-all;">@_preview.ErrorMessage</pre>
+                @if (!string.IsNullOrEmpty(_preview.StackTrace))
+                {
+                    <details>
+                        <summary>@Localizer[nameof(Language.Pages_Management_Exams_Arg_PdfTemplate_StackTrace)]</summary>
+                        <pre
+                            style="white-space: pre-wrap; word-break: break-all; font-size: 0.8em;">@_preview.StackTrace</pre>
+                    </details>
+                }
+            </FluentMessageBar>
+        </FluentGridItem>
+    }
+    <FluentGridItem xs="12" sm="6" Class="h-100p">
+        <FluentCard Class="h-100p">
+            <FluentStack Orientation="Orientation.Vertical" Class="h-100p" Style="gap: 10px;">
+                <h3>@Localizer[nameof(Language.Pages_Management_Exams_Arg_PdfTemplate_Editor_Label)]</h3>
+                <FluentTextArea
+                    @bind-Value="_pdfTemplate"
+                    @bind-Value:after="OnTemplateChanged"
+                    Placeholder="@Localizer[nameof(Language.Pages_Management_Exams_Arg_PdfTemplate_Editor_Placeholder)]"
+                    Class="w-100p flex-grow-1"
+                    Resize="TextAreaResize.Vertical"/>
+                <FluentStack Orientation="Orientation.Horizontal" Style="gap: 10px;">
+                    <FluentButton Appearance="Appearance.Accent" OnClick="SaveAsync" Loading="_isSaving"
+                                  Disabled="_isSaving">
+                        @Localizer[nameof(Language.Pages_Management_Exams_Arg_PdfTemplate_Button_Save)]
+                    </FluentButton>
+                    <FluentButton Appearance="Appearance.Neutral" OnClick="PreviewAsync" Loading="_isPreviewing"
+                                  Disabled="_isPreviewing">
+                        @Localizer[nameof(Language.Pages_Management_Exams_Arg_PdfTemplate_Button_Preview)]
+                    </FluentButton>
+                </FluentStack>
+            </FluentStack>
+        </FluentCard>
+    </FluentGridItem>
+
+    <FluentGridItem xs="12" sm="6" Class="h-100p">
+        <FluentCard Class="h-100p">
+            <FluentStack Orientation="Orientation.Vertical" Class="h-100p" Style="gap: 10px;">
+                <h3>@Localizer[nameof(Language.Pages_Management_Exams_Arg_PdfTemplate_Preview_Header)]</h3>
+                <div class="w-100p flex-grow-1" style="overflow-y: auto;">
+                    @if (_isPreviewing)
+                    {
+                        <FluentProgressRing/>
+                    }
+                    else if (_preview is not null)
+                    {
+                        @if (_preview.Images is { Count: > 0 })
+                        {
+                            <FluentStack Orientation="Orientation.Vertical" Style="gap: 10px;">
+                                @foreach (var image in _preview.Images)
+                                {
+                                    if (image.Data.IsNullOrWhiteSpace())
+                                        continue;
+                                    <img src="@($"data:{image.MimeType};base64,{image.Data}")"
+                                         alt="@image.FileName" class="w-100p" style="border: 1px solid #ccc;"/>
+                                    
+                                }
+                            </FluentStack>
+                        }
+                    }
+                    else
+                    {
+                        <p>@Localizer[nameof(Language.Pages_Management_Exams_Arg_PdfTemplate_NoPreview)]</p>
+                    }
+                </div>
+            </FluentStack>
+        </FluentCard>
+    </FluentGridItem>
+</FluentGrid>
+
+@code {
+
+    [Parameter]
+    public Guid Identifier { get; set; }
+
+    [Inject]
+    private NavigationManager NavigationManager { get; set; } = default!;
+
+    private ExamListingDto? _exam;
+    private string?         _pdfTemplate;
+    private string?         _originalPdfTemplate;
+    private PdfPreviewDto?  _preview;
+    private bool            _isSaving;
+    private bool            _isPreviewing;
+    private bool _isDirty => _pdfTemplate != _originalPdfTemplate;
+
+    protected override async Task OnInitializedAsync()
+    {
+        _exam                = await ExamRepository.GetAsync(Identifier);
+        _pdfTemplate         = _exam.PdfTemplate ?? string.Empty;
+        _originalPdfTemplate = _pdfTemplate;
+    }
+
+    private void OnTemplateChanged()
+    {
+        StateHasChanged();
+    }
+
+    private async Task SaveAsync()
+    {
+        _isSaving = true;
+        try
+        {
+            await ExamRepository.UpdateAsync(Identifier, null, null, _pdfTemplate);
+            _originalPdfTemplate = _pdfTemplate;
+            ToastService.ShowSuccess(Localizer[nameof(Language.Pages_Management_Exams_Arg_PdfTemplate_Toast_SaveSuccess)]);
+        }
+        catch (Exception ex)
+        {
+            ToastService.ShowError(string.Format(Localizer[nameof(Language.Pages_Management_Exams_Arg_PdfTemplate_Toast_SaveError)], ex.Message));
+        }
+        finally
+        {
+            _isSaving = false;
+        }
+    }
+
+    private async Task PreviewAsync()
+    {
+        _isPreviewing = true;
+        try
+        {
+            _preview = await ExamRepository.GetPdfPreviewAsync(Identifier, _pdfTemplate);
+        }
+        catch (Exception ex)
+        {
+            _preview = new PdfPreviewDto { ErrorMessage = ex.Message, StackTrace = ex.StackTrace };
+        }
+        finally
+        {
+            _isPreviewing = false;
+        }
+    }
+
+    private async Task OnBeforeInternalNavigation(LocationChangingContext context)
+    {
+        if (_isDirty)
+        {
+            var isConfirmed = await JsUtil.Confirm(Localizer[nameof(Language.Pages_Management_Exams_Arg_PdfTemplate_UnsavedChanges_Warning)]);
+            if (!isConfirmed)
+            {
+                context.PreventNavigation();
+            }
+        }
+    }
+
+    [Inject]
+    private JsUtil JsUtil { get; set; } = default!;
+
+}

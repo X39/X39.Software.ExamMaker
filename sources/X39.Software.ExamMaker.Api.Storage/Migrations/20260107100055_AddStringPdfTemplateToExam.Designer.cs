@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using NodaTime;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
@@ -9,12 +10,14 @@ using X39.Software.ExamMaker.Api.Storage.Exam;
 
 #nullable disable
 
-namespace X39.Software.ExamMaker.Api.Storage.Exam.Migrations
+namespace X39.Software.ExamMaker.Api.Storage.Migrations
 {
     [DbContext(typeof(ExamDbContext))]
-    partial class ExamDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260107100055_AddStringPdfTemplateToExam")]
+    partial class AddStringPdfTemplateToExam
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder

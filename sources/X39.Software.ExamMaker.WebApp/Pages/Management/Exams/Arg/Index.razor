@@ -5,12 +5,16 @@
 @using X39.Software.ExamMaker.WebApp.Services.ExamRepository
 @using X39.Software.ExamMaker.WebApp.Services.ExamTopicRepository
 @using X39.Software.ExamMaker.Models
+@using Microsoft.AspNetCore.Components.Sections
+@using X39.Software.ExamMaker.WebApp.Models
 @inject NavigationManager NavigationManager
 @inject BaseUrl BaseUrl
 @inject IExamRepository ExamRepository
 @inject IExamTopicRepository ExamTopicRepository
 @inject IExamQuestionRepository ExamQuestionRepository
 @inject IExamAnswerRepository ExamAnswerRepository
+@inject CsvService CsvService
+@inject JsUtil JsUtil
 @if (_examViewModel is null)
 {
     <FluentProgressRing/>
@@ -21,18 +25,30 @@ else
     <FluentStack Orientation="Orientation.Vertical" Style="gap: 20px; padding: 20px;">
         <FluentCard>
             <FluentStack Orientation="Orientation.Vertical" Style="gap: 15px;">
-                <FluentTextField
-                    Placeholder="@Localizer[nameof(Language.Pages_Management_Exams_Arg_Placeholder_ExamTitle)]"
-                    Label="@Localizer[nameof(Language.Pages_Management_Exams_Arg_Label_ExamTitle)]"
-                    @bind-Value="@_examViewModel.Title"
-                    Style="width: 100%;"
-                />
+                <FluentStack Orientation="Orientation.Horizontal" VerticalAlignment="VerticalAlignment.Center">
+                    <FluentTextField
+                        Placeholder="@Localizer[nameof(Language.Pages_Management_Exams_Arg_Placeholder_ExamTitle)]"
+                        Label="@Localizer[nameof(Language.Pages_Management_Exams_Arg_Label_ExamTitle)]"
+                        @bind-Value="@_examViewModel.Title"
+                        Class="w-100p"
+                    />
+                    <FluentButton
+                        Appearance="Appearance.Accent"
+                        OnClick="@(() => NavigationManager.NavigateTo(BaseUrl.ResolveSelfUrl($"/management/exams/{Identifier}/pdf-template")))">
+                        @Localizer[nameof(Language.Pages_Management_Exams_Arg_Button_EditPdfTemplate)]
+                    </FluentButton>
+                    <FluentButton
+                        Appearance="Appearance.Neutral"
+                        OnClick="@ExportToCsvAsync">
+                        @Localizer[nameof(Language.Pages_Management_Exams_All_Index_GridOperation_ExportToCsv)]
+                    </FluentButton>
+                </FluentStack>
                 <FluentTextArea
                     Placeholder="@Localizer[nameof(Language.Pages_Management_Exams_Arg_Placeholder_ExamPreamble)]"
                     Label="@Localizer[nameof(Language.Pages_Management_Exams_Arg_Label_ExamPreamble)]"
                     @bind-Value="@_examViewModel.Preamble"
                     Rows="5"
-                    Style="width: 100%;"
+                    Class="w-100p"
                 />
             </FluentStack>
         </FluentCard>
@@ -40,7 +56,7 @@ else
         <FluentCard>
             <FluentStack Orientation="Orientation.Vertical" Style="gap: 10px;">
                 <FluentStack Orientation="Orientation.Horizontal" VerticalAlignment="VerticalAlignment.Center">
-                    <h3 style="margin: 0; flex: 1;">Topics</h3>
+                    <h3 style="margin: 0;" class="flex-grow-1">Topics</h3>
                     <FluentButton
                         Appearance="Appearance.Accent"
                         OnClick="@(() => _examViewModel.AddTopicAsync())"
@@ -55,8 +71,8 @@ else
                         <FluentAccordionItem @key="topic.Identifier">
                             <HeadingTemplate>
                                 <FluentStack Orientation="Orientation.Horizontal"
-                                             VerticalAlignment="VerticalAlignment.Center" Style="width: 100%;">
-                                    <span style="flex: 1;">@topic.Title</span>
+                                             VerticalAlignment="VerticalAlignment.Center" class="w-100p">
+                                    <span class="flex-grow-1">@topic.Title</span>
                                 </FluentStack>
                             </HeadingTemplate>
                             <ChildContent>
@@ -71,19 +87,19 @@ else
                                     <FluentTextField
                                         Label="@Localizer[nameof(Language.Pages_Management_Exams_Arg_Label_TopicTitle)]"
                                         @bind-Value="@topic.Title"
-                                        Style="width: 100%;"
+                                        Class="w-100p"
                                     />
                                     <FluentNumberField
                                         Label="@Localizer[nameof(Language.Pages_Management_Exams_Arg_Label_QuestionAmountToTake)]"
                                         @bind-Value="@topic.QuestionAmountToTake"
-                                        Style="width: 100%;"
+                                        Class="w-100p"
                                     />
 
                                     <FluentDivider/>
 
                                     <FluentStack Orientation="Orientation.Horizontal"
                                                  VerticalAlignment="VerticalAlignment.Center">
-                                        <h4 style="margin: 0; flex: 1;">Questions</h4>
+                                        <h4 style="margin: 0;" class="flex-grow-1">Questions</h4>
                                         <FluentButton
                                             Appearance="Appearance.Accent"
                                             OnClick="@(() => topic.AddQuestionAsync())"
@@ -99,8 +115,8 @@ else
                                                 <HeadingTemplate>
                                                     <FluentStack Orientation="Orientation.Horizontal"
                                                                  VerticalAlignment="VerticalAlignment.Center"
-                                                                 Style="width: 100%;">
-                                                        <span style="flex: 1;">@question.Title</span>
+                                                                 class="w-100p">
+                                                        <span class="flex-grow-1">@question.Title</span>
                                                     </FluentStack>
                                                 </HeadingTemplate>
                                                 <ChildContent>
@@ -116,25 +132,25 @@ else
                                                         <FluentTextField
                                                             Label="@Localizer[nameof(Language.Pages_Management_Exams_Arg_Label_QuestionTitle)]"
                                                             @bind-Value="@question.Title"
-                                                            Style="width: 100%;"
+                                                            Class="w-100p"
                                                         />
                                                         @* ToDo: Handle Free-Form and Multiple-Choice questions visually in DOM *@
                                                         <FluentNumberField
                                                             Label="@Localizer[nameof(Language.Pages_Management_Exams_Arg_Label_CorrectAnswersToTake)]"
                                                             @bind-Value="@question.CorrectAnswersToTake"
-                                                            Style="width: 100%;"
+                                                            Class="w-100p"
                                                         />
                                                         <FluentNumberField
                                                             Label="@Localizer[nameof(Language.Pages_Management_Exams_Arg_Label_IncorrectAnswersToTake)]"
                                                             @bind-Value="@question.IncorrectAnswersToTake"
-                                                            Style="width: 100%;"
+                                                            Class="w-100p"
                                                         />
 
                                                         <FluentDivider/>
 
                                                         <FluentStack Orientation="Orientation.Horizontal"
                                                                      VerticalAlignment="VerticalAlignment.Center">
-                                                            <h5 style="margin: 0; flex: 1;">Answers</h5>
+                                                            <h5 style="margin: 0;" class="flex-grow-1">Answers</h5>
                                                             <FluentButton
                                                                 Appearance="Appearance.Accent"
                                                                 OnClick="@(() => question.AddAnswerAsync())"
@@ -150,7 +166,7 @@ else
                                                                         <FluentStack
                                                                             Orientation="Orientation.Horizontal"
                                                                             VerticalAlignment="VerticalAlignment.Center"
-                                                                            Style="width: 100%;">
+                                                                            class="w-100p">
                                                                             @if (answer.IsCorrect)
                                                                             {
                                                                                 <FluentIcon Value="@(new Icons.Regular.Size20.Checkmark())" Color="@Color.Success" />
@@ -159,7 +175,7 @@ else
                                                                             {
                                                                                 <FluentIcon Value="@(new Icons.Regular.Size20.Dismiss())" Color="@Color.Error" />
                                                                             }
-                                                                            <span style="flex: 1;">@answer.Answer</span>
+                                                                            <span class="flex-grow-1">@answer.Answer</span>
                                                                         </FluentStack>
                                                                     </HeadingTemplate>
                                                                     <ChildContent>
@@ -179,13 +195,13 @@ else
                                                                             <FluentTextField
                                                                                 Label="@Localizer[nameof(Language.Pages_Management_Exams_Arg_Label_Answer)]"
                                                                                 @bind-Value="@answer.Answer"
-                                                                                Style="width: 100%;"
+                                                                                Class="w-100p"
                                                                             />
                                                                             <FluentTextArea
                                                                                 Label="@Localizer[nameof(Language.Pages_Management_Exams_Arg_Label_AnswerReason)]"
                                                                                 @bind-Value="@answer.Reason"
                                                                                 Rows="3"
-                                                                                Style="width: 100%;"
+                                                                                Class="w-100p"
                                                                             />
                                                                         </FluentStack>
 
@@ -224,4 +240,10 @@ else
         _examViewModel = viewModel;
     }
 
+    private async Task ExportToCsvAsync()
+    {
+        if (_examViewModel is null) return;
+        var csvContent = await CsvService.ExportAsync(_examViewModel.Identifier);
+        await JsUtil.DownloadAsync($"{_examViewModel.Title}.csv", "text/csv", csvContent);
+    }
 }

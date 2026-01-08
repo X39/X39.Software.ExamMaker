@@ -1,4 +1,6 @@
 ﻿@page "/management/exams"
+@using System.Text
+@using System.IO
 @using Microsoft.AspNetCore.Components.Sections
 @using X39.Software.ExamMaker.Models
 @using X39.Software.ExamMaker.WebApp.Services
@@ -6,6 +8,7 @@
 @inject NavigationManager NavigationManager
 @inject BaseUrl BaseUrl
 @inject IExamRepository ExamRepository
+@inject CsvService CsvService
 @inject JsUtil JsUtil
 @inject JwtAuthenticationStateProvider JwtAuthenticationStateProvider
 
@@ -14,10 +17,19 @@
         <FluentButton Appearance="Appearance.Accent" onclick="@(async () => await CreateAndOpenExamAsync())">
             @Localizer[nameof(Language.Pages_Management_Exams_All_Index_ToolBar_CreateAndOpenNewExam)]
         </FluentButton>
+        <FluentInputFile Id="csv-import"
+                         Multiple="false"
+                         MaximumFileCount="1"
+                         Accept=".csv"
+                         OnCompleted="@OnImportCsvCompletedAsync"
+                         Style="display: none;"/>
+        <FluentButton Appearance="Appearance.Neutral" OnClick="@(() => JsUtil.ClickAsync("csv-import"))">
+            @Localizer[nameof(Language.Pages_Management_Exams_All_Index_ToolBar_ImportFromCsv)]
+        </FluentButton>
     </FluentToolbar>
 </SectionContent>
 
-<FluentDataGrid TGridItem="ExamListingDto" ItemsProvider="ProvideItemsAsync" ItemSize="45">
+<FluentDataGrid TGridItem="ExamListingDto" ItemsProvider="ProvideItemsAsync" RowSize="DataGridRowSize.Large" ItemSize="45">
     <PropertyColumn Title="@Localizer[nameof(Language.Pages_Management_Exams_All_Index_GridHeaders_CreatedAt)]"
                     Property="@(e => e.CreatedAt)"
                     Sortable="false"/>
@@ -33,6 +45,9 @@
         </FluentButton>
         <FluentButton Appearance="Appearance.Accent" OnClick="@(() => DownloadExamPdfAsync(context))">
             @Localizer[nameof(Language.Pages_Management_Exams_All_Index_GridOperation_DownloadAsPdf)]
+        </FluentButton>
+        <FluentButton Appearance="Appearance.Accent" OnClick="@(() => ExportToCsvAsync(context))">
+            @Localizer[nameof(Language.Pages_Management_Exams_All_Index_GridOperation_ExportToCsv)]
         </FluentButton>
     </TemplateColumn>
 </FluentDataGrid>
@@ -64,7 +79,7 @@
     {
         // ToDo: Improve user experience, using toasts during and after creation and on error + busy hints
         var guid = Guid.NewGuid();
-        await ExamRepository.UpdateAsync(guid, string.Empty, string.Empty);
+        await ExamRepository.UpdateAsync(guid, string.Empty, string.Empty, string.Empty);
         OpenExamAsync(guid);
     }
 
@@ -78,4 +93,23 @@
         await JsUtil.ApiDownload(url, $"{exam.Title}.pdf", token);
     }
 
+    private async Task OnImportCsvCompletedAsync(IEnumerable<FluentInputFileEventArgs> files)
+    {
+        var file = files.FirstOrDefault();
+        if (file is null) return;
+
+        if (file.Stream is not null)
+        {
+            using var reader = new StreamReader(file.Stream);
+            var content = await reader.ReadToEndAsync();
+            await CsvService.ImportAsync(content);
+            _totalItemCount = null; // Reset to refresh grid
+        }
+    }
+
+    private async Task ExportToCsvAsync(ExamListingDto exam)
+    {
+        var csvContent = await CsvService.ExportAsync(exam.Identifier!.Value);
+        await JsUtil.DownloadAsync($"{exam.Title}.csv", "text/csv", csvContent);
+    }
 }

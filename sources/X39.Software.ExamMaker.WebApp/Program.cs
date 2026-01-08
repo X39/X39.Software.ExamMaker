@@ -49,6 +49,7 @@ public static class Program
         builder.Services.AddScoped<IExamRepository, ExamRepository>();
         builder.Services.AddScoped<IExamTopicRepository, ExamTopicRepository>();
         builder.Services.AddScoped<IUserRepository, UserRepository>();
+        builder.Services.AddScoped<CsvService>();
 
 
         await builder.Build()

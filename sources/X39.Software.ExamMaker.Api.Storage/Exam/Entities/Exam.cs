@@ -19,6 +19,10 @@ public sealed partial class Exam
     [MaxLength(255)]
     public partial string Title { get; set; }
 
+    [DefaultValue<string>("<template><body></body></template>")]
+    [MaxLength(1 /* byte */ * 1024 /* kibi */ * 1024 /* mibi */ - 1)]
+    public partial string PdfTemplate { get; set; }
+
     public partial Guid Identifier { get; set; }
 
     [DefaultValue<string>("")]
