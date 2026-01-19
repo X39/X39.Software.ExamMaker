@@ -1,6 +1,7 @@
 using X39.Software.ExamMaker.AppHost;
 
 var builder = DistributedApplication.CreateBuilder(args);
+builder.AddDockerComposeEnvironment("branch-environment");
 
 var db = builder.AddPostgres("pgsql")
     .WithDataVolume();
